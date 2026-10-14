@@ -20,6 +20,14 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Database
+
+This project uses Prisma ORM with Neon PostgreSQL. Create a Neon database, copy `.env.example` to `.env`, and replace the sample values with the connection strings from Neon. Use the pooled connection string for `DATABASE_URL` and the direct connection string for `DIRECT_URL`.
+
+Use `pnpm db:push` while prototyping the schema. For tracked schema changes, use `pnpm db:migrate` during development and `pnpm db:deploy` in production; do not run the development migration command in production. Run `pnpm db:generate` after changing the schema to regenerate Prisma Client. Import the shared server-side client from `@/lib/prisma`.
+
+Run `pnpm test` for Vitest and `pnpm typecheck` for TypeScript checks. Add `prisma/seed.ts` and its Prisma config entry when the schema has seedable models.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
