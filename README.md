@@ -14,31 +14,28 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+This project uses `next/font` to optimize and load Geist.
 
 ## Database
 
-This project uses Prisma ORM with Neon PostgreSQL. Create a Neon database, copy `.env.example` to `.env`, and replace the sample values with the connection strings from Neon. Use the pooled connection string for `DATABASE_URL` and the direct connection string for `DIRECT_URL`.
+This project uses Prisma ORM with Neon PostgreSQL. Copy `.env.example` to `.env.local` and configure the pooled Neon connection string as `DATABASE_URL` and the direct connection string as `DIRECT_URL`. Set `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD`, and `WHATSAPP_NUMBER` as well.
 
-Use `pnpm db:push` while prototyping the schema. For tracked schema changes, use `pnpm db:migrate` during development and `pnpm db:deploy` in production; do not run the development migration command in production. Run `pnpm db:generate` after changing the schema to regenerate Prisma Client. Import the shared server-side client from `@/lib/prisma`.
+Use `npm run db:migrate -- --name init` to create and apply a development migration, `npm run db:deploy` to apply migrations in production, `npm run db:seed` to create the initial data, and `npm run db:studio` to browse the database. Do not run the development migration command in production. The shared server-side Prisma client is available from `@/lib/db`.
 
-Run `pnpm test` for Vitest and `pnpm typecheck` for TypeScript checks. Add `prisma/seed.ts` and its Prisma config entry when the schema has seedable models.
+Run `npm run db:generate` after changing the schema to regenerate Prisma Client. The seed script stores the admin password as a bcrypt hash, never as plaintext.
+
+Run `npm test` for Vitest, `npm run typecheck` for TypeScript checks, and `npm run lint` for ESLint.
 
 ## Learn More
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+To learn more about Next.js, take a look at the [Next.js documentation](https://nextjs.org/docs).
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The easiest way to deploy this app is through the [Vercel Platform](https://vercel.com/new).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+See the [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

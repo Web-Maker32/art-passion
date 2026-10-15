@@ -11,3 +11,146 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum Role {
+  ADMIN
+  CUSTOMER
+}
+
+enum ProductType {
+  KIT
+  FELT_SET
+  GIFT_SET
+  HANDMADE
+  SUPPLY
+}
+
+enum ProductStatus {
+  DRAFT
+  PUBLISHED
+  HIDDEN
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+model User {
+  id           String  @id @default(cuid())
+  email        String  @unique
+  passwordHash String
+  name         String
+  role         Role    @default(CUSTOMER)
+  cart         Cart?
+  orders       Order[]
+}
+
+model Category {
+  id       String    @id @default(cuid())
+  name     String
+  slug     String    @unique
+  products Product[]
+}
+
+model Product {
+  id            String        @id @default(cuid())
+  categoryId    String
+  title         String
+  slug          String        @unique
+  description   String
+  type          ProductType
+  materials     String[]
+  tags          String[]
+  madeToOrder   Boolean       @default(false)
+  leadTimeDays  Int
+  status        ProductStatus @default(DRAFT)
+  category      Category      @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  images        ProductImage[]
+  variants      Variant[]
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  productId String
+  url       String
+  alt       String
+  position  Int
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model Variant {
+  id        String     @id @default(cuid())
+  productId String
+  sku       String     @unique
+  label     String
+  price     Int
+  stock     Int
+  product   Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  cartItems CartItem[]
+}
+
+model Cart {
+  id     String     @id @default(cuid())
+  token  String?    @unique
+  userId String?    @unique
+  user   User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items  CartItem[]
+}
+
+model CartItem {
+  id        String  @id @default(cuid())
+  cartId    String
+  variantId String
+  quantity  Int
+  cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  variant   Variant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  @@unique([cartId, variantId])
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  orderNumber     String      @unique
+  status          OrderStatus @default(PENDING)
+  subtotal        Int
+  shipping        Int
+  total           Int
+  customerName    String
+  customerEmail   String
+  customerPhone   String
+  addressLine1    String
+  addressLine2    String?
+  city            String
+  province        String
+  postalCode      String
+  country         String
+  giftNote        String?
+  trackingNumber  String?
+  userId          String?
+  user            User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  items           OrderItem[]
+
+  @@index([status])
+}
+
+model OrderItem {
+  id            String @id @default(cuid())
+  orderId       String
+  productTitle  String
+  variantLabel  String
+  unitPrice     Int
+  quantity      Int
+  order         Order  @relation(fields: [orderId], references: [id], onDelete: Restrict)
+}
+
+model PaymentEvent {
+  id              String   @id @default(cuid())
+  providerEventId String   @unique
+  type            String
+  processedAt     DateTime
+}

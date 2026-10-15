@@ -12,11 +12,11 @@ if (!connectionString) {
 const adapter = new PrismaNeon({ connectionString });
 
 declare global {
-  var prisma: PrismaClient | undefined;
+  var dbClient: PrismaClient | undefined;
 }
 
-export const prisma = globalThis.prisma ?? new PrismaClient({ adapter });
+export const prisma = globalThis.dbClient ?? new PrismaClient({ adapter });
 
 if (process.env.NODE_ENV !== "production") {
-  globalThis.prisma = prisma;
+  globalThis.dbClient = prisma;
 }

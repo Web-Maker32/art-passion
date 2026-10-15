@@ -23,6 +23,17 @@
   --color-chart-3: var(--chart-3);
   --color-chart-2: var(--chart-2);
   --color-chart-1: var(--chart-1);
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-primary-hover: var(--primary-hover);
+  --color-gold: var(--gold);
+  --color-gold-light: var(--gold-light);
+  --color-gold-text: var(--gold-text);
+  --color-silver: var(--silver);
+  --color-silver-strong: var(--silver-strong);
+  --color-blush: var(--blush);
+  --color-orchid: var(--orchid);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -49,72 +60,109 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0 0 0);
+  --brand: oklch(0.372 0.058 189.9);
+  --brand-hover: oklch(0.300 0.046 190.5);
+  --brand-foreground: oklch(0.967 0.016 91.6);
+  --primary-hover: var(--brand-hover);
+  --gold: oklch(0.731 0.115 85);
+  --gold-light: oklch(0.841 0.108 90.1);
+  --gold-text: oklch(0.550 0.101 81.8);
+  --silver: oklch(0.882 0.009 264.5);
+  --silver-strong: oklch(0.845 0.010 267.3);
+  --blush: oklch(0.573 0.176 354.2);
+  --orchid: oklch(0.487 0.157 310.4);
+  --background: oklch(0.980 0.010 87.5);
+  --foreground: oklch(0.275 0.015 196.3);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  --card-foreground: oklch(0.275 0.015 196.3);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.275 0.015 196.3);
+  --primary: var(--brand);
+  --primary-foreground: var(--brand-foreground);
+  --secondary: oklch(0.949 0.011 89.7);
+  --secondary-foreground: oklch(0.275 0.015 196.3);
+  --muted: oklch(0.949 0.011 89.7);
+  --muted-foreground: oklch(0.275 0.015 196.3);
+  --accent: var(--gold-light);
+  --accent-foreground: oklch(0.284 0.038 189.8);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
+  --border: var(--silver);
+  --input: var(--silver-strong);
+  --ring: var(--gold);
+  --chart-1: var(--brand);
+  --chart-2: var(--gold);
+  --chart-3: var(--blush);
+  --chart-4: var(--orchid);
+  --chart-5: var(--silver-strong);
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar: oklch(0.949 0.011 89.7);
+  --sidebar-foreground: oklch(0.275 0.015 196.3);
+  --sidebar-primary: var(--brand);
+  --sidebar-primary-foreground: var(--brand-foreground);
+  --sidebar-accent: var(--gold-light);
+  --sidebar-accent-foreground: oklch(0.284 0.038 189.8);
+  --sidebar-border: var(--silver);
+  --sidebar-ring: var(--gold);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  --brand: oklch(0.372 0.058 189.9);
+  --brand-hover: oklch(0.300 0.046 190.5);
+  --brand-foreground: oklch(0.967 0.016 91.6);
+  --primary-hover: var(--gold);
+  --gold: oklch(0.731 0.115 85);
+  --gold-light: oklch(0.841 0.108 90.1);
+  --gold-text: oklch(0.550 0.101 81.8);
+  --silver: oklch(0.882 0.009 264.5);
+  --silver-strong: oklch(0.845 0.010 267.3);
+  --blush: oklch(0.573 0.176 354.2);
+  --orchid: oklch(0.487 0.157 310.4);
+  --background: oklch(0.243 0.033 188.6);
+  --foreground: oklch(0.967 0.016 91.6);
+  --card: oklch(0.284 0.038 189.8);
+  --card-foreground: oklch(0.967 0.016 91.6);
+  --popover: oklch(0.284 0.038 189.8);
+  --popover-foreground: oklch(0.967 0.016 91.6);
+  --primary: var(--gold-light);
+  --primary-foreground: oklch(0.284 0.038 189.8);
+  --secondary: oklch(0.329 0.047 186.6);
+  --secondary-foreground: oklch(0.967 0.016 91.6);
+  --muted: oklch(0.329 0.047 186.6);
+  --muted-foreground: oklch(0.967 0.016 91.6);
+  --accent: var(--gold);
+  --accent-foreground: oklch(0.284 0.038 189.8);
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --border: var(--silver);
+  --input: var(--silver-strong);
+  --ring: var(--gold-light);
+  --chart-1: var(--gold-light);
+  --chart-2: var(--blush);
+  --chart-3: var(--orchid);
+  --chart-4: var(--silver);
+  --chart-5: var(--gold);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.284 0.038 189.8);
+  --sidebar-foreground: oklch(0.967 0.016 91.6);
+  --sidebar-primary: var(--gold-light);
+  --sidebar-primary-foreground: oklch(0.284 0.038 189.8);
+  --sidebar-accent: var(--gold);
+  --sidebar-accent-foreground: oklch(0.284 0.038 189.8);
+  --sidebar-border: var(--silver);
+  --sidebar-ring: var(--gold-light);
+}
+
+@utility bg-brand-header {
+  background-color: var(--brand);
+  color: var(--brand-foreground);
+}
+
+@utility bg-gold-teal-gradient {
+  background-image: linear-gradient(
+    120deg,
+    var(--gold-text) 0%,
+    var(--brand) 100%
+  );
+  color: var(--brand-foreground);
 }
 
 @layer base {
