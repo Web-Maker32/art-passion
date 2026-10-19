@@ -2,6 +2,8 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+@source inline("duration-interaction ease-interaction shadow-card shadow-card-hover lift lift-sm press image-zoom");
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -26,6 +28,7 @@
   --color-brand: var(--brand);
   --color-brand-deep: var(--brand-deep);
   --color-brand-gold: var(--brand-gold);
+  --color-focus-ring: var(--focus-ring);
   --color-header-teal: var(--header-teal);
   --color-brand-hover: var(--brand-hover);
   --color-brand-foreground: var(--brand-foreground);
@@ -62,11 +65,17 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+  --duration-interaction: var(--motion-duration);
+  --ease-interaction: var(--motion-easing);
+  --shadow-card: var(--card-shadow);
+  --shadow-card-hover: var(--card-shadow-hover);
 }
 
 :root {
   --brand-deep: #0A3533;
   --brand-gold: #E6C875;
+  --motion-duration: 200ms;
+  --motion-easing: cubic-bezier(0.22, 1, 0.36, 1);
   --header-teal: var(--brand-deep);
   --brand: oklch(0.372 0.058 189.9);
   --brand-hover: oklch(0.3 0.046 190.5);
@@ -75,6 +84,11 @@
   --gold: oklch(0.731 0.115 85);
   --gold-light: oklch(0.841 0.108 90.1);
   --gold-text: oklch(0.55 0.101 81.8);
+  --focus-ring: var(--gold-text);
+  --card-shadow: 0 2px 8px color-mix(in oklch, var(--brand-deep) 12%, transparent);
+  --card-shadow-hover:
+    0 12px 24px color-mix(in oklch, var(--brand-deep) 20%, transparent),
+    0 2px 8px color-mix(in oklch, var(--brand-gold) 18%, transparent);
   --brand-gradient-gold: var(--gold-text);
   --silver: oklch(0.882 0.009 264.5);
   --silver-strong: oklch(0.845 0.01 267.3);
@@ -115,6 +129,7 @@
 }
 
 .dark {
+  --focus-ring: var(--gold-light);
   --header-teal: var(--brand-deep);
   --brand: oklch(0.372 0.058 189.9);
   --brand-hover: oklch(0.3 0.046 190.5);
@@ -185,6 +200,123 @@
     ),
     linear-gradient(115deg, oklch(0.27 0.045 190) 0%, var(--brand) 100%);
   color: var(--brand-foreground);
+}
+
+@utility lift {
+  transition-property:
+    transform, box-shadow, color, background-color, border-color;
+  transition-duration: var(--motion-duration);
+  transition-timing-function: var(--motion-easing);
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--card-shadow-hover);
+    }
+  }
+
+  @media (hover: none), (pointer: coarse) {
+    &:active {
+      transform: translateY(0);
+      box-shadow:
+        inset 0 0 0 100vmax
+        color-mix(in oklch, var(--brand-deep) 12%, transparent);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transform: none;
+    transition-property: color, background-color, border-color;
+  }
+}
+
+@utility lift-sm {
+  transition-property:
+    transform, box-shadow, color, background-color, border-color;
+  transition-duration: var(--motion-duration);
+  transition-timing-function: var(--motion-easing);
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--card-shadow-hover);
+    }
+  }
+
+  @media (hover: none), (pointer: coarse) {
+    &:active {
+      transform: translateY(0);
+      box-shadow:
+        inset 0 0 0 100vmax
+        color-mix(in oklch, var(--brand-deep) 12%, transparent);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transform: none;
+    transition-property: color, background-color, border-color;
+  }
+}
+
+@utility press {
+  transition-property:
+    transform, box-shadow, color, background-color, border-color;
+  transition-duration: var(--motion-duration);
+  transition-timing-function: var(--motion-easing);
+
+  &:active {
+    transform: translateY(0);
+    box-shadow:
+      inset 0 0 0 100vmax
+      color-mix(in oklch, var(--brand-deep) 12%, transparent);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transform: none;
+    transition-property: color, background-color, border-color;
+  }
+}
+
+@utility image-zoom {
+  transition: transform var(--motion-duration) var(--motion-easing);
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+
+  @media (hover: none), (pointer: coarse) {
+    &:active {
+      transform: scale(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transform: none;
+    transition-property: color, background-color, border-color;
+  }
+}
+
+:where(
+  a[href],
+  button,
+  input:not([type="hidden"]),
+  select,
+  textarea,
+  [role="button"],
+  [role="link"],
+  [role="tab"],
+  [role="checkbox"],
+  [role="radio"],
+  [role="switch"],
+  [role="combobox"],
+  [role="menuitem"],
+  [tabindex]:not([tabindex="-1"])
+):focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  box-shadow: none;
 }
 
 @layer base {

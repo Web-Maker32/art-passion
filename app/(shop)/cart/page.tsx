@@ -44,6 +44,7 @@ export default async function CartPage() {
           </p>
           <Button
             className="mt-6 min-h-11"
+            nativeButton={false}
             render={<Link href="/products" />}
           >
             Continue shopping
