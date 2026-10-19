@@ -15,7 +15,7 @@ const productCardSelect = {
   category: { select: { name: true, slug: true } },
   images: {
     orderBy: { position: "asc" },
-    take: 1,
+    take: 2,
     select: { url: true, alt: true },
   },
   variants: {

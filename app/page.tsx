@@ -81,11 +81,11 @@ export default async function Home() {
             headingId="categories-heading"
             title="Find your kind of handmade"
           />
-          <ul className="grid gap-4 sm:grid-cols-3">
+          <ul className="grid gap-4 p-2 sm:grid-cols-3">
             {categories.map((category, index) => (
               <li key={category.id}>
                 <Link
-                  className={`group border-silver focus-visible:outline-ring relative z-30 flex h-full min-h-48 flex-col justify-between rounded-2xl border p-6 shadow-sm transition-transform hover:-translate-y-1 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 ${
+                  className={`group relative z-30 flex h-full min-h-48 flex-col justify-between rounded-2xl border border-silver p-6 shadow-card lift hover:border-brand-gold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:border-brand-gold ${
                     index === 0
                       ? "bg-brand text-brand-foreground"
                       : index === 1
@@ -98,8 +98,14 @@ export default async function Home() {
                     {category._count.products} lovely finds
                   </span>
                   <span>
-                    <span className="font-heading block text-2xl font-bold">
-                      {category.name}
+                    <span className="flex items-center justify-between gap-3">
+                      <span className="font-heading block text-2xl font-bold">
+                        {category.name}
+                      </span>
+                      <ArrowRight
+                        aria-hidden="true"
+                        className="size-5 shrink-0 transition-transform duration-interaction ease-interaction group-hover:translate-x-1 group-focus-visible:translate-x-1"
+                      />
                     </span>
                     <span className="mt-2 block text-sm opacity-90">
                       {categoryDescriptions[category.slug] ??

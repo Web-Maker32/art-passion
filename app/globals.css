@@ -208,6 +208,11 @@
   transition-duration: var(--motion-duration);
   transition-timing-function: var(--motion-easing);
 
+  &:has(:focus-visible) {
+    transform: translateY(-4px);
+    box-shadow: var(--card-shadow-hover);
+  }
+
   @media (hover: hover) and (pointer: fine) {
     &:hover {
       transform: translateY(-4px);
@@ -235,6 +240,11 @@
     transform, box-shadow, color, background-color, border-color;
   transition-duration: var(--motion-duration);
   transition-timing-function: var(--motion-easing);
+
+  &:has(:focus-visible) {
+    transform: translateY(-1px);
+    box-shadow: var(--card-shadow-hover);
+  }
 
   @media (hover: hover) and (pointer: fine) {
     &:hover {
@@ -281,19 +291,28 @@
   transition: transform var(--motion-duration) var(--motion-easing);
 
   @media (hover: hover) and (pointer: fine) {
-    &:hover {
+    :where(.group):hover & {
       transform: scale(1.05);
     }
   }
 
   @media (hover: none), (pointer: coarse) {
-    &:active {
+    :where(.group):active & {
       transform: scale(1);
     }
   }
 
+  :where(.group):has(:focus-visible) & {
+    transform: scale(1.05);
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    transform: none;
+    :where(.group):hover &,
+    :where(.group):active &,
+    :where(.group):has(:focus-visible) & {
+      transform: none;
+    }
+
     transition-property: color, background-color, border-color;
   }
 }
