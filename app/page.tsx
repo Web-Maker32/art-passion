@@ -57,10 +57,14 @@ export default async function Home() {
               handmade gifts for life&apos;s creative moments.
             </p>
             <Link
-              className="bg-gold-light text-brand hover:bg-gold focus-visible:outline-brand-foreground mt-8 inline-flex min-h-12 items-center gap-2 rounded-md px-6 py-3 font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
+              className="group bg-gold text-header-teal hover:bg-gold-light focus-visible:outline-brand-foreground mt-8 inline-flex min-h-12 items-center gap-2 rounded-md px-6 py-3 font-bold lift-sm press focus-visible:outline-2 focus-visible:outline-offset-2"
               href="/products"
             >
-              Shop now <ArrowRight aria-hidden="true" className="size-4" />
+              Shop now
+              <ArrowRight
+                aria-hidden="true"
+                className="size-4 transition-transform duration-interaction ease-interaction motion-safe:group-hover:translate-x-1 motion-safe:group-focus-visible:translate-x-1"
+              />
             </Link>
           </div>
           <div className="bg-brand/35 relative z-30 mx-auto flex aspect-square w-full max-w-sm items-center justify-center overflow-hidden rounded-[2rem] border border-white/25 p-8 shadow-2xl lg:mx-0 lg:aspect-[4/3] lg:max-w-none">
@@ -104,7 +108,7 @@ export default async function Home() {
                       </span>
                       <ArrowRight
                         aria-hidden="true"
-                        className="size-5 shrink-0 transition-transform duration-interaction ease-interaction group-hover:translate-x-1 group-focus-visible:translate-x-1"
+                        className="size-5 shrink-0 transition-transform duration-interaction ease-interaction motion-safe:group-hover:translate-x-1 motion-safe:group-focus-visible:translate-x-1"
                       />
                     </span>
                     <span className="mt-2 block text-sm opacity-90">
@@ -182,7 +186,7 @@ export default async function Home() {
             </div>
             {whatsapp ? (
               <a
-                className="bg-brand text-brand-foreground hover:bg-brand-hover focus-visible:outline-ring inline-flex min-h-12 shrink-0 items-center gap-2 rounded-md px-5 py-3 font-semibold focus-visible:outline-2 focus-visible:outline-offset-2"
+                className="bg-brand text-brand-foreground hover:bg-brand-hover focus-visible:outline-ring inline-flex min-h-12 shrink-0 items-center gap-2 rounded-md px-5 py-3 font-semibold lift-sm press focus-visible:outline-2 focus-visible:outline-offset-2"
                 href={whatsapp}
                 rel="noreferrer"
                 target="_blank"
@@ -192,7 +196,7 @@ export default async function Home() {
               </a>
             ) : (
               <Link
-                className="bg-brand text-brand-foreground hover:bg-brand-hover focus-visible:outline-ring inline-flex min-h-12 shrink-0 items-center gap-2 rounded-md px-5 py-3 font-semibold focus-visible:outline-2 focus-visible:outline-offset-2"
+                className="bg-brand text-brand-foreground hover:bg-brand-hover focus-visible:outline-ring inline-flex min-h-12 shrink-0 items-center gap-2 rounded-md px-5 py-3 font-semibold lift-sm press focus-visible:outline-2 focus-visible:outline-offset-2"
                 href="/contact"
               >
                 Contact us

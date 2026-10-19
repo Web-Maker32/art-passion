@@ -63,7 +63,7 @@ export function SiteFooter() {
           </p>
           {whatsapp ? (
             <a
-              className="text-brand-foreground focus-visible:outline-gold-light mt-3 inline-flex rounded-sm font-medium underline-offset-4 hover:text-brand-gold hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
+              className="text-brand-foreground focus-visible:outline-gold-light mt-3 inline-flex rounded-sm font-medium underline-offset-4 transition-colors duration-interaction hover:text-brand-gold hover:underline hover:decoration-brand-gold focus-visible:outline-2 focus-visible:outline-offset-2"
               href={whatsapp}
               rel="noreferrer"
               target="_blank"
@@ -72,7 +72,7 @@ export function SiteFooter() {
             </a>
           ) : (
             <Link
-              className="text-brand-foreground focus-visible:outline-gold-light mt-3 inline-flex rounded-sm font-medium underline-offset-4 hover:text-brand-gold hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
+              className="text-brand-foreground focus-visible:outline-gold-light mt-3 inline-flex rounded-sm font-medium underline-offset-4 transition-colors duration-interaction hover:text-brand-gold hover:underline hover:decoration-brand-gold focus-visible:outline-2 focus-visible:outline-offset-2"
               href="/contact"
             >
               Contact us
@@ -103,7 +103,7 @@ function FooterLinkList({
         {links.map(({ href, label }) => (
           <li key={label}>
             <Link
-              className="text-brand-foreground/80 hover:text-brand-gold focus-visible:outline-gold-light text-sm underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
+              className="text-brand-foreground/80 hover:text-brand-gold focus-visible:outline-gold-light text-sm underline-offset-4 transition-colors duration-interaction hover:underline hover:decoration-brand-gold focus-visible:outline-2 focus-visible:outline-offset-2"
               href={href}
             >
               {label}

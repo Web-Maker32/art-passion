@@ -2,7 +2,7 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-@source inline("duration-interaction ease-interaction shadow-card shadow-card-hover lift lift-sm press image-zoom");
+@source inline("duration-interaction ease-interaction shadow-card shadow-card-hover lift lift-sm press image-zoom cart-count-pop");
 
 @custom-variant dark (&:is(.dark *));
 
@@ -134,7 +134,11 @@
   --brand: oklch(0.372 0.058 189.9);
   --brand-hover: oklch(0.3 0.046 190.5);
   --brand-foreground: oklch(0.967 0.016 91.6);
-  --primary-hover: var(--gold);
+  --primary-hover: color-mix(
+    in oklch,
+    var(--gold-light) 90%,
+    var(--brand-foreground)
+  );
   --gold: oklch(0.731 0.115 85);
   --gold-light: oklch(0.841 0.108 90.1);
   --gold-text: var(--gold-light);
@@ -317,6 +321,28 @@
   }
 }
 
+@utility cart-count-pop {
+  animation: cart-count-pop var(--motion-duration) var(--motion-easing) both;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@keyframes cart-count-pop {
+  0% {
+    transform: scale(0.8);
+  }
+
+  70% {
+    transform: scale(1.08);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
 :where(
   a[href],
   button,
@@ -346,10 +372,31 @@
   footer a {
     scroll-margin-block-end: 88px;
   }
+  #main-content p a[href] {
+    text-decoration-color: transparent;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+    transition: text-decoration-color var(--motion-duration) var(--motion-easing);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    #main-content p a[href]:hover {
+      text-decoration-line: underline;
+      text-decoration-color: var(--gold-text);
+    }
+  }
+  button:not([data-slot="button"]):not(:disabled) {
+    @apply lift-sm press;
+  }
   body {
     @apply bg-background text-foreground;
   }
   html {
     @apply font-sans;
   }
+}
+
+button:disabled {
+  background-color: var(--muted);
+  color: var(--muted-foreground);
+  opacity: 1;
 }

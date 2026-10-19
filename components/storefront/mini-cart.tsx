@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ShoppingBag } from "lucide-react";
+import { CartCountBadge } from "@/components/storefront/cart-count-badge";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -25,17 +26,12 @@ export function MiniCart({ cart }: { cart: CartView }) {
     <Sheet>
       <SheetTrigger
         aria-label={`Shopping cart, ${cart.itemCount} items`}
-        className="text-brand-foreground hover:text-gold-light focus-visible:outline-gold-light relative inline-flex min-h-11 min-w-11 items-center justify-center rounded-md p-2 hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2"
+        className="text-brand-foreground hover:text-gold-light focus-visible:outline-gold-light relative inline-flex min-h-11 min-w-11 items-center justify-center rounded-md p-2 transition-colors duration-interaction hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2"
         render={<button type="button" />}
       >
         <ShoppingBag aria-hidden="true" className="size-5" />
         {cart.itemCount > 0 && (
-          <span
-            aria-hidden="true"
-            className="bg-gold text-header-teal absolute -top-0.5 -right-0.5 flex min-h-4 min-w-4 items-center justify-center rounded-full px-1 text-[0.65rem] font-bold"
-          >
-            {countLabel}
-          </span>
+          <CartCountBadge key={cart.itemCount} label={countLabel} />
         )}
       </SheetTrigger>
       <SheetContent

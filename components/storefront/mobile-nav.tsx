@@ -52,9 +52,9 @@ export function MobileNav() {
                 render={
                   <Link
                     aria-current={active ? "page" : undefined}
-                    className={`focus-visible:outline-gold-light rounded-md px-3 py-3 focus-visible:outline-2 ${
+                    className={`focus-visible:outline-gold-light relative rounded-md px-3 py-3 focus-visible:outline-2 after:absolute after:inset-x-3 after:bottom-2 after:h-px after:origin-left after:scale-x-0 after:bg-gold-light motion-safe:after:transition-transform motion-safe:after:duration-interaction motion-safe:after:ease-interaction motion-reduce:after:transition-none hover:after:scale-x-100 focus-visible:after:scale-x-100 ${
                       active
-                        ? "text-gold-light bg-white/10"
+                        ? "text-gold-light bg-white/10 after:scale-x-100"
                         : "text-brand-foreground hover:text-gold-light hover:bg-white/10"
                     }`}
                     href={href}

@@ -19,7 +19,7 @@ export function ProductGrid({
           {emptyMessage}
         </p>
         <Link
-          className="mt-5 inline-flex rounded-md bg-brand px-4 py-2 font-semibold text-brand-foreground hover:bg-brand-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+          className="mt-5 inline-flex rounded-md bg-brand px-4 py-2 font-semibold text-brand-foreground lift-sm press hover:bg-brand-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
           href="/products"
         >
           Explore the shop

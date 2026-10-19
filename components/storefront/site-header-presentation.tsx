@@ -62,9 +62,9 @@ export function SiteHeaderPresentation({ cart }: { cart: CartView }) {
             return (
               <Link
                 aria-current={active ? "page" : undefined}
-                className={`focus-visible:outline-gold-light relative rounded-sm py-2 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 ${
+                className={`focus-visible:outline-gold-light relative rounded-sm py-2 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 after:absolute after:inset-x-0 after:-bottom-0.5 after:h-px after:origin-left after:scale-x-0 after:bg-gold-light motion-safe:after:transition-transform motion-safe:after:duration-interaction motion-safe:after:ease-interaction motion-reduce:after:transition-none hover:after:scale-x-100 focus-visible:after:scale-x-100 ${
                   active
-                    ? "text-gold-light after:bg-gold-light after:absolute after:inset-x-0 after:-bottom-0.5 after:h-px"
+                    ? "text-gold-light after:scale-x-100"
                     : "text-brand-foreground hover:text-gold-light"
                 }`}
                 href={href}
