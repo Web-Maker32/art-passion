@@ -85,11 +85,11 @@ export default async function Home() {
             headingId="categories-heading"
             title="Find your kind of handmade"
           />
-          <ul className="grid gap-4 p-2 sm:grid-cols-3">
+          <ul className="grid gap-4 p-3 sm:grid-cols-3 sm:p-4">
             {categories.map((category, index) => (
               <li key={category.id}>
                 <Link
-                  className={`group relative z-30 flex h-full min-h-48 flex-col justify-between rounded-2xl border border-silver p-6 shadow-card lift hover:border-brand-gold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:border-brand-gold ${
+                  className={`group relative z-30 flex h-full min-h-48 flex-col justify-between rounded-2xl border border-silver p-6 shadow-card motion-safe:lift hover-fine:hover:border-brand-gold focus-visible:border-brand-gold ${
                     index === 0
                       ? "bg-brand text-brand-foreground"
                       : index === 1
@@ -108,7 +108,7 @@ export default async function Home() {
                       </span>
                       <ArrowRight
                         aria-hidden="true"
-                        className="size-5 shrink-0 transition-transform duration-interaction ease-interaction motion-safe:group-hover:translate-x-1 motion-safe:group-focus-visible:translate-x-1"
+                        className="size-5 shrink-0 transition-transform duration-interaction ease-interaction motion-safe:hover-fine:group-hover:translate-x-1 motion-safe:group-focus-visible:translate-x-1"
                       />
                     </span>
                     <span className="mt-2 block text-sm opacity-90">

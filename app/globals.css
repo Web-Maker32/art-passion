@@ -5,6 +5,7 @@
 @source inline("duration-interaction ease-interaction shadow-card shadow-card-hover lift lift-sm press image-zoom cart-count-pop");
 
 @custom-variant dark (&:is(.dark *));
+@custom-variant hover-fine (@media (hover: hover) and (pointer: fine));
 
 @theme inline {
   --color-background: var(--background);

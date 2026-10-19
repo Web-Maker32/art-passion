@@ -11,6 +11,7 @@ const productCardSelect = {
   slug: true,
   description: true,
   type: true,
+  madeToOrder: true,
   createdAt: true,
   category: { select: { name: true, slug: true } },
   images: {
@@ -32,7 +33,6 @@ const productDetailSelect = {
   ...productCardSelect,
   materials: true,
   tags: true,
-  madeToOrder: true,
   leadTimeDays: true,
   images: {
     orderBy: { position: "asc" },
