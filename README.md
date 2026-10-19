@@ -22,13 +22,15 @@ This project uses `next/font` to optimize and load Geist.
 
 ## Database
 
-This project uses Prisma ORM with Neon PostgreSQL. Copy `.env.example` to `.env.local` and configure the pooled Neon connection string as `DATABASE_URL` and the direct connection string as `DIRECT_URL`. Set `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD`, and `WHATSAPP_NUMBER` as well.
+This project uses Prisma ORM with Neon PostgreSQL. Copy `.env.example` to `.env.local` and configure the pooled Neon connection string as `DATABASE_URL` and the direct connection string as `DIRECT_URL`. Set `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD`, and `WHATSAPP_NUMBER` (international digits including country code; Pakistani local mobile numbers beginning with `03` are also accepted). Optional storefront contact and metadata settings are `CONTACT_EMAIL`, `INSTAGRAM_URL`, `FACEBOOK_URL`, and `SITE_URL` (your public canonical origin).
 
 Use `npm run db:migrate -- --name init` to create and apply a development migration, `npm run db:deploy` to apply migrations in production, `npm run db:seed` to create the initial data, and `npm run db:studio` to browse the database. Do not run the development migration command in production. The shared server-side Prisma client is available from `@/lib/db`.
 
 Run `npm run db:generate` after changing the schema to regenerate Prisma Client. The seed script stores the admin password as a bcrypt hash, never as plaintext.
 
 Run `npm test` for Vitest, `npm run typecheck` for TypeScript checks, and `npm run lint` for ESLint.
+
+The product catalog is published by the seed script. Update seeded starter products by running `npm run db:seed` again after configuring the environment.
 
 ## Learn More
 
