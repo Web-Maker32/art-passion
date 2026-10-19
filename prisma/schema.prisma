@@ -108,6 +108,7 @@ model CartItem {
   cartId    String
   variantId String
   quantity  Int
+  unitPrice Int
   cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
   variant   Variant @relation(fields: [variantId], references: [id], onDelete: Cascade)
 

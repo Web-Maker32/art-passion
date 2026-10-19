@@ -1,6 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
+import { toast } from "sonner";
+import { addToCart } from "@/actions/cart";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/format";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
@@ -27,9 +30,12 @@ export function ProductPurchasePanel({
   madeToOrder: boolean;
   leadTimeDays: number;
 }) {
+  const router = useRouter();
   const [selectedId, setSelectedId] = useState(variants[0]?.id ?? "");
   const [quantity, setQuantity] = useState(1);
+  const [isPending, startTransition] = useTransition();
   const selected = variants.find((variant) => variant.id === selectedId);
+  const maxQuantity = selected ? Math.min(selected.stock, 20) : 0;
   const stockStatus =
     !selected || selected.stock === 0
       ? "Out of stock"
@@ -129,16 +135,42 @@ export function ProductPurchasePanel({
               <button
                 aria-label="Increase quantity"
                 className="min-h-11 min-w-11 rounded-r-md hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring"
-                onClick={() => setQuantity((value) => Math.min(99, value + 1))}
+                disabled={quantity >= maxQuantity}
+                onClick={() =>
+                  setQuantity((value) => Math.min(maxQuantity, value + 1))
+                }
                 type="button"
               >
                 +
               </button>
             </div>
           </div>
-          {/* TODO: Enable add-to-cart when cart functionality is implemented in Phase 3. */}
-          <Button className="min-h-12 w-full" disabled type="button">
-            Add to cart
+          <Button
+            aria-busy={isPending}
+            className="min-h-12 w-full"
+            disabled={isPending || selected.stock <= 0}
+            onClick={() => {
+              startTransition(async () => {
+                const result = await addToCart({
+                  variantId: selected.id,
+                  quantity,
+                });
+                if (result.ok) {
+                  toast.success(result.message, {
+                    action: {
+                      label: "View cart",
+                      onClick: () => router.push("/cart"),
+                    },
+                  });
+                  router.refresh();
+                } else {
+                  toast.error(result.message);
+                }
+              });
+            }}
+            type="button"
+          >
+            {isPending ? "Adding..." : "Add to cart"}
           </Button>
           {whatsappHref && (
             <a

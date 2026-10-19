@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Search, ShoppingBag } from "lucide-react";
+import { Search } from "lucide-react";
 import { Container } from "@/components/storefront/container";
 import { Logo } from "@/components/logo";
 import { MobileNav } from "@/components/storefront/mobile-nav";
@@ -11,8 +11,10 @@ import {
   isNavigationLinkActive,
   navigationLinks,
 } from "@/components/storefront/navigation-links";
+import { MiniCart } from "@/components/storefront/mini-cart";
+import type { CartView } from "@/lib/cart-types";
 
-export function SiteHeaderPresentation() {
+export function SiteHeaderPresentation({ cart }: { cart: CartView }) {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
 
@@ -82,16 +84,7 @@ export function SiteHeaderPresentation() {
           >
             <Search aria-hidden="true" className="size-5" />
           </Link>
-          <Link
-            aria-label="Shopping cart, 0 items"
-            className="text-brand-foreground hover:text-gold-light focus-visible:outline-gold-light relative rounded-md p-2 hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2"
-            href="/products"
-          >
-            <ShoppingBag aria-hidden="true" className="size-5" />
-            <span className="bg-gold text-header-teal absolute -top-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full text-[0.65rem] font-bold">
-              0
-            </span>
-          </Link>
+          <MiniCart cart={cart} />
           <div className="lg:hidden">
             <MobileNav />
           </div>
