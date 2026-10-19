@@ -24,12 +24,17 @@
   --color-chart-2: var(--chart-2);
   --color-chart-1: var(--chart-1);
   --color-brand: var(--brand);
+  --color-brand-deep: var(--brand-deep);
+  --color-brand-gold: var(--brand-gold);
+  --color-header-teal: var(--header-teal);
   --color-brand-hover: var(--brand-hover);
   --color-brand-foreground: var(--brand-foreground);
+  --font-brand-display: var(--font-cormorant-garamond);
   --color-primary-hover: var(--primary-hover);
   --color-gold: var(--gold);
   --color-gold-light: var(--gold-light);
   --color-gold-text: var(--gold-text);
+  --color-brand-gradient-gold: var(--brand-gradient-gold);
   --color-silver: var(--silver);
   --color-silver-strong: var(--silver-strong);
   --color-blush: var(--blush);
@@ -60,18 +65,22 @@
 }
 
 :root {
+  --brand-deep: #0A3533;
+  --brand-gold: #E6C875;
+  --header-teal: var(--brand-deep);
   --brand: oklch(0.372 0.058 189.9);
-  --brand-hover: oklch(0.300 0.046 190.5);
+  --brand-hover: oklch(0.3 0.046 190.5);
   --brand-foreground: oklch(0.967 0.016 91.6);
   --primary-hover: var(--brand-hover);
   --gold: oklch(0.731 0.115 85);
   --gold-light: oklch(0.841 0.108 90.1);
-  --gold-text: oklch(0.550 0.101 81.8);
+  --gold-text: oklch(0.55 0.101 81.8);
+  --brand-gradient-gold: var(--gold-text);
   --silver: oklch(0.882 0.009 264.5);
-  --silver-strong: oklch(0.845 0.010 267.3);
+  --silver-strong: oklch(0.845 0.01 267.3);
   --blush: oklch(0.573 0.176 354.2);
   --orchid: oklch(0.487 0.157 310.4);
-  --background: oklch(0.980 0.010 87.5);
+  --background: oklch(0.98 0.01 87.5);
   --foreground: oklch(0.275 0.015 196.3);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.275 0.015 196.3);
@@ -106,15 +115,17 @@
 }
 
 .dark {
+  --header-teal: var(--brand-deep);
   --brand: oklch(0.372 0.058 189.9);
-  --brand-hover: oklch(0.300 0.046 190.5);
+  --brand-hover: oklch(0.3 0.046 190.5);
   --brand-foreground: oklch(0.967 0.016 91.6);
   --primary-hover: var(--gold);
   --gold: oklch(0.731 0.115 85);
   --gold-light: oklch(0.841 0.108 90.1);
-  --gold-text: oklch(0.550 0.101 81.8);
+  --gold-text: var(--gold-light);
+  --brand-gradient-gold: oklch(0.55 0.101 81.8);
   --silver: oklch(0.882 0.009 264.5);
-  --silver-strong: oklch(0.845 0.010 267.3);
+  --silver-strong: oklch(0.845 0.01 267.3);
   --blush: oklch(0.573 0.176 354.2);
   --orchid: oklch(0.487 0.157 310.4);
   --background: oklch(0.243 0.033 188.6);
@@ -152,22 +163,37 @@
 }
 
 @utility bg-brand-header {
-  background-color: var(--brand);
+  background-color: var(--brand-deep);
   color: var(--brand-foreground);
 }
 
 @utility bg-gold-teal-gradient {
   background-image: linear-gradient(
     120deg,
-    var(--gold-text) 0%,
+    var(--brand-gradient-gold) 0%,
     var(--brand) 100%
   );
+  color: var(--brand-foreground);
+}
+
+@utility bg-brand-hero {
+  background-image:
+    radial-gradient(
+      ellipse at 86% 14%,
+      color-mix(in oklch, var(--gold-light) 22%, transparent),
+      transparent 42%
+    ),
+    linear-gradient(115deg, oklch(0.27 0.045 190) 0%, var(--brand) 100%);
   color: var(--brand-foreground);
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
+  }
+  #main-content a,
+  footer a {
+    scroll-margin-block-end: 88px;
   }
   body {
     @apply bg-background text-foreground;

@@ -59,6 +59,7 @@ model Category {
 
 model Product {
   id            String        @id @default(cuid())
+  createdAt     DateTime      @default(now())
   categoryId    String
   title         String
   slug          String        @unique
@@ -107,6 +108,7 @@ model CartItem {
   cartId    String
   variantId String
   quantity  Int
+  unitPrice Int
   cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
   variant   Variant @relation(fields: [variantId], references: [id], onDelete: Cascade)
 

@@ -214,14 +214,16 @@ async function main() {
 
     for (const product of products) {
       const { variants, categorySlug, ...productData } = product;
+      const imageUrl = `https://placehold.co/800x800.png?text=${encodeURIComponent(product.title)}`;
       const savedProduct = await prisma.product.upsert({
         where: { slug: product.slug },
         create: {
           ...productData,
           category: { connect: { slug: categorySlug } },
+          status: "PUBLISHED",
           images: {
             create: {
-              url: `https://placehold.co/800x800?text=${encodeURIComponent(product.title)}`,
+              url: imageUrl,
               alt: product.title,
               position: 0,
             },
@@ -230,8 +232,25 @@ async function main() {
         update: {
           ...productData,
           category: { connect: { slug: categorySlug } },
+          status: "PUBLISHED",
         },
       });
+
+      const updatedImages = await prisma.productImage.updateMany({
+        where: { productId: savedProduct.id, position: 0 },
+        data: { url: imageUrl, alt: product.title },
+      });
+
+      if (updatedImages.count === 0) {
+        await prisma.productImage.create({
+          data: {
+            productId: savedProduct.id,
+            url: imageUrl,
+            alt: product.title,
+            position: 0,
+          },
+        });
+      }
 
       for (const variant of variants) {
         await prisma.variant.upsert({
