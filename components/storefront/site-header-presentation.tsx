@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-import { Search } from "lucide-react";
+import { Moon, Search, Sun } from "lucide-react";
 import { Container } from "@/components/storefront/container";
 import { Logo } from "@/components/logo";
 import { MobileNav } from "@/components/storefront/mobile-nav";
@@ -17,6 +18,8 @@ import type { CartView } from "@/lib/cart-types";
 export function SiteHeaderPresentation({ cart }: { cart: CartView }) {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
+  const { resolvedTheme, setTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
 
   useEffect(() => {
     const updateScrollState = () => setScrolled(window.scrollY > 8);
@@ -77,6 +80,18 @@ export function SiteHeaderPresentation({ cart }: { cart: CartView }) {
         </nav>
 
         <div className="flex shrink-0 items-center gap-1">
+          <button
+            aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+            className="text-brand-foreground hover:text-gold-light focus-visible:outline-gold-light rounded-md p-2 hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2"
+            onClick={() => setTheme(isDark ? "light" : "dark")}
+            type="button"
+          >
+            {isDark ? (
+              <Sun aria-hidden="true" className="size-5" />
+            ) : (
+              <Moon aria-hidden="true" className="size-5" />
+            )}
+          </button>
           <Link
             aria-label="Search products"
             className="text-brand-foreground hover:text-gold-light focus-visible:outline-gold-light rounded-md p-2 hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2"

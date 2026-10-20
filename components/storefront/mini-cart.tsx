@@ -50,7 +50,7 @@ export function MiniCart({ cart }: { cart: CartView }) {
           <ul className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4">
             {cart.items.map((item) => (
               <li
-                className="flex gap-3 border-b border-border pb-4"
+                className="flex gap-3 border-b border-border pb-4 transition-colors duration-interaction hover-fine:hover:bg-muted/60"
                 key={item.itemId}
               >
                 <div className="bg-muted relative size-16 shrink-0 overflow-hidden rounded-md">

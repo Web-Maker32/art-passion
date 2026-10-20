@@ -3,6 +3,7 @@ import { ArrowRight, Heart, MessageCircle, Sparkles } from "lucide-react";
 import { Container } from "@/components/storefront/container";
 import { Logo } from "@/components/logo";
 import { ProductGrid } from "@/components/storefront/product-grid";
+import { ScrollReveal } from "@/components/storefront/scroll-reveal";
 import { SectionHeading } from "@/components/storefront/section-heading";
 import { getPublishedCategories } from "@/lib/queries/categories";
 import { categoryDescriptions } from "@/lib/queries/categories";
@@ -88,16 +89,17 @@ export default async function Home() {
           <ul className="grid gap-4 p-3 sm:grid-cols-3 sm:p-4">
             {categories.map((category, index) => (
               <li key={category.id}>
-                <Link
-                  className={`group relative z-30 flex h-full min-h-48 flex-col justify-between rounded-2xl border border-silver p-6 shadow-card motion-safe:lift hover-fine:hover:border-brand-gold focus-visible:border-brand-gold ${
-                    index === 0
-                      ? "bg-brand text-brand-foreground"
-                      : index === 1
-                        ? "bg-gold-light text-brand"
-                        : "bg-muted text-foreground"
-                  }`}
-                  href={`/categories/${category.slug}`}
-                >
+                <ScrollReveal className="h-full">
+                  <Link
+                    className={`group relative z-30 flex h-full min-h-48 flex-col justify-between rounded-2xl border border-silver p-6 shadow-card motion-safe:lift hover-fine:hover:border-brand-gold focus-visible:border-brand-gold ${
+                      index === 0
+                        ? "bg-brand text-brand-foreground"
+                        : index === 1
+                          ? "bg-gold-light text-brand"
+                          : "bg-muted text-foreground"
+                    }`}
+                    href={`/categories/${category.slug}`}
+                  >
                   <span className="text-sm font-semibold tracking-wide uppercase">
                     {category._count.products} lovely finds
                   </span>
@@ -116,7 +118,8 @@ export default async function Home() {
                         "Thoughtfully handmade for you."}
                     </span>
                   </span>
-                </Link>
+                  </Link>
+                </ScrollReveal>
               </li>
             ))}
           </ul>

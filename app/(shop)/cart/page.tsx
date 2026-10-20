@@ -55,7 +55,7 @@ export default async function CartPage() {
           <ul className="space-y-4">
             {cart.items.map((item) => (
               <li
-                className="border-silver bg-card grid gap-4 rounded-xl border p-4 sm:grid-cols-[7rem_minmax(0,1fr)] sm:p-5"
+                className="border-silver bg-card grid gap-4 rounded-xl border p-4 transition-colors duration-interaction hover-fine:hover:bg-muted/60 sm:grid-cols-[7rem_minmax(0,1fr)] sm:p-5"
                 key={item.itemId}
               >
                 <Link
@@ -151,7 +151,7 @@ export default async function CartPage() {
             </p>
             {whatsappHref ? (
               <a
-                className="border-brand text-brand hover:bg-brand/5 focus-visible:outline-ring mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-md border px-4 py-2 text-center font-semibold focus-visible:outline-2 focus-visible:outline-offset-2"
+                className="border-brand text-foreground lift-sm press hover-fine:hover:bg-brand/5 focus-visible:outline-ring mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-md border px-4 py-2 text-center font-semibold focus-visible:outline-2 focus-visible:outline-offset-2"
                 href={whatsappHref}
                 rel="noreferrer"
                 target="_blank"

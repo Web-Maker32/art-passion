@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu } from "lucide-react";
+import { useTheme } from "next-themes";
+import { Menu, Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   isNavigationLinkActive,
@@ -19,6 +20,8 @@ import {
 
 export function MobileNav() {
   const pathname = usePathname();
+  const { resolvedTheme, setTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
 
   return (
     <Sheet>
@@ -66,6 +69,21 @@ export function MobileNav() {
             );
           })}
         </nav>
+        <div className="mt-6 flex items-center justify-between border-t border-white/10 px-4 pt-4">
+          <span className="text-brand-foreground/80 text-sm">Theme</span>
+          <button
+            aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+            className="text-brand-foreground hover:text-gold-light focus-visible:outline-gold-light rounded-md p-2 hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2"
+            onClick={() => setTheme(isDark ? "light" : "dark")}
+            type="button"
+          >
+            {isDark ? (
+              <Sun aria-hidden="true" className="size-5" />
+            ) : (
+              <Moon aria-hidden="true" className="size-5" />
+            )}
+          </button>
+        </div>
       </SheetContent>
     </Sheet>
   );

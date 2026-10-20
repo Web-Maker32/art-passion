@@ -3,7 +3,7 @@ export default function SearchLoading() {
     <div
       aria-busy="true"
       aria-label="Searching products"
-      className="mx-auto max-w-7xl animate-pulse px-4 py-10 sm:px-6 lg:px-8"
+      className="skeleton-shimmer mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8"
     >
       <div className="h-9 w-64 rounded bg-muted" />
       <div className="mt-6 h-12 max-w-2xl rounded bg-muted" />

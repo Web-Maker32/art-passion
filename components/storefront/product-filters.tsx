@@ -62,7 +62,7 @@ export function ProductFiltersPanel({
         <label className="grid gap-1.5 text-sm font-medium">
           Category
           <select
-            className="h-10 rounded-md border border-input bg-background px-3 text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+            className="h-10 rounded-md border border-input bg-background px-3 text-foreground transition-colors duration-interaction ease-interaction"
             defaultValue={filters.category ?? ""}
             name="category"
           >
@@ -78,7 +78,7 @@ export function ProductFiltersPanel({
       <label className="grid gap-1.5 text-sm font-medium">
         Product type
         <select
-          className="h-10 rounded-md border border-input bg-background px-3 text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+          className="h-10 rounded-md border border-input bg-background px-3 text-foreground transition-colors duration-interaction ease-interaction"
           defaultValue={filters.type ?? ""}
           name="type"
         >
@@ -93,7 +93,7 @@ export function ProductFiltersPanel({
       <label className="grid gap-1.5 text-sm font-medium">
         Min price (PKR)
         <input
-          className="h-10 rounded-md border border-input bg-background px-3 text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+          className="h-10 rounded-md border border-input bg-background px-3 text-foreground transition-colors duration-interaction ease-interaction"
           defaultValue={filters.minPrice ?? ""}
           min="0"
           name="minPrice"
@@ -103,7 +103,7 @@ export function ProductFiltersPanel({
       <label className="grid gap-1.5 text-sm font-medium">
         Max price (PKR)
         <input
-          className="h-10 rounded-md border border-input bg-background px-3 text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+          className="h-10 rounded-md border border-input bg-background px-3 text-foreground transition-colors duration-interaction ease-interaction"
           defaultValue={filters.maxPrice ?? ""}
           min="0"
           name="maxPrice"

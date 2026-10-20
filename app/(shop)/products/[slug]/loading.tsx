@@ -3,7 +3,7 @@ export default function ProductLoading() {
     <div
       aria-busy="true"
       aria-label="Loading product"
-      className="mx-auto grid max-w-7xl animate-pulse gap-8 px-4 py-10 sm:px-6 lg:grid-cols-2 lg:px-8"
+      className="skeleton-shimmer mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-2 lg:px-8"
     >
       <div className="aspect-square rounded-2xl bg-muted" />
       <div className="space-y-5">

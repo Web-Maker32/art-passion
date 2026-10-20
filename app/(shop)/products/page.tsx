@@ -123,7 +123,7 @@ function PageLink({
 
   return (
     <Link
-      className="inline-flex min-h-11 items-center rounded-md border border-silver px-4 font-medium hover:border-brand hover:text-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+      className="inline-flex min-h-11 items-center rounded-md border border-silver px-4 font-medium transition-colors duration-interaction hover-fine:hover:border-brand-gold hover-fine:hover:text-brand active:border-brand-gold active:bg-brand-gold/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
       href={`/products?${params.toString()}`}
     >
       {text}

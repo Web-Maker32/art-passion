@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
+import { Check } from "lucide-react";
 import { toast } from "sonner";
 import { addToCart } from "@/actions/cart";
 import { Button } from "@/components/ui/button";
@@ -61,32 +62,49 @@ export function ProductPurchasePanel({
         <fieldset>
           <legend className="mb-2 text-sm font-semibold">Choose an option</legend>
           <div className="grid gap-2">
-            {variants.map((variant) => (
-              <label
-                className={`flex min-h-12 cursor-pointer items-center justify-between gap-3 rounded-lg border px-3 py-2 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ring ${
-                  selectedId === variant.id
-                    ? "border-brand bg-brand/5"
-                    : "border-silver"
-                }`}
-                key={variant.id}
-              >
-                <span className="flex items-center gap-2">
-                  <input
-                    checked={selectedId === variant.id}
-                    className="accent-brand"
-                    name="product-variant"
-                    onChange={() => {
-                      setSelectedId(variant.id);
-                      setQuantity(1);
-                    }}
-                    type="radio"
-                    value={variant.id}
-                  />
-                  <span className="font-medium">{variant.label}</span>
-                </span>
-                <span className="font-semibold">{formatPrice(variant.price)}</span>
-              </label>
-            ))}
+            {variants.map((variant) => {
+              const selectedVariant = selectedId === variant.id;
+              const unavailable = variant.stock <= 0 && !madeToOrder;
+
+              return (
+                <label
+                  className={`flex min-h-12 items-center justify-between gap-3 rounded-lg border-2 px-3 py-2 transition-colors duration-interaction ease-interaction active:bg-muted/70 ${
+                    unavailable
+                      ? "cursor-not-allowed border-silver-strong bg-muted/60 text-muted-foreground"
+                      : `cursor-pointer hover-fine:hover:border-brand ${
+                          selectedVariant
+                            ? "border-brand bg-brand/5"
+                            : "border-silver"
+                        }`
+                  }`}
+                  key={variant.id}
+                >
+                  <span className="flex items-center gap-2">
+                    <input
+                      checked={selectedVariant}
+                      className="accent-brand"
+                      name="product-variant"
+                      onChange={() => {
+                        setSelectedId(variant.id);
+                        setQuantity(1);
+                      }}
+                      type="radio"
+                      value={variant.id}
+                    />
+                    <span className="font-medium">{variant.label}</span>
+                    {unavailable && (
+                      <span className="text-xs font-medium">Out of stock</span>
+                    )}
+                  </span>
+                  <span className="flex items-center gap-2 font-semibold">
+                    {formatPrice(variant.price)}
+                    {selectedVariant && (
+                      <Check aria-hidden="true" className="size-4" />
+                    )}
+                  </span>
+                </label>
+              );
+            })}
           </div>
         </fieldset>
       ) : selected ? (
@@ -174,7 +192,7 @@ export function ProductPurchasePanel({
           </Button>
           {whatsappHref && (
             <a
-              className="flex min-h-12 items-center justify-center rounded-md border border-brand px-4 text-center font-semibold text-foreground lift-sm press hover:bg-brand/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+              className="flex min-h-12 items-center justify-center rounded-md border border-brand px-4 text-center font-semibold text-foreground lift-sm press hover-fine:hover:bg-brand/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
               href={whatsappHref}
               rel="noreferrer"
               target="_blank"
