@@ -65,7 +65,7 @@ export function SiteHeaderPresentation({ cart }: { cart: CartView }) {
             return (
               <Link
                 aria-current={active ? "page" : undefined}
-                className={`focus-visible:outline-gold-light relative rounded-sm py-2 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 after:absolute after:inset-x-0 after:-bottom-0.5 after:h-px after:origin-left after:scale-x-0 after:bg-gold-light motion-safe:after:transition-transform motion-safe:after:duration-interaction motion-safe:after:ease-interaction motion-reduce:after:transition-none hover:after:scale-x-100 focus-visible:after:scale-x-100 ${
+                className={`focus-visible:outline-gold-light after:bg-gold-light motion-safe:after:duration-interaction motion-safe:after:ease-interaction relative rounded-sm py-2 text-sm font-medium transition-colors after:absolute after:inset-x-0 after:-bottom-0.5 after:h-px after:origin-left after:scale-x-0 hover:after:scale-x-100 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:after:scale-x-100 motion-safe:after:transition-transform motion-reduce:after:transition-none ${
                   active
                     ? "text-gold-light after:scale-x-100"
                     : "text-brand-foreground hover:text-gold-light"
@@ -81,16 +81,15 @@ export function SiteHeaderPresentation({ cart }: { cart: CartView }) {
 
         <div className="flex shrink-0 items-center gap-1">
           <button
-            aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-            className="text-brand-foreground hover:text-gold-light focus-visible:outline-gold-light rounded-md p-2 hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2"
-            onClick={() => setTheme(isDark ? "light" : "dark")}
             type="button"
+            aria-label="Toggle dark mode"
+            onClick={() =>
+              setTheme(resolvedTheme === "dark" ? "light" : "dark")
+            }
+            className="...keep your existing classes..."
           >
-            {isDark ? (
-              <Sun aria-hidden="true" className="size-5" />
-            ) : (
-              <Moon aria-hidden="true" className="size-5" />
-            )}
+            <Sun aria-hidden="true" className="hidden size-5 dark:block" />
+            <Moon aria-hidden="true" className="size-5 dark:hidden" />
           </button>
           <Link
             aria-label="Search products"
