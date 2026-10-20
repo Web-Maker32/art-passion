@@ -12,10 +12,10 @@ function cartItem(
     id: "item-1",
     variantId: "variant-1",
     quantity: 2,
-    unitPrice: 1000,
+    unitPrice: 1800,
     variant: {
       label: "Small",
-      price: 1000,
+      price: 1800,
       stock: 10,
       product: {
         title: "Felt set",
@@ -70,7 +70,7 @@ describe("cart domain", () => {
     ]);
 
     expect(cart.itemCount).toBe(3);
-    expect(cart.subtotal).toBe(4500);
+    expect(cart.subtotal).toBe(6100);
     expect(cart.unavailableCount).toBe(0);
   });
 
@@ -111,18 +111,18 @@ describe("cart domain", () => {
   it("uses the current price and flags a changed price", () => {
     const cart = buildCartView("cart-1", [
       cartItem({
-        unitPrice: 1000,
-        variant: { ...cartItem().variant, price: 1250 },
+        unitPrice: 1800,
+        variant: { ...cartItem().variant, price: 2000 },
       }),
     ]);
 
     expect(cart.items[0]).toMatchObject({
-      unitPrice: 1250,
-      lineTotal: 2500,
+      unitPrice: 2000,
+      lineTotal: 4000,
       available: true,
       message: "Price updated",
     });
-    expect(cart.subtotal).toBe(2500);
+    expect(cart.subtotal).toBe(4000);
   });
 
   it("flags cart quantities that exceed reduced stock", () => {

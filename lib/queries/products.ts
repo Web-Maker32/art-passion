@@ -64,10 +64,10 @@ export async function getPublishedProducts({
     filters?.minPrice !== undefined || filters?.maxPrice !== undefined
       ? {
           ...(filters.minPrice !== undefined
-            ? { gte: filters.minPrice * 100 }
+            ? { gte: filters.minPrice }
             : {}),
           ...(filters.maxPrice !== undefined
-            ? { lte: filters.maxPrice * 100 }
+            ? { lte: filters.maxPrice }
             : {}),
         }
       : undefined;

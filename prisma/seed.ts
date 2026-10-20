@@ -36,8 +36,8 @@ const products: SeedProduct[] = [
     madeToOrder: true,
     leadTimeDays: 7,
     variants: [
-      { sku: "AP-FELT-WOOD-SM", label: "Small set", price: 240000, stock: 12 },
-      { sku: "AP-FELT-WOOD-LG", label: "Large set", price: 360000, stock: 8 },
+      { sku: "AP-FELT-WOOD-SM", label: "Small set", price: 2400, stock: 12 },
+      { sku: "AP-FELT-WOOD-LG", label: "Large set", price: 3600, stock: 8 },
     ],
   },
   {
@@ -51,8 +51,8 @@ const products: SeedProduct[] = [
     madeToOrder: true,
     leadTimeDays: 8,
     variants: [
-      { sku: "AP-FELT-FARM-6", label: "6 animals", price: 290000, stock: 10 },
-      { sku: "AP-FELT-FARM-10", label: "10 animals", price: 420000, stock: 6 },
+      { sku: "AP-FELT-FARM-6", label: "6 animals", price: 2900, stock: 10 },
+      { sku: "AP-FELT-FARM-10", label: "10 animals", price: 4200, stock: 6 },
     ],
   },
   {
@@ -65,7 +65,7 @@ const products: SeedProduct[] = [
     tags: ["ocean", "animals"],
     madeToOrder: false,
     leadTimeDays: 0,
-    variants: [{ sku: "AP-FELT-OCEAN-SET", label: "Complete set", price: 320000, stock: 14 }],
+    variants: [{ sku: "AP-FELT-OCEAN-SET", label: "Complete set", price: 3200, stock: 14 }],
   },
   {
     slug: "felt-fruit-market-set",
@@ -78,8 +78,8 @@ const products: SeedProduct[] = [
     madeToOrder: true,
     leadTimeDays: 6,
     variants: [
-      { sku: "AP-FELT-FRUIT-8", label: "8 pieces", price: 210000, stock: 18 },
-      { sku: "AP-FELT-FRUIT-12", label: "12 pieces", price: 300000, stock: 9 },
+      { sku: "AP-FELT-FRUIT-8", label: "8 pieces", price: 2100, stock: 18 },
+      { sku: "AP-FELT-FRUIT-12", label: "12 pieces", price: 3000, stock: 9 },
     ],
   },
   {
@@ -93,8 +93,8 @@ const products: SeedProduct[] = [
     madeToOrder: false,
     leadTimeDays: 0,
     variants: [
-      { sku: "AP-KIT-WATER-SM", label: "Mini kit", price: 180000, stock: 20 },
-      { sku: "AP-KIT-WATER-LG", label: "Full kit", price: 280000, stock: 15 },
+      { sku: "AP-KIT-WATER-SM", label: "Mini kit", price: 1800, stock: 20 },
+      { sku: "AP-KIT-WATER-LG", label: "Full kit", price: 2800, stock: 15 },
     ],
   },
   {
@@ -107,7 +107,7 @@ const products: SeedProduct[] = [
     tags: ["coloring", "rainbow"],
     madeToOrder: false,
     leadTimeDays: 0,
-    variants: [{ sku: "AP-KIT-RAINBOW-SET", label: "Complete kit", price: 160000, stock: 22 }],
+    variants: [{ sku: "AP-KIT-RAINBOW-SET", label: "Complete kit", price: 1600, stock: 22 }],
   },
   {
     slug: "little-garden-painting-kit",
@@ -120,8 +120,8 @@ const products: SeedProduct[] = [
     madeToOrder: false,
     leadTimeDays: 0,
     variants: [
-      { sku: "AP-KIT-GARDEN-SET", label: "Complete kit", price: 220000, stock: 11 },
-      { sku: "AP-KIT-GARDEN-REFILL", label: "Refill pack", price: 90000, stock: 24 },
+      { sku: "AP-KIT-GARDEN-SET", label: "Complete kit", price: 2200, stock: 11 },
+      { sku: "AP-KIT-GARDEN-REFILL", label: "Refill pack", price: 900, stock: 24 },
     ],
   },
   {
@@ -135,8 +135,8 @@ const products: SeedProduct[] = [
     madeToOrder: false,
     leadTimeDays: 0,
     variants: [
-      { sku: "AP-GIFT-CREATIVE-ONE", label: "One set", price: 350000, stock: 7 },
-      { sku: "AP-GIFT-CREATIVE-TWO", label: "Two sets", price: 650000, stock: 5 },
+      { sku: "AP-GIFT-CREATIVE-ONE", label: "One set", price: 3500, stock: 7 },
+      { sku: "AP-GIFT-CREATIVE-TWO", label: "Two sets", price: 6500, stock: 5 },
     ],
   },
   {
@@ -149,7 +149,7 @@ const products: SeedProduct[] = [
     tags: ["gift", "handmade"],
     madeToOrder: true,
     leadTimeDays: 5,
-    variants: [{ sku: "AP-GIFT-MAKER-BOX", label: "Gift box", price: 420000, stock: 9 }],
+    variants: [{ sku: "AP-GIFT-MAKER-BOX", label: "Gift box", price: 4200, stock: 9 }],
   },
   {
     slug: "handmade-keepsake-gift-set",
@@ -162,9 +162,9 @@ const products: SeedProduct[] = [
     madeToOrder: true,
     leadTimeDays: 10,
     variants: [
-      { sku: "AP-GIFT-KEEP-SINGLE", label: "Single keepsake", price: 260000, stock: 13 },
-      { sku: "AP-GIFT-KEEP-PAIR", label: "Pair", price: 460000, stock: 6 },
-      { sku: "AP-GIFT-KEEP-FAMILY", label: "Family set", price: 590000, stock: 5 },
+      { sku: "AP-GIFT-KEEP-SINGLE", label: "Single keepsake", price: 2600, stock: 13 },
+      { sku: "AP-GIFT-KEEP-PAIR", label: "Pair", price: 4600, stock: 6 },
+      { sku: "AP-GIFT-KEEP-FAMILY", label: "Family set", price: 5900, stock: 5 },
     ],
   },
 ];
