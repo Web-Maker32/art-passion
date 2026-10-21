@@ -86,7 +86,7 @@ export function SiteHeaderPresentation({ cart }: { cart: CartView }) {
             onClick={() =>
               setTheme(resolvedTheme === "dark" ? "light" : "dark")
             }
-            className="...keep your existing classes..."
+            className="text-brand-foreground hover:text-gold-light focus-visible:outline-gold-light rounded-md p-2 hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2"
           >
             <Sun aria-hidden="true" className="hidden size-5 dark:block" />
             <Moon aria-hidden="true" className="size-5 dark:hidden" />
