@@ -2,6 +2,9 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 // Get a free hosted Postgres database in seconds: `npx create-db`
+enum PaymentMethod {
+  WALLET_TRANSFER
+}
 
 generator client {
   provider = "prisma-client"
@@ -119,19 +122,23 @@ model Order {
   id              String      @id @default(cuid())
   orderNumber     String      @unique
   status          OrderStatus @default(PENDING)
+  paymentMethod   PaymentMethod @default(WALLET_TRANSFER)
+  accessTokenHash String?
+  idempotencyKey  String      @unique
   subtotal        Int
   shipping        Int
   total           Int
   customerName    String
-  customerEmail   String
+  customerEmail   String?
   customerPhone   String
   addressLine1    String
   addressLine2    String?
   city            String
   province        String
-  postalCode      String
+  postalCode      String?
   country         String
   giftNote        String?
+  orderNotes      String?
   trackingNumber  String?
   userId          String?
   user            User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
@@ -147,6 +154,7 @@ model OrderItem {
   variantLabel  String
   unitPrice     Int
   quantity      Int
+  leadTimeDays  Int?
   order         Order  @relation(fields: [orderId], references: [id], onDelete: Restrict)
 }
 
@@ -155,4 +163,9 @@ model PaymentEvent {
   providerEventId String   @unique
   type            String
   processedAt     DateTime
+}
+
+model OrderCounter {
+  year  Int @id
+  value Int @default(0)
 }

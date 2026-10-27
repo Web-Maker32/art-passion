@@ -143,12 +143,24 @@ export default async function CartPage() {
                 Remove or update unavailable items before checkout.
               </p>
             )}
-            <Button className="mt-5 min-h-11 w-full" disabled type="button">
-              Checkout
-            </Button>
-            <p className="text-muted-foreground mt-2 text-center text-xs">
-              Checkout is coming soon.
-            </p>
+            {cart.items.some((item) => item.message) && cart.unavailableCount === 0 && (
+              <p className="text-destructive mt-4 text-sm" role="alert">
+                Review updated prices before checkout.
+              </p>
+            )}
+            {cart.unavailableCount > 0 || cart.items.some((item) => item.message) ? (
+              <Button className="mt-5 min-h-11 w-full" disabled type="button">
+                Review your cart
+              </Button>
+            ) : (
+              <Button
+                className="mt-5 min-h-11 w-full"
+                nativeButton={false}
+                render={<Link href="/checkout" />}
+              >
+                Checkout
+              </Button>
+            )}
             {whatsappHref ? (
               <a
                 className="border-brand text-foreground lift-sm press hover-fine:hover:bg-brand/5 focus-visible:outline-ring mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-md border px-4 py-2 text-center font-semibold focus-visible:outline-2 focus-visible:outline-offset-2"

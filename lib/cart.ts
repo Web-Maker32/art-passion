@@ -98,6 +98,23 @@ export async function getCart(): Promise<CartView> {
   return cart ? toCartView(cart) : emptyCartView();
 }
 
+export async function getCurrentCartIdForCheckout(): Promise<string | null> {
+  const cookieStore = await cookies();
+  const token = parseSignedToken(cookieStore.get(cartCookieName)?.value);
+  if (!token) return null;
+
+  const cart = await prisma.cart.findUnique({
+    where: { token: hashToken(token) },
+    select: { id: true },
+  });
+  return cart?.id ?? null;
+}
+
+export async function clearCartCookieAfterCheckout(): Promise<void> {
+  const cookieStore = await cookies();
+  cookieStore.delete(cartCookieName);
+}
+
 export async function addItem(
   variantId: string,
   requestedQuantity: number,
