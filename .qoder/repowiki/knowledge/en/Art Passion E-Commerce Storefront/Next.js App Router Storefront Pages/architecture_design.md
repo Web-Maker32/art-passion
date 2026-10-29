@@ -1,0 +1,7 @@
+Built on Next.js App Router conventions:
+- `layout.tsx` is the root layout — it injects Google fonts (Geist, Cormorant Garamond), wraps every route in `next-themes` `ThemeProvider`, renders `SiteHeader`, `SiteFooter`, `WhatsAppFloat`, and a Sonner `Toaster`, and declares global SEO metadata (`metadataBase`, OpenGraph, Twitter card).
+- Routes are split into two Route Groups: `(info)` holds static content pages (about, contact, faq, privacy, returns, shipping, terms) that render through a shared `InfoPage` component; `(shop)` holds the commerce flow (cart, checkout, category listing, product detail, search, order view).
+- Dynamic segments use `[slug]` for products and categories, with parallel `loading.tsx` skeleton components at each level to drive Suspense fallbacks.
+- Data fetching is server-side inside page components via `@/lib/queries/*` functions (`getPublishedCategories`, `getPublishedProducts`, `getProductBySlug`, `getPublishedProductSlugs`); `generateStaticParams` pre-generates product slugs for SSG.
+- The only API route is `api/webhooks/payments/route.ts`, currently returning HTTP 501 as a stub pending gateway integration.
+- All UI composition lives in `@/components/storefront/*` and `@/components/ui/*`; this module itself contains no business logic beyond routing and page assembly.

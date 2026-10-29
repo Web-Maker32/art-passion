@@ -130,8 +130,8 @@ export async function createOrderFromCart(
         }
       }
 
-      await transaction.$queryRaw<Array<{ pg_advisory_xact_lock: null }>>`
-        SELECT pg_advisory_xact_lock(48201937)
+      await transaction.$queryRaw`
+        SELECT 1 AS locked FROM (SELECT pg_advisory_xact_lock(48201937)) AS advisory
       `;
 
       const latestRetry = await transaction.order.findUnique({
@@ -188,6 +188,8 @@ export async function createOrderFromCart(
           orderNotes: data.orderNotes || null,
           items: {
             create: cart.items.map((item) => ({
+              variantId: item.variantId,
+              madeToOrder: item.variant.product.madeToOrder,
               productTitle: item.variant.product.title,
               variantLabel: item.variant.label,
               unitPrice: item.variant.price,

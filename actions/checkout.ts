@@ -7,6 +7,7 @@ import {
   clearCartCookieAfterCheckout,
   getCurrentCartIdForCheckout,
 } from "@/lib/cart";
+import { setOrderAccessCookie } from "@/lib/order-access";
 import { createOrderFromCart, findOrderByIdempotencyKey } from "@/lib/orders";
 import { consumeRateLimit } from "@/lib/rate-limit";
 
@@ -90,6 +91,7 @@ export async function processCheckout(input: unknown): Promise<CheckoutActionRes
     }
 
     await clearCartCookieAfterCheckout();
+    await setOrderAccessCookie(result.orderNumber, result.accessToken);
     revalidatePath("/cart");
     revalidatePath("/");
     return {

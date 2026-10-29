@@ -1,0 +1,10 @@
+schema_version: 1
+module_path: business_logic/cart_domain
+title: Cart Domain Model & View Building
+scope:
+    - lib/cart-domain.ts
+    - lib/cart-types.ts
+    - lib/cart-whatsapp.ts
+source_files: []
+depends_on: []
+related_to: []

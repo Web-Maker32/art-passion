@@ -1,0 +1,1 @@
+Seeding requires `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD`, and `DATABASE_URL` env vars (loaded from `.env.local` then `.env`); running the seed exits with code 1 on failure.

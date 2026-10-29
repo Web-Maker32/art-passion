@@ -1,0 +1,1 @@
+Next.js App Router with Server Components, `next-themes` for dark mode, Google Fonts loaded via `next/font/google`, lucide-react icons, and Tailwind CSS classes defined in `globals.css`.

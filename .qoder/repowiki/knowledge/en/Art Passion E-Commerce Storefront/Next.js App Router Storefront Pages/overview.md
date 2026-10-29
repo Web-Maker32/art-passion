@@ -1,0 +1,1 @@
+Next.js App Router layout and page routes for the Art Passion storefront, covering the home page, shop sections (products, categories, cart, checkout), informational pages, and a placeholder payment webhook API.

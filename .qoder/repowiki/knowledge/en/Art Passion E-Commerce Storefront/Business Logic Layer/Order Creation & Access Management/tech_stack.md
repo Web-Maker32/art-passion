@@ -1,0 +1,1 @@
+Prisma client with raw SQL (`$queryRaw`) for `FOR UPDATE` cart locking and PostgreSQL advisory locks; Next.js `cookies()` server API; Node `node:crypto` for HMAC-SHA256 and `timingSafeEqual`; `server-only` import gate to enforce server-side usage.

@@ -1,0 +1,3 @@
+- Database access goes through the generated Prisma client in the data layer; business logic and routes never import raw SQL or connection strings.
+- Input validation uses Zod schemas co-located with the relevant business function, shared between route handlers and server actions.
+- Server-only code is isolated behind `server-only` imports so the same modules can be imported from both client and server without leaking secrets.

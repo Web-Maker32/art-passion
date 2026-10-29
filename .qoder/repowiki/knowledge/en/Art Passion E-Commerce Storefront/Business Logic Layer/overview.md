@@ -1,0 +1,1 @@
+Server-side business layer for the art-passion store, wiring cart, orders, payments, shipping, product queries, and WhatsApp/phone helpers around a shared Prisma + Zod configuration.

@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -23,30 +22,33 @@ const textFields: Array<{
   type?: string;
   autoComplete?: string;
   required?: boolean;
+  optional?: boolean;
 }> = [
   { name: "fullName", label: "Full name", autoComplete: "name", required: true },
   { name: "mobileNumber", label: "Mobile number", type: "tel", autoComplete: "tel", required: true },
-  { name: "email", label: "Email address", type: "email", autoComplete: "email" },
+  { name: "email", label: "Email address", type: "email", autoComplete: "email", optional: true },
   { name: "deliveryAddress", label: "Delivery address", autoComplete: "street-address", required: true },
   { name: "city", label: "City", autoComplete: "address-level2", required: true },
   { name: "province", label: "Province", autoComplete: "address-level1", required: true },
-  { name: "postalCode", label: "Postal code", autoComplete: "postal-code" },
+  { name: "postalCode", label: "Postal code", autoComplete: "postal-code", optional: true },
 ];
 
 export function CheckoutForm({
   idempotencyKey,
   whatsappHref,
+  navigate = (url) => window.location.replace(url),
 }: {
   idempotencyKey: string;
   whatsappHref: string | null;
+  navigate?: (url: string) => void;
 }) {
-  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const {
     register,
     control,
     handleSubmit,
     setError,
+    clearErrors,
     formState: { errors },
   } = useForm<CheckoutFormInput, unknown, CheckoutFormData>({
     resolver: zodResolver(checkoutSchema),
@@ -66,20 +68,41 @@ export function CheckoutForm({
     },
   });
 
-  const submit = handleSubmit((values) => {
-    startTransition(async () => {
-      const result = await processCheckout(values);
-      if (result.success) {
-        router.replace(
-          `/order/${encodeURIComponent(result.orderNumber)}?token=${encodeURIComponent(result.accessToken)}`,
-        );
-        return;
-      }
+  const submit = handleSubmit((values, event) => {
+    const formElement = event?.target;
+    if (!(formElement instanceof HTMLFormElement)) return;
+    if (formElement.dataset.submitting === "true") return;
+    formElement.dataset.submitting = "true";
+    clearErrors();
 
-      for (const [field, message] of Object.entries(result.fieldErrors ?? {})) {
-        setError(field as keyof CheckoutFormInput, { message });
+    startTransition(async () => {
+      try {
+        const result = await processCheckout(values);
+
+        if (result.success) {
+          navigate(
+            `/order/${encodeURIComponent(result.orderNumber)}?token=${encodeURIComponent(result.accessToken)}`,
+          );
+          return;
+        }
+
+        if (result.orderNumber) {
+          navigate(`/order/${encodeURIComponent(result.orderNumber)}`);
+          return;
+        }
+
+        for (const [field, message] of Object.entries(result.fieldErrors ?? {})) {
+          setError(field as keyof CheckoutFormInput, { message });
+        }
+        setError("root", { message: result.message });
+        delete formElement.dataset.submitting;
+      } catch (error) {
+        console.error("Checkout submission failed.", error);
+        setError("root", {
+          message: "We could not place your order. Check your connection and try again.",
+        });
+        delete formElement.dataset.submitting;
       }
-      setError("root", { message: result.message });
     });
   });
 
@@ -104,13 +127,13 @@ export function CheckoutForm({
           Delivery details
         </h2>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          {textFields.map(({ name, label, type = "text", autoComplete, required }) => {
+          {textFields.map(({ name, label, type = "text", autoComplete, required, optional }) => {
             const error = errors[name];
             const multiline = name === "deliveryAddress";
             return (
               <div className={multiline ? "sm:col-span-2" : undefined} key={name}>
                 <label className="mb-1.5 block text-sm font-medium" htmlFor={name}>
-                  {label}{required ? " *" : ""}
+                  {label}{required ? " *" : optional ? <span className="text-muted-foreground"> (optional)</span> : null}
                 </label>
                 {multiline ? (
                   <textarea
@@ -127,6 +150,8 @@ export function CheckoutForm({
                     autoComplete={autoComplete}
                     className="min-h-11 rounded-md px-3 focus-visible:ring-2 focus-visible:ring-ring/50"
                     id={name}
+                    inputMode={name === "mobileNumber" ? "tel" : undefined}
+                    placeholder={name === "mobileNumber" ? "03XX XXXXXXX" : undefined}
                     type={type}
                     {...register(name)}
                     aria-describedby={error ? `${name}-error` : undefined}
@@ -188,7 +213,7 @@ export function CheckoutForm({
           Easypaisa wallet transfer
         </h2>
         <p className="text-muted-foreground mt-2 text-sm leading-6">
-          After placing your order, you will see the Easypaisa account details. Send the payment screenshot on WhatsApp with your order number. Your order stays pending until payment is checked by hand.
+          Easypaisa wallet transfer is the only online payment method. After placing your order, you will see the account details. Send the payment screenshot on WhatsApp with your order number. Your order stays pending until payment is checked by hand.
         </p>
         {whatsappHref ? (
           <a

@@ -1,0 +1,6 @@
+- Each route group under `(info)` and `(shop)` exposes a single `page.tsx` file per URL segment, with dynamic segments named `[slug]` or `[orderNumber]`.
+- Server components fetch data directly from `@/lib/queries/*` using top-level `await` and pass results as props to presentational components.
+- SEO metadata is declared per-page via an exported `metadata: Metadata` object (and `generateMetadata` for dynamic routes) rather than inherited from the root layout.
+- Dynamic routes implement both `generateStaticParams` and `notFound()` from `next/navigation` to pre-render slugs and handle missing resources.
+- Loading states are provided by colocated `loading.tsx` files that render skeleton placeholders using Tailwind's muted color tokens.
+- External links to WhatsApp and other sites use `rel="noreferrer" target="_blank"` and build URLs through helper functions like `buildWhatsAppLink`.

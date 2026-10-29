@@ -1,0 +1,1 @@
+Pure domain logic for shopping cart operations: quantity clamping, cart view construction from raw records, and a WhatsApp message re-export.

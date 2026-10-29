@@ -1,0 +1,1 @@
+TypeScript-only pure functions with no runtime dependencies beyond the shared `@/lib/whatsapp` module.

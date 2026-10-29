@@ -1,0 +1,5 @@
+Three small files form a thin layer between persisted cart records and the UI-facing CartView:
+- `cart-types.ts` declares the public types (`CartLine`, `CartView`, `CartActionResult`) plus an `emptyCartView()` factory.
+- `cart-domain.ts` defines the internal `CartItemRecord` shape (nested variant/product) and exposes two pure functions: `addQuantityWithinLimits` (caps at stock and 20) and `buildCartView` (maps records to `CartLine`, derives availability/price-change messages, aggregates itemCount/subtotal/unavailableCount).
+- `cart-whatsapp.ts` is a one-line barrel that re-exports `buildCartOrderWhatsAppMessage` from `@/lib/whatsapp` under the alias `buildCartWhatsAppMessage`, keeping WhatsApp formatting out of this module's scope.
+Dependency direction is one-way: domain types are consumed by callers; no imports into other lib modules except the whatsapp barrel.

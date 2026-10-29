@@ -1,0 +1,1 @@
+Prisma ORM with PostgreSQL provider; Neon HTTP adapter (`@prisma/adapter-neon`) used in seeding; bcryptjs for password hashing in seed data.

@@ -1,0 +1,89 @@
+# 知识卡导出索引文件
+schema_version: 1
+locale: en-US
+branch: master
+nodes_managed: true
+exported_at: "2026-10-28T07:28:39Z"
+modules:
+    "":
+        dir_name: Art Passion E-Commerce Storefront
+        title: Art Passion E-Commerce Storefront
+        scope:
+            - .env.example
+            - .gitignore
+            - .prettierrc.json
+            - AGENTS.md
+            - README.md
+            - art-passion-src.zip
+            - components.json
+            - eslint.config.mjs
+            - next.config.ts
+            - package.json
+            - pnpm-lock.yaml
+            - pnpm-workspace.yaml
+            - prisma7.config.ts
+            - tsconfig.json
+            - vitest.config.mts
+            - vitest.setup.ts
+        source_files: []
+        children:
+            - app_routes
+            - business_logic
+            - data_layer
+        depends_on: []
+        related_to: []
+    app_routes:
+        dir_name: Next.js App Router Storefront Pages
+        title: Next.js App Router Storefront Pages
+        scope:
+            - app/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: business_logic
+    business_logic:
+        dir_name: Business Logic Layer
+        title: Business Logic Layer
+        scope:
+            - lib/
+        source_files: []
+        children:
+            - business_logic/cart_domain
+            - business_logic/orders_management
+        depends_on: []
+        related_to:
+            - path: app_routes
+            - path: data_layer
+    business_logic/cart_domain:
+        dir_name: Cart Domain Model & View Building
+        title: Cart Domain Model & View Building
+        scope:
+            - lib/cart-domain.ts
+            - lib/cart-types.ts
+            - lib/cart-whatsapp.ts
+        source_files: []
+        children: []
+        depends_on: []
+        related_to: []
+    business_logic/orders_management:
+        dir_name: Order Creation & Access Management
+        title: Order Creation & Access Management
+        scope:
+            - lib/orders.ts
+            - lib/order.ts
+            - lib/order-access.ts
+        source_files: []
+        children: []
+        depends_on: []
+        related_to: []
+    data_layer:
+        dir_name: Prisma Data Layer & Schema
+        title: Prisma Data Layer & Schema
+        scope:
+            - prisma/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: business_logic

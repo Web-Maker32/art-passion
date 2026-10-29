@@ -1,0 +1,3 @@
+- Environment variables are declared once in `lib/env.ts` using a Zod schema and re-exported as a typed `env` object rather than read directly from `process.env`.
+- Database access goes through the singleton `prisma` export from `lib/db.ts`, which guards against multiple Prisma instances during development.
+- Server-only modules import `server-only` at the top to prevent accidental client-side bundling of DB or secret-dependent code.

@@ -1,0 +1,4 @@
+- Every model primary key is a `String` generated via `@id @default(cuid())`.
+- Monotonic business states are expressed as Prisma enums (`Role`, `ProductType`, `ProductStatus`, `OrderStatus`, `PaymentMethod`) with sensible defaults on fields.
+- Referential integrity is declared explicitly with `@relation(fields:[...], references:[...], onDelete:...)` rather than relying on implicit relations.
+- Seed data is driven by arrays of plain objects consumed in loops that call `upsert` keyed on stable identifiers (`slug`, `sku`, `email`).

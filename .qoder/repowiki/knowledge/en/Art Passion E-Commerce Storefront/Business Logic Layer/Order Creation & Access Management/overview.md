@@ -1,0 +1,1 @@
+Server-side order checkout flow that converts a cart into an idempotent, stock-validated order and manages per-order access tokens via signed cookies.

@@ -46,10 +46,10 @@ export default async function Home() {
           <div className="max-w-2xl">
             <p className="bg-brand/30 text-brand-foreground inline-flex items-center gap-2 rounded-full border border-white/30 px-4 py-2 text-sm font-semibold">
               <Sparkles aria-hidden="true" className="text-gold-light size-4" />
-              Handmade in Pakistan, made to be treasured
+              Handmade in Pakistan made to be treasured
             </p>
             <h1 className="font-heading text-brand-foreground mt-6 text-4xl leading-tight font-bold tracking-tight sm:text-5xl lg:text-6xl">
-              Little things,
+              Little things
               <br />
               made with love.
             </h1>

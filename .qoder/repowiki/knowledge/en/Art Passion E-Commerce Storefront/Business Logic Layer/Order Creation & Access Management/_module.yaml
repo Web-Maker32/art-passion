@@ -1,0 +1,10 @@
+schema_version: 1
+module_path: business_logic/orders_management
+title: Order Creation & Access Management
+scope:
+    - lib/orders.ts
+    - lib/order.ts
+    - lib/order-access.ts
+source_files: []
+depends_on: []
+related_to: []

@@ -1,0 +1,4 @@
+- Checkout failures are surfaced as a typed `CheckoutRejected(reason)` error whose discriminant (`empty` | `review` | `stock`) is caught at the transaction boundary and mapped back to `{ status: 'rejected', reason }`.
+- Idempotency is enforced twice — before entering the transaction via `findOrderByIdempotencyKey` and again inside the transaction after advisory locking — with duplicate detection also catching Prisma P2002 unique violations.
+- External identifiers are validated against strict regexes (`orderNumberPattern`, `tokenPattern`, `signaturePattern`) before being accepted by cookie setters and parsers.
+- Sensitive values (access tokens) are never stored in plaintext: a raw token is paired with its hash (`accessTokenHash`) in the database, while the cookie carries a separate HMAC signature verified with `timingSafeEqual`.

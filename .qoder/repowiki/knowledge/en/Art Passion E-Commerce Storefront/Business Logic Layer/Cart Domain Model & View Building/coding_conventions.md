@@ -1,0 +1,3 @@
+- Domain state transformation is expressed as pure functions returning new objects rather than mutating inputs (e.g. `buildCartView`, `addQuantityWithinLimits`).
+- Public API surface is exposed via named exports from dedicated files, with internal record shapes kept separate from user-facing types (`CartItemRecord` vs `CartLine`/`CartView`).
+- Derived fields such as `lineTotal`, `itemCount`, `subtotal`, and `unavailableCount` are computed in a single pass over items using `map` + `reduce`/`filter` instead of being stored.

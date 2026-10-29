@@ -33,6 +33,8 @@ type CreatedOrder = {
   postalCode: string | null;
   items: {
     create: Array<{
+      variantId: string;
+      madeToOrder: boolean;
       productTitle: string;
       variantLabel: string;
       unitPrice: number;
@@ -338,5 +340,7 @@ describe("order creation", () => {
     expect(result.status).toBe("created");
     expect(database.variants.get("variant-1")).toBe(0);
     expect(database.orderRows[0]?.items.create[0]?.leadTimeDays).toBe(12);
+    expect(database.orderRows[0]?.items.create[0]?.madeToOrder).toBe(true);
+    expect(database.orderRows[0]?.items.create[0]?.variantId).toBe("variant-1");
   });
 });

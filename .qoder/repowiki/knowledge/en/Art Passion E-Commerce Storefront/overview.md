@@ -1,0 +1,1 @@
+Next.js storefront for the Art Passion art marketplace, wiring App Router pages to a Prisma-backed business layer over PostgreSQL via Neon.

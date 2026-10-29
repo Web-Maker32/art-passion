@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { Container } from "@/components/storefront/container";
 import { CheckoutForm } from "@/components/storefront/checkout-form";
 import { Button } from "@/components/ui/button";
@@ -14,20 +15,26 @@ import { buildWhatsAppLink } from "@/lib/whatsapp";
 export const metadata = {
   title: "Checkout",
   description: "Place your Art Passion order.",
+  robots: { index: false, follow: false },
 };
+
+export const instant = false;
 
 export default async function CheckoutPage() {
   const cart = await getCart();
-  if (cart.items.length === 0) redirect("/cart");
-  if (cart.items.some((item) => !item.available || item.message)) {
+  if (
+    cart.items.length === 0 ||
+    cart.items.some((item) => !item.available || item.message)
+  ) {
     redirect("/cart");
   }
 
   const shipping = calculateShippingFee(cart.subtotal);
   const total = cart.subtotal + shipping;
+  await connection();
   const idempotencyKey = randomUUID();
   const whatsappHref = buildWhatsAppLink({
-    number: process.env.WHATSAPP_NUMBER,
+    number: env.WHATSAPP_NUMBER,
     message: buildCartWhatsAppMessage(cart),
   });
 

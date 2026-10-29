@@ -120,6 +120,7 @@ model CartItem {
 
 model Order {
   id              String      @id @default(cuid())
+  createdAt       DateTime    @default(now())
   orderNumber     String      @unique
   status          OrderStatus @default(PENDING)
   paymentMethod   PaymentMethod @default(WALLET_TRANSFER)
@@ -140,22 +141,42 @@ model Order {
   giftNote        String?
   orderNotes      String?
   trackingNumber  String?
+  courierName     String?
+  paymentReference String?
+  stockRestoredAt DateTime?
   userId          String?
   user            User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
   items           OrderItem[]
+  events          OrderEvent[]
 
   @@index([status])
+  @@index([createdAt])
 }
 
 model OrderItem {
   id            String @id @default(cuid())
   orderId       String
+  variantId     String?
+  madeToOrder   Boolean @default(false)
   productTitle  String
   variantLabel  String
   unitPrice     Int
   quantity      Int
   leadTimeDays  Int?
   order         Order  @relation(fields: [orderId], references: [id], onDelete: Restrict)
+}
+
+model OrderEvent {
+  id         String       @id @default(cuid())
+  orderId    String
+  type       String
+  fromStatus OrderStatus?
+  toStatus   OrderStatus?
+  note       String?
+  createdAt  DateTime     @default(now())
+  order      Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId, createdAt])
 }
 
 model PaymentEvent {

@@ -1,14 +1,19 @@
 import type { Metadata } from "next";
 import { Container } from "@/components/storefront/container";
+import { env } from "@/lib/env";
 import { formatPrice } from "@/lib/format";
 import { prisma } from "@/lib/db";
-import { verifyOrderAccessToken } from "@/lib/crypto";
+import {
+  getOrderAccessCookieValue,
+  selectOrderAccessToken,
+} from "@/lib/order-access";
 import { manualEasypaisaProvider } from "@/lib/payments/manual";
 import { buildOrderPaymentWhatsAppMessage, buildWhatsAppLink } from "@/lib/whatsapp";
 
 export const metadata: Metadata = {
   title: "Order confirmation",
   robots: { index: false, follow: false },
+  referrer: "no-referrer",
 };
 
 export const instant = false;
@@ -23,18 +28,26 @@ export default async function OrderConfirmationPage({
   searchParams,
 }: OrderPageProps) {
   const [{ orderNumber }, query] = await Promise.all([params, searchParams]);
-  const token = typeof query.token === "string" ? query.token : "";
-  const order = await prisma.order.findUnique({
-    where: { orderNumber },
-    include: { items: true },
-  });
+  const urlToken = typeof query.token === "string" ? query.token : null;
+  const cookieValue = await getOrderAccessCookieValue(orderNumber);
+  const order =
+    urlToken || cookieValue
+      ? await prisma.order.findUnique({
+          where: { orderNumber },
+          include: { items: true },
+        })
+      : null;
+  const accessToken =
+    order && (urlToken || cookieValue)
+      ? selectOrderAccessToken({
+          orderNumber,
+          storedHash: order.accessTokenHash,
+          urlToken,
+          cookieValue,
+        })
+      : null;
 
-  if (
-    !order ||
-    !order.accessTokenHash ||
-    !token ||
-    !verifyOrderAccessToken(token, order.accessTokenHash)
-  ) {
+  if (!order || !accessToken) {
     return (
       <Container className="py-12 sm:py-16">
         <section className="border-silver bg-card mx-auto max-w-2xl rounded-xl border p-6 sm:p-9">
@@ -48,7 +61,7 @@ export default async function OrderConfirmationPage({
   }
 
   const whatsappHref = buildWhatsAppLink({
-    number: process.env.WHATSAPP_NUMBER,
+    number: env.WHATSAPP_NUMBER,
     message: buildOrderPaymentWhatsAppMessage({
       orderNumber: order.orderNumber,
       customerName: order.customerName,
@@ -129,7 +142,9 @@ export default async function OrderConfirmationPage({
           <aside className="border-silver bg-card h-fit rounded-xl border p-5">
             <div className="flex items-center justify-between gap-3">
               <h2 className="font-heading text-xl font-semibold">Payment</h2>
-              <span className="rounded-sm bg-gold/20 px-2 py-1 text-xs font-semibold">PENDING</span>
+              <span className="rounded-sm bg-gold/20 px-2 py-1 text-xs font-semibold text-gold-text">
+                {order.status}
+              </span>
             </div>
             <p className="mt-4 font-semibold">Easypaisa wallet transfer</p>
             <p className="text-muted-foreground mt-2 whitespace-pre-line text-sm leading-6">

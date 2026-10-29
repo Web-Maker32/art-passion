@@ -1,0 +1,1 @@
+Prisma with `@prisma/adapter-neon` for PostgreSQL, Zod for environment validation, and `server-only` to enforce server-side boundaries on database access.

@@ -1,0 +1,1 @@
+Defines the PostgreSQL data model, Prisma client generation, and seed script for the Art Passion e-commerce domain (users, products, variants, cart, orders, payments).

@@ -1,0 +1,1 @@
+Next.js 16 + React 19, Prisma 7 with Neon adapter (`@prisma/adapter-neon`), Zod v4 for validation, NextAuth 5 beta with `@auth/prisma-adapter`, shadcn/ui + Base UI + Tailwind CSS v4, Vitest + Testing Library for tests, pnpm workspace.

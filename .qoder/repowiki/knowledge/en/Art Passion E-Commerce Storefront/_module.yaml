@@ -1,0 +1,23 @@
+schema_version: 1
+module_path: ""
+title: Art Passion E-Commerce Storefront
+scope:
+    - .env.example
+    - .gitignore
+    - .prettierrc.json
+    - AGENTS.md
+    - README.md
+    - art-passion-src.zip
+    - components.json
+    - eslint.config.mjs
+    - next.config.ts
+    - package.json
+    - pnpm-lock.yaml
+    - pnpm-workspace.yaml
+    - prisma7.config.ts
+    - tsconfig.json
+    - vitest.config.mts
+    - vitest.setup.ts
+source_files: []
+depends_on: []
+related_to: []

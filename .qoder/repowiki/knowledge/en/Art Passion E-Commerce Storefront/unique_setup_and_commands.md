@@ -1,0 +1,1 @@
+`pnpm install` triggers `postinstall: prisma generate`; `pnpm db:push` / `pnpm db:migrate` sync or migrate the Neon database; `pnpm db:seed` runs `tsx prisma/seed.ts`; `pnpm test` runs Vitest; `pnpm typecheck` runs `tsc --noEmit`. Environment variables are loaded from `.env.local` by Prisma's config and Next.js runtime.

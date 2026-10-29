@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { ShoppingBag } from "lucide-react";
 import { CartCountBadge } from "@/components/storefront/cart-count-badge";
-import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetClose,
@@ -96,6 +95,12 @@ export function MiniCart({ cart }: { cart: CartView }) {
               Remove or update unavailable items before checkout.
             </p>
           )}
+          {cart.items.some((item) => item.message) &&
+            cart.unavailableCount === 0 && (
+              <p className="text-destructive text-sm" role="status">
+                Review updated prices before checkout.
+              </p>
+            )}
           <SheetClose
           nativeButton={false}
             render={
@@ -107,12 +112,17 @@ export function MiniCart({ cart }: { cart: CartView }) {
           >
             View cart
           </SheetClose>
-          <Button className="min-h-11 w-full" disabled type="button">
+          <SheetClose
+            nativeButton={false}
+            render={
+              <Link
+                className="bg-primary text-primary-foreground hover:bg-primary-hover focus-visible:outline-ring inline-flex min-h-11 items-center justify-center rounded-md px-4 py-2 font-semibold focus-visible:outline-2 focus-visible:outline-offset-2"
+                href="/checkout"
+              />
+            }
+          >
             Checkout
-          </Button>
-          <p className="text-muted-foreground text-center text-xs">
-            Checkout is coming soon.
-          </p>
+          </SheetClose>
         </SheetFooter>
       </SheetContent>
     </Sheet>
