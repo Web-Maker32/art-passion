@@ -2,6 +2,7 @@ import "server-only";
 
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
+import { io } from "next/cache";
 import { env } from "@/lib/env";
 
 export const adminSessionCookieName = "ap_admin_session";
@@ -94,8 +95,10 @@ export function verifyAdminSessionCookie(
 export async function readAdminSession(): Promise<AdminSession | null> {
   const cookieStore = await cookies();
   const value = cookieStore.get(adminSessionCookieName)?.value;
-  // Read the cookie (a dynamic API) before Date.now() is evaluated so
-  // cacheComponents sees the timestamp inside the request-time scope.
+  // cacheComponents: `Date.now()` is synchronous IO and throws unless the
+  // render has reached the dynamic stage. `cookies()` only defers to the
+  // session-data stage, so await `io()` to push the clock read to request time.
+  await io();
   return verifyAdminSessionCookie(value, Date.now());
 }
 

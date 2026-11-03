@@ -15,7 +15,7 @@ const productCardSelect = {
   createdAt: true,
   category: { select: { name: true, slug: true } },
   images: {
-    orderBy: { position: "asc" },
+    orderBy: [{ isPrimary: "desc" }, { position: "asc" }],
     take: 2,
     select: { url: true, alt: true },
   },
@@ -35,7 +35,7 @@ const productDetailSelect = {
   tags: true,
   leadTimeDays: true,
   images: {
-    orderBy: { position: "asc" },
+    orderBy: [{ isPrimary: "desc" }, { position: "asc" }],
     select: { id: true, url: true, alt: true, position: true },
   },
   variants: {

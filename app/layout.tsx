@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
-import { SiteFooter } from "@/components/storefront/site-footer";
-import { SiteHeader } from "@/components/storefront/site-header";
-import { WhatsAppFloat } from "@/components/storefront/whatsapp-float";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
@@ -73,18 +70,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           disableTransitionOnChange
           enableSystem
         >
-          <a
-            className="bg-card text-foreground sr-only rounded-md px-4 py-2 focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50"
-            href="#main-content"
-          >
-            Skip to content
-          </a>
-          <SiteHeader />
-          <main className="flex-1 pb-[88px]" id="main-content">
-            {children}
-          </main>
-          <SiteFooter />
-          <WhatsAppFloat />
+          {children}
           <Toaster />
         </ThemeProvider>
       </body>

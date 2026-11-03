@@ -81,16 +81,20 @@ model Product {
 model ProductImage {
   id        String  @id @default(cuid())
   productId String
+  publicId  String? @unique
   url       String
-  alt       String
+  alt       String  @default("")
   position  Int
+  isPrimary Boolean @default(false)
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId, position])
 }
 
 model Variant {
   id        String     @id @default(cuid())
   productId String
-  sku       String     @unique
+  sku       String?    @unique
   label     String
   price     Int
   stock     Int

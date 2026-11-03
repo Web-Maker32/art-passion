@@ -18,6 +18,12 @@ export function AdminHeader() {
             <Link className={navLinkClass} href="/admin">
               Dashboard
             </Link>
+            <Link className={navLinkClass} href="/admin/products">
+              Products
+            </Link>
+            <Link className={navLinkClass} href="/admin/categories">
+              Categories
+            </Link>
             <Link className={navLinkClass} href="/admin/orders">
               Orders
             </Link>

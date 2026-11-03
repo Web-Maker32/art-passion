@@ -9,6 +9,7 @@ import { getPublishedCategories } from "@/lib/queries/categories";
 import { categoryDescriptions } from "@/lib/queries/categories";
 import { getPublishedProducts } from "@/lib/queries/products";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
+import { StorefrontChrome } from "@/components/storefront/storefront-chrome";
 
 const organizationJsonLd = {
   "@context": "https://schema.org",
@@ -34,6 +35,7 @@ export default async function Home() {
   });
 
   return (
+    <StorefrontChrome>
     <div>
       <script
         type="application/ld+json"
@@ -209,5 +211,6 @@ export default async function Home() {
         </Container>
       </section>
     </div>
+    </StorefrontChrome>
   );
 }

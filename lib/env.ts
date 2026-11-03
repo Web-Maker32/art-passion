@@ -10,6 +10,9 @@ const envSchema = z.object({
   WALLET_TRANSFER_DETAILS: z.string().min(1, "Wallet transfer details are required"),
   WHATSAPP_NUMBER: z.string().min(10, "Valid WhatsApp number is required"),
   NEXT_PUBLIC_SITE_URL: z.string().url().default("http://localhost:3000"),
+  CLOUDINARY_CLOUD_NAME: z.string().min(1, "CLOUDINARY_CLOUD_NAME is required for image uploads"),
+  CLOUDINARY_API_KEY: z.string().min(1, "CLOUDINARY_API_KEY is required for image uploads"),
+  CLOUDINARY_API_SECRET: z.string().min(1, "CLOUDINARY_API_SECRET is required for image uploads"),
 });
 
 export const env = envSchema.parse({
@@ -22,4 +25,7 @@ export const env = envSchema.parse({
   WALLET_TRANSFER_DETAILS: process.env.WALLET_TRANSFER_DETAILS,
   WHATSAPP_NUMBER: process.env.WHATSAPP_NUMBER,
   NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
+  CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
+  CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
+  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
 });
