@@ -64,6 +64,26 @@ export const productFormSchema = z.object({
     .trim()
     .min(10, "Description must be at least 10 characters.")
     .max(5000),
+  shortDescription: z
+    .string()
+    .trim()
+    .max(240, "Short description must be at most 240 characters.")
+    .optional(),
+  whatsIncluded: z
+    .array(z.string().trim().min(1).max(80))
+    .max(30, "Add at most 30 included items.")
+    .optional(),
+  size: z.string().trim().max(80, "Size must be at most 80 characters.").optional(),
+  recommendedAge: z
+    .string()
+    .trim()
+    .max(80, "Recommended age must be at most 80 characters.")
+    .optional(),
+  safetyNote: z
+    .string()
+    .trim()
+    .max(500, "Safety note must be at most 500 characters.")
+    .optional(),
   categoryId: z.string().min(1, "Choose a category."),
   type: z.enum(["KIT", "FELT_SET", "GIFT_SET", "HANDMADE", "SUPPLY"], {
     message: "Choose a product type.",

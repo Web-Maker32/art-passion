@@ -44,7 +44,7 @@ export function ProductPurchasePanel({
         ? "Low stock"
         : "In stock";
   const message = [
-    `Hello Art Passion! I am interested in ${productTitle}.`,
+    `Hello Art Passion! I have a question about ${productTitle}.`,
     selected ? `Variant: ${selected.label}.` : "",
     `Quantity: ${quantity}.`,
     `Product: ${productUrl}`,
@@ -197,7 +197,7 @@ export function ProductPurchasePanel({
               rel="noreferrer"
               target="_blank"
             >
-              Order on WhatsApp
+              Ask about this product on WhatsApp
             </a>
           )}
         </>

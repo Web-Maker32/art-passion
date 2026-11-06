@@ -9,9 +9,9 @@ const staticRoutes = [
   "/about",
   "/contact",
   "/faq",
-  "/privacy",
-  "/returns",
-  "/shipping",
+  "/payment-info",
+  "/privacy-policy",
+  "/shipping-and-returns",
   "/terms",
 ];
 

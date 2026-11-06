@@ -61,21 +61,26 @@ model Category {
 }
 
 model Product {
-  id            String        @id @default(cuid())
-  createdAt     DateTime      @default(now())
-  categoryId    String
-  title         String
-  slug          String        @unique
-  description   String
-  type          ProductType
-  materials     String[]
-  tags          String[]
-  madeToOrder   Boolean       @default(false)
-  leadTimeDays  Int
-  status        ProductStatus @default(DRAFT)
-  category      Category      @relation(fields: [categoryId], references: [id], onDelete: Restrict)
-  images        ProductImage[]
-  variants      Variant[]
+  id               String        @id @default(cuid())
+  createdAt        DateTime      @default(now())
+  categoryId       String
+  title            String
+  slug             String        @unique
+  shortDescription String?
+  description      String
+  whatsIncluded    String[]      @default([])
+  type             ProductType
+  materials        String[]
+  size             String?
+  recommendedAge   String?
+  safetyNote       String?
+  tags             String[]
+  madeToOrder      Boolean       @default(false)
+  leadTimeDays     Int
+  status           ProductStatus @default(DRAFT)
+  category         Category      @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  images           ProductImage[]
+  variants         Variant[]
 }
 
 model ProductImage {

@@ -80,7 +80,7 @@ export default async function CategoryPage({
       </div>
       <div className="mt-8">
         <ProductGrid
-          emptyMessage="There are no published products in this category yet."
+          emptyMessage="This collection is still being prepared. Browse the full shop to see everything that is available now."
           emptyTitle="More handmade pieces coming soon"
           products={products}
         />

@@ -43,8 +43,8 @@ function revalidateProductPaths(productId?: string): void {
 }
 
 function mapZodIssues(error: {
-  issues: Array<{ path: Array<string | number>; message: string }>;
-}): { message: string; fieldErrors: Record<string, string> } {
+  issues: ReadonlyArray<{ path: ReadonlyArray<PropertyKey>; message: string }>;
+}): AdminProductActionResult {
   const fieldErrors: Record<string, string> = {};
   for (const issue of error.issues) {
     const key = issue.path
@@ -56,6 +56,7 @@ function mapZodIssues(error: {
     }
   }
   return {
+    success: false,
     message: "Check the highlighted fields and try again.",
     fieldErrors,
   };
@@ -206,7 +207,10 @@ export async function updateAdminVariantStock(
   const parsed = quickStockSchema.safeParse(input);
   if (!parsed.success) {
     const mapped = mapZodIssues(parsed.error);
-    return { success: false, message: mapped.fieldErrors["stock"] ?? mapped.message };
+    const stockError = mapped.success
+      ? undefined
+      : mapped.fieldErrors?.["stock"];
+    return { success: false, message: stockError ?? mapped.message };
   }
 
   const result = await updateVariantStock(

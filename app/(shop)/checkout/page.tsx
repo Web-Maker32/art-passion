@@ -7,9 +7,9 @@ import { CheckoutForm } from "@/components/storefront/checkout-form";
 import { Button } from "@/components/ui/button";
 import { getCart } from "@/lib/cart";
 import { buildCartWhatsAppMessage } from "@/lib/cart-whatsapp";
-import { env } from "@/lib/env";
 import { formatPrice } from "@/lib/format";
 import { calculateShippingFee } from "@/lib/shipping";
+import { siteConfig } from "@/lib/site-config";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 
 export const metadata = {
@@ -34,7 +34,7 @@ export default async function CheckoutPage() {
   await connection();
   const idempotencyKey = randomUUID();
   const whatsappHref = buildWhatsAppLink({
-    number: env.WHATSAPP_NUMBER,
+    number: siteConfig.whatsappNumber,
     message: buildCartWhatsAppMessage(cart),
   });
 
@@ -88,7 +88,7 @@ export default async function CheckoutPage() {
           </dl>
           {shipping > 0 && (
             <p className="text-muted-foreground mt-4 text-sm">
-              Add {formatPrice(env.FREE_SHIPPING_THRESHOLD - cart.subtotal)} more for free delivery.
+              Add {formatPrice(siteConfig.freeDeliveryThreshold - cart.subtotal)} more for free delivery.
             </p>
           )}
           <Button

@@ -124,6 +124,11 @@ export async function getOrderedVariantIds(variantIds: string[]): Promise<Set<st
 // Create / update
 // ---------------------------------------------------------------------------
 
+function emptyToNull(value: string | undefined): string | null {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : null;
+}
+
 function productData(
   data: ProductFormData,
 ): Prisma.ProductUpdateInput | Prisma.ProductCreateInput {
@@ -131,6 +136,11 @@ function productData(
     title: data.title,
     slug: data.slug,
     description: data.description,
+    shortDescription: emptyToNull(data.shortDescription),
+    whatsIncluded: data.whatsIncluded ?? [],
+    size: emptyToNull(data.size),
+    recommendedAge: emptyToNull(data.recommendedAge),
+    safetyNote: emptyToNull(data.safetyNote),
     type: data.type,
     status: data.status,
     madeToOrder: data.madeToOrder,
@@ -340,6 +350,11 @@ export async function duplicateProduct(
       title: true,
       slug: true,
       description: true,
+      shortDescription: true,
+      whatsIncluded: true,
+      size: true,
+      recommendedAge: true,
+      safetyNote: true,
       categoryId: true,
       type: true,
       madeToOrder: true,
@@ -361,6 +376,11 @@ export async function duplicateProduct(
       title,
       slug,
       description: source.description,
+      shortDescription: source.shortDescription,
+      whatsIncluded: source.whatsIncluded,
+      size: source.size,
+      recommendedAge: source.recommendedAge,
+      safetyNote: source.safetyNote,
       categoryId: source.categoryId,
       type: source.type,
       status: "DRAFT",

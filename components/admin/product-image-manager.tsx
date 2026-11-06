@@ -46,6 +46,14 @@ const ACCEPT = "image/jpeg,image/png,image/webp";
 const uploadButtonClass =
   "inline-flex h-9 cursor-pointer items-center justify-center rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground transition-colors hover-fine:hover:bg-primary-hover focus-visible:outline-ring focus-visible:outline-2 focus-visible:outline-offset-2 peer-focus-visible:outline-ring peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2";
 
+/** Kept outside the component so the React Compiler does not treat the
+ * time/random fallback as render-time impurity. */
+function createUploadId(): string {
+  return typeof crypto !== "undefined" && "randomUUID" in crypto
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random()}`;
+}
+
 /** Uploads a FormData payload straight to Cloudinary, reporting progress. */
 function uploadToCloudinary(
   url: string,
@@ -101,7 +109,7 @@ export function ProductImageManager({
   const countRef = useRef(initialImages.length);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const remaining = MAX_IMAGES_PER_PRODUCT - countRef.current;
+  const remaining = MAX_IMAGES_PER_PRODUCT - images.length;
 
   function patchUpload(localId: string, patch: Partial<UploadRow>) {
     setUploads((rows) =>
@@ -114,10 +122,7 @@ export function ProductImageManager({
   }
 
   async function uploadFile(file: File) {
-    const localId =
-      typeof crypto !== "undefined" && "randomUUID" in crypto
-        ? crypto.randomUUID()
-        : `${Date.now()}-${Math.random()}`;
+    const localId = createUploadId();
 
     const reason = validateImageFile(file.type, file.size);
     if (reason) {
@@ -196,7 +201,6 @@ export function ProductImageManager({
     const files = Array.from(event.target.files ?? []);
     event.target.value = ""; // allow re-selecting the same file
     for (const file of files) {
-      // eslint-disable-next-line no-await-in-loop
       await uploadFile(file);
     }
   }

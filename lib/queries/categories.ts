@@ -4,11 +4,7 @@ import { cacheLife } from "next/cache";
 import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db";
 
-export const categoryDescriptions: Record<string, string> = {
-  "felt-sets": "Hand-stitched felt friends for imaginative, screen-free play.",
-  "coloring-kits": "Thoughtful coloring and painting kits for little creators.",
-  "gift-sets": "Handmade gifts made to bring a little joy to someone special.",
-};
+export { categoryDescriptions } from "@/lib/catalog";
 
 const categorySelect = {
   id: true,
@@ -42,8 +38,10 @@ export async function getCategoryBySlug(
   "use cache";
   cacheLife("hours");
 
-  return prisma.category.findFirst({
-    where: { slug, products: { some: { status: "PUBLISHED" } } },
+  // Categories with no published products still resolve so the storefront can
+  // show a friendly empty state instead of a 404.
+  return prisma.category.findUnique({
+    where: { slug },
     select: categorySelect,
   });
 }

@@ -67,6 +67,11 @@ export function buildProductFormDefaults(
     title: product?.title ?? "",
     slug: product?.slug ?? "",
     description: product?.description ?? "",
+    shortDescription: product?.shortDescription ?? "",
+    whatsIncluded: product?.whatsIncluded ?? [],
+    size: product?.size ?? "",
+    recommendedAge: product?.recommendedAge ?? "",
+    safetyNote: product?.safetyNote ?? "",
     categoryId: product?.categoryId ?? categories[0]?.id ?? "",
     type: product?.type ?? "HANDMADE",
     status: product?.status ?? "DRAFT",
@@ -113,6 +118,9 @@ export function AdminProductForm({
     (product?.materials ?? []).join(", "),
   );
   const [tagsText, setTagsText] = useState((product?.tags ?? []).join(", "));
+  const [whatsIncludedText, setWhatsIncludedText] = useState(
+    (product?.whatsIncluded ?? []).join("\n"),
+  );
 
   const defaults = useMemo(
     () => buildProductFormDefaults(product, categories),
@@ -163,7 +171,7 @@ export function AdminProductForm({
   }
 
   function applyListErrors(result: AdminProductActionResult) {
-    if (!result.fieldErrors) return;
+    if (result.success || !result.fieldErrors) return;
     for (const [field, message] of Object.entries(result.fieldErrors)) {
       if (field === "slug") {
         setError("slug", { type: "server", message });
@@ -182,6 +190,10 @@ export function AdminProductForm({
         .filter(Boolean),
       tags: tagsText
         .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean),
+      whatsIncluded: whatsIncludedText
+        .split(/[\n,]+/)
         .map((item) => item.trim())
         .filter(Boolean),
     };
@@ -279,7 +291,22 @@ export function AdminProductForm({
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="product-description">Description</Label>
+          <Label htmlFor="product-short-description">
+            Short description{" "}
+            <span className="text-muted-foreground">(optional)</span>
+          </Label>
+          <Textarea
+            id="product-short-description"
+            rows={2}
+            placeholder="One or two lines used in search results and product cards."
+            {...register("shortDescription")}
+            aria-invalid={Boolean(errors.shortDescription)}
+          />
+          <FieldError message={errors.shortDescription?.message} />
+        </div>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="product-description">Full description</Label>
           <Textarea
             id="product-description"
             rows={6}
@@ -400,6 +427,77 @@ export function AdminProductForm({
             />
             <FieldError message={errors.leadTimeDays?.message} />
           </div>
+        </div>
+      </section>
+
+      {/* Product page details */}
+      <section className="border-silver bg-card space-y-4 rounded-xl border p-4 sm:p-6">
+        <div>
+          <h2 className="font-heading text-lg font-semibold">Product page details</h2>
+          <p className="text-muted-foreground text-sm">
+            These appear below the price on the storefront product page.
+          </p>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-1.5">
+            <Label htmlFor="product-size">
+              Size <span className="text-muted-foreground">(optional)</span>
+            </Label>
+            <Input
+              id="product-size"
+              placeholder="e.g. 20 cm × 15 cm"
+              {...register("size")}
+              aria-invalid={Boolean(errors.size)}
+            />
+            <FieldError message={errors.size?.message} />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="product-age">
+              Recommended age{" "}
+              <span className="text-muted-foreground">(optional)</span>
+            </Label>
+            <Input
+              id="product-age"
+              placeholder="e.g. 3 years and up"
+              {...register("recommendedAge")}
+              aria-invalid={Boolean(errors.recommendedAge)}
+            />
+            <FieldError message={errors.recommendedAge?.message} />
+          </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="product-included">
+            What&apos;s included{" "}
+            <span className="text-muted-foreground">(one item per line)</span>
+          </Label>
+          <Textarea
+            id="product-included"
+            onChange={(event) => setWhatsIncludedText(event.target.value)}
+            placeholder={"Felt animals\nCotton storage bag\nCare card"}
+            rows={4}
+            value={whatsIncludedText}
+          />
+          <p className="text-muted-foreground text-xs">
+            Shown as a checklist on the product page. Commas also work as
+            separators.
+          </p>
+        </div>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="product-safety">
+            Safety note <span className="text-muted-foreground">(optional)</span>
+          </Label>
+          <Textarea
+            id="product-safety"
+            rows={3}
+            placeholder="e.g. Contains small parts. Adult supervision recommended."
+            {...register("safetyNote")}
+            aria-invalid={Boolean(errors.safetyNote)}
+          />
+          <FieldError message={errors.safetyNote?.message} />
         </div>
       </section>
 

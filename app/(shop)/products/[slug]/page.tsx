@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ProductGallery } from "@/components/storefront/product-gallery";
 import { ProductGrid } from "@/components/storefront/product-grid";
 import { ProductPurchasePanel } from "@/components/storefront/product-purchase-panel";
 import { SectionHeading } from "@/components/storefront/section-heading";
 import { formatPrice } from "@/lib/format";
+import { deliveryInfoLine, siteConfig } from "@/lib/site-config";
 import {
   getProductBySlug,
   getPublishedProductSlugs,
@@ -35,12 +37,13 @@ export async function generateMetadata({
   if (!product) return { title: "Product not found" };
 
   const image = product.images[0];
+  const description = product.shortDescription ?? product.description;
   return {
     title: product.title,
-    description: product.description,
+    description,
     openGraph: {
       title: product.title,
-      description: product.description,
+      description,
       type: "website",
       ...(image
         ? { images: [{ url: image.url, alt: image.alt || product.title }] }
@@ -113,6 +116,11 @@ export default async function ProductPage({
               From {formatPrice(product.variants[0].price)}
             </p>
           )}
+          {product.shortDescription && (
+            <p className="mt-4 text-lg leading-8 text-muted-foreground">
+              {product.shortDescription}
+            </p>
+          )}
           <p className="mt-5 whitespace-pre-line leading-7 text-muted-foreground">
             {product.description}
           </p>
@@ -123,9 +131,64 @@ export default async function ProductPage({
               productTitle={product.title}
               productUrl={productUrl}
               variants={product.variants}
-              whatsappNumber={process.env.WHATSAPP_NUMBER}
+              whatsappNumber={siteConfig.whatsappNumber}
             />
           </div>
+          {product.whatsIncluded.length > 0 && (
+            <section className="mt-7">
+              <h2 className="font-heading text-lg font-semibold">
+                What&apos;s included
+              </h2>
+              <ul className="mt-2 space-y-1.5">
+                {product.whatsIncluded.map((item) => (
+                  <li className="flex gap-2 text-muted-foreground" key={item}>
+                    <Check
+                      aria-hidden="true"
+                      className="mt-1 size-4 shrink-0 text-brand"
+                    />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+          {(product.size || product.recommendedAge) && (
+            <dl className="mt-6 grid gap-3 sm:grid-cols-2">
+              {product.size && (
+                <div className="rounded-lg border border-silver bg-card p-3">
+                  <dt className="text-xs font-semibold tracking-wide uppercase">
+                    Size
+                  </dt>
+                  <dd className="mt-1 text-sm">{product.size}</dd>
+                </div>
+              )}
+              {product.recommendedAge && (
+                <div className="rounded-lg border border-silver bg-card p-3">
+                  <dt className="text-xs font-semibold tracking-wide uppercase">
+                    Recommended age
+                  </dt>
+                  <dd className="mt-1 text-sm">{product.recommendedAge}</dd>
+                </div>
+              )}
+            </dl>
+          )}
+          {product.safetyNote && (
+            <p className="mt-4 rounded-lg border border-gold/50 bg-muted px-4 py-3 text-sm text-muted-foreground">
+              <strong className="font-semibold text-foreground">
+                Safety note:{" "}
+              </strong>
+              {product.safetyNote}
+            </p>
+          )}
+          <p className="mt-4 text-sm text-muted-foreground">
+            {deliveryInfoLine}.{" "}
+            <Link
+              className="text-foreground underline underline-offset-4"
+              href="/shipping-and-returns"
+            >
+              Delivery details
+            </Link>
+          </p>
           {product.materials.length > 0 && (
             <section className="mt-7">
               <h2 className="font-heading text-lg font-semibold">Materials</h2>

@@ -1,35 +1,47 @@
-import type { Metadata } from "next";
-import { InfoPage } from "@/components/storefront/info-page";
+import { CtaLink } from "@/components/content/cta";
+import { PageSection, PageShell } from "@/components/content/PageShell";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { faqItems } from "@/lib/content/faq";
+import { contentMetadata } from "@/lib/content/metadata";
 
-export const metadata: Metadata = {
+export const metadata = contentMetadata({
   title: "Frequently asked questions",
-  description: "Answers to common questions about Art Passion products and orders.",
-};
+  description:
+    "Answers about ordering, Easypaisa payment, delivery, handmade differences, custom orders and order status at Art Passion.",
+});
 
 export default function FaqPage() {
-  // Draft page copy — review answers and add store-specific details before launch.
   return (
-    <InfoPage
-      intro="A few helpful answers about choosing, caring for, and ordering handmade pieces."
-      sections={[
-        {
-          heading: "Are your products handmade?",
-          body: "Yes. Our felt pieces and gift items are made by hand in small batches. Each one may have tiny differences that make it uniquely yours.",
-        },
-        {
-          heading: "How long does a made-to-order item take?",
-          body: "The product page shows the estimated preparation time. Please message us before ordering if you need an item by a particular date.",
-        },
-        {
-          heading: "Can I ask for a custom gift?",
-          body: "We are happy to discuss ideas and availability. Send us a message on WhatsApp and we can talk through what may be possible.",
-        },
-        {
-          heading: "How can I get help with an order?",
-          body: "Visit our Contact page and message us on WhatsApp or email. Please include your order details if you already placed an order.",
-        },
-      ]}
+    <PageShell
+      intro="Short answers to the questions that come up most often. If yours is not here, please ask."
       title="Frequently asked questions"
-    />
+    >
+      <Accordion className="border-silver bg-card rounded-2xl border px-5 sm:px-6">
+        {faqItems.map((item, index) => (
+          <AccordionItem key={item.question} value={`faq-${index}`}>
+            <AccordionTrigger>{item.question}</AccordionTrigger>
+            <AccordionContent>{item.answer}</AccordionContent>
+          </AccordionItem>
+        ))}
+      </Accordion>
+
+      <PageSection heading="Still need help?">
+        <p>
+          Send a message with your question, and your order number if you have
+          one. A real person replies, usually the same person who made the item.
+        </p>
+        <div className="flex flex-wrap gap-3">
+          <CtaLink href="/contact">Contact us</CtaLink>
+          <CtaLink href="/payment-info" variant="outline">
+            How payment works
+          </CtaLink>
+        </div>
+      </PageSection>
+    </PageShell>
   );
 }

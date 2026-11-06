@@ -31,6 +31,11 @@ export type ProductCardData = Prisma.ProductGetPayload<{
 
 const productDetailSelect = {
   ...productCardSelect,
+  shortDescription: true,
+  whatsIncluded: true,
+  size: true,
+  recommendedAge: true,
+  safetyNote: true,
   materials: true,
   tags: true,
   leadTimeDays: true,

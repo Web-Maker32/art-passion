@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { CtaLink } from "@/components/content/cta";
 import { ProductGrid } from "@/components/storefront/product-grid";
 import { SectionHeading } from "@/components/storefront/section-heading";
+import { storeCategories } from "@/lib/catalog";
 import { searchPublishedProducts } from "@/lib/queries/products";
+
+const suggestedTerms = ["felt", "coloring kit", "painting kit", "gift set"];
 
 export const metadata: Metadata = {
   title: "Search handmade products",
@@ -53,11 +58,55 @@ export default async function SearchPage({
             {" "}
             <span className="font-semibold text-foreground">“{query}”</span>
           </p>
-          <ProductGrid
-            emptyMessage="Try a different word, or browse all of our handmade pieces."
-            emptyTitle="We could not find a match"
-            products={products}
-          />
+          {products.length > 0 ? (
+            <ProductGrid
+              emptyMessage="Try a different word, or browse all of our handmade pieces."
+              emptyTitle="We could not find a match"
+              products={products}
+            />
+          ) : (
+            <div className="rounded-2xl border border-dashed border-silver-strong bg-muted/60 px-6 py-10">
+              <h2 className="font-heading text-center text-xl font-semibold">
+                No results for “{query}”
+              </h2>
+              <p className="text-muted-foreground mx-auto mt-2 max-w-lg text-center">
+                Check the spelling or try a broader word. These usually help:
+              </p>
+              <ul className="mt-4 flex flex-wrap justify-center gap-2">
+                {suggestedTerms.map((term) => (
+                  <li key={term}>
+                    <Link
+                      className="focus-visible:outline-ring inline-flex min-h-11 items-center rounded-full border border-silver px-4 text-sm font-medium hover-fine:hover:border-brand hover-fine:hover:bg-brand/5 focus-visible:outline-2 focus-visible:outline-offset-2"
+                      href={`/search?q=${encodeURIComponent(term)}`}
+                    >
+                      {term}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+              <p className="text-muted-foreground mt-6 text-center text-sm">
+                Or browse a collection:
+              </p>
+              <ul className="mt-2 flex flex-wrap justify-center gap-2">
+                {storeCategories.map((category) => (
+                  <li key={category.slug}>
+                    <Link
+                      className="focus-visible:outline-ring inline-flex min-h-11 items-center rounded-full border border-silver px-4 text-sm font-medium hover-fine:hover:border-brand hover-fine:hover:bg-brand/5 focus-visible:outline-2 focus-visible:outline-offset-2"
+                      href={`/categories/${category.slug}`}
+                    >
+                      {category.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-7 flex flex-wrap justify-center gap-3">
+                <CtaLink href="/products">Browse all products</CtaLink>
+                <CtaLink href="/contact" variant="outline">
+                  Ask us for help
+                </CtaLink>
+              </div>
+            </div>
+          )}
         </>
       ) : (
         <p className="rounded-xl bg-muted p-6 text-muted-foreground">

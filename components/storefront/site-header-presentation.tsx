@@ -14,12 +14,12 @@ import {
 } from "@/components/storefront/navigation-links";
 import { MiniCart } from "@/components/storefront/mini-cart";
 import type { CartView } from "@/lib/cart-types";
+import { siteConfig } from "@/lib/site-config";
 
 export function SiteHeaderPresentation({ cart }: { cart: CartView }) {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const { resolvedTheme, setTheme } = useTheme();
-  const isDark = resolvedTheme === "dark";
 
   useEffect(() => {
     const updateScrollState = () => setScrolled(window.scrollY > 8);
@@ -36,7 +36,7 @@ export function SiteHeaderPresentation({ cart }: { cart: CartView }) {
     >
       <Container className="flex min-h-[72px] items-center justify-between gap-3 py-2 sm:min-h-[88px] sm:gap-5">
         <Link
-          aria-label="Art Passion home"
+          aria-label={`${siteConfig.storeName} home`}
           className="focus-visible:outline-gold-light flex min-w-0 shrink-0 items-center gap-2 rounded-sm p-2 focus-visible:outline-2 focus-visible:outline-offset-4 sm:gap-3"
           href="/"
         >
@@ -48,10 +48,10 @@ export function SiteHeaderPresentation({ cart }: { cart: CartView }) {
           />
           <span className="hidden min-w-0 min-[640px]:block">
             <span className="font-brand-display text-brand-gold block text-3xl leading-none font-semibold whitespace-nowrap">
-              Art Passion
+              {siteConfig.storeName}
             </span>
             <span className="text-brand-foreground mt-1 block text-xs tracking-wide">
-              the passion of art
+              {siteConfig.tagline}
             </span>
           </span>
         </Link>
