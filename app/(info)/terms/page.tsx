@@ -7,7 +7,8 @@ import { deliveryInfoLine, siteConfig } from "@/lib/site-config";
 export const metadata = contentMetadata({
   title: "Terms",
   description:
-    "The basics of ordering handmade items from Art Passion: prices, payment, delivery, returns and handmade variations.",
+    "The basics of ordering handmade pieces from Art Passion: prices in Pakistani rupees, Easypaisa payment, delivery, returns, exchanges and handmade variations.",
+  path: "/terms",
 });
 
 export default function TermsPage() {

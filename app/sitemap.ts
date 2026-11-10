@@ -1,25 +1,32 @@
 import type { MetadataRoute } from "next";
+import { prisma } from "@/lib/db";
+import { buildSitemapEntries } from "@/lib/seo/sitemap-entries";
 
-const baseUrl =
-  process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+/**
+ * Public pages only. Published products keep their real updatedAt; if the
+ * database cannot be reached the static pages are still published, so a build
+ * never fails just because Neon is unavailable.
+ */
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  try {
+    const [categories, products] = await Promise.all([
+      prisma.category.findMany({
+        where: { products: { some: { status: "PUBLISHED" } } },
+        select: { slug: true },
+      }),
+      prisma.product.findMany({
+        where: { status: "PUBLISHED" },
+        select: { slug: true, updatedAt: true },
+      }),
+    ]);
 
-const staticRoutes = [
-  "",
-  "/products",
-  "/about",
-  "/contact",
-  "/faq",
-  "/payment-info",
-  "/privacy-policy",
-  "/shipping-and-returns",
-  "/terms",
-];
+    return buildSitemapEntries({ categories, products });
+  } catch (error) {
+    console.warn(
+      "Sitemap: the catalogue could not be read, publishing static pages only.",
+      error instanceof Error ? error.message : "unknown error",
+    );
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  return staticRoutes.map((route) => ({
-    url: `${baseUrl}${route}`,
-    lastModified: new Date(),
-    changeFrequency: "weekly" as const,
-    priority: route === "" ? 1 : 0.7,
-  }));
+    return buildSitemapEntries({ categories: [], products: [] });
+  }
 }

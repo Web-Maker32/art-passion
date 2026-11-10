@@ -85,12 +85,11 @@ export async function getPublishedProducts({
         }
       : undefined;
 
+  const category = categorySlug ?? filters?.category;
   const products = await prisma.product.findMany({
     where: {
       status: "PUBLISHED",
-      ...(!categorySlug && filters?.category
-        ? { category: { slug: filters.category } }
-        : {}),
+      ...(category ? { category: { slug: category } } : {}),
       ...(filters?.type ? { type: filters.type } : {}),
       ...(variantsFilter ? { variants: { some: variantsFilter } } : {}),
     },
@@ -110,6 +109,31 @@ export async function getPublishedProducts({
   }
 
   return products;
+}
+
+export async function getRelatedProducts({
+  categorySlug,
+  productSlug,
+}: {
+  categorySlug: string;
+  productSlug: string;
+}): Promise<ProductCardData[]> {
+  const categoryProducts = await getPublishedProducts({ categorySlug });
+  const related = categoryProducts
+    .filter((product) => product.slug !== productSlug)
+    .slice(0, 4);
+
+  if (related.length === 4) return related;
+
+  const excludedSlugs = new Set([
+    productSlug,
+    ...related.map((product) => product.slug),
+  ]);
+  const fallback = (await getPublishedProducts())
+    .filter((product) => !excludedSlugs.has(product.slug))
+    .slice(0, 4 - related.length);
+
+  return [...related, ...fallback];
 }
 
 export async function getFeaturedProducts(take = 4): Promise<ProductCardData[]> {

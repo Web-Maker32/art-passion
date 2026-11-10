@@ -8,7 +8,8 @@ import { buildWhatsAppLink } from "@/lib/whatsapp";
 export const metadata = contentMetadata({
   title: "Payment information",
   description:
-    "How to pay for an Art Passion order with Easypaisa, what to send after paying, and how cash on delivery can be arranged.",
+    "How to pay for an Art Passion order with an Easypaisa wallet transfer, what to send after paying, and how to arrange cash on delivery through WhatsApp.",
+  path: "/payment-info",
 });
 
 export default function PaymentInfoPage() {

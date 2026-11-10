@@ -12,11 +12,29 @@ import {
   type SearchParamsRecord,
 } from "@/lib/product-filters";
 
-export const metadata: Metadata = {
-  title: "Shop handmade",
-  description:
-    "Browse handmade felt play sets, art kits, and thoughtful gifts from Art Passion.",
-};
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParamsRecord>;
+}): Promise<Metadata> {
+  const hasFilters = Object.keys(await searchParams).length > 0;
+
+  return {
+    title: "Shop handmade",
+    description:
+      "Browse every handmade Art Passion piece: felt play sets, coloring kits, painting kits and gift sets, made by hand in Pakistan and posted to your door.",
+    alternates: { canonical: "/products" },
+    // Filtered and paginated views are thin duplicates of the clean listing.
+    robots: hasFilters ? { index: false, follow: true } : undefined,
+    openGraph: {
+      title: "Shop handmade | Art Passion",
+      description:
+        "Browse every handmade Art Passion piece: felt play sets, coloring kits, painting kits and gift sets, made by hand in Pakistan and posted to your door.",
+      url: "/products",
+      type: "website",
+    },
+  };
+}
 
 const PAGE_SIZE = 12;
 
@@ -41,6 +59,7 @@ export default async function ProductsPage({
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
       <SectionHeading
         description="Discover handmade play sets, creative kits, and gifts made with care."
+        level={1}
         title="Shop the collection"
       />
       <ProductFiltersPanel categories={categories} filters={filters} />

@@ -219,7 +219,7 @@ export function CheckoutForm({
           <a
             className="border-brand text-foreground lift-sm press hover-fine:hover:bg-brand/5 focus-visible:outline-ring mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-md border px-4 py-2 text-center font-semibold focus-visible:outline-2 focus-visible:outline-offset-2"
             href={whatsappHref}
-            rel="noreferrer"
+            rel="noopener noreferrer"
             target="_blank"
           >
             Prefer cash on delivery? Order on WhatsApp

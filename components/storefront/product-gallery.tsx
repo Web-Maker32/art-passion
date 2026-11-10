@@ -20,6 +20,8 @@ export function ProductGallery({
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [zoomed, setZoomed] = useState(false);
   const selected = images[selectedIndex];
+  // Empty alt values in the database fall back to the product name.
+  const selectedAlt = selected?.alt || title;
 
   if (!selected) {
     return (
@@ -39,14 +41,14 @@ export function ProductGallery({
         <DialogTrigger
           render={
             <button
-              aria-label={`Zoom image: ${selected.alt}`}
+              aria-label={`Zoom image: ${selectedAlt}`}
               className="relative block aspect-square w-full overflow-hidden rounded-2xl bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
               type="button"
             />
           }
         >
           <Image
-            alt={selected.alt}
+            alt={selectedAlt}
             className="object-cover"
             fill
             priority
@@ -58,7 +60,7 @@ export function ProductGallery({
           <DialogTitle className="sr-only">{title} enlarged image</DialogTitle>
           <div className="relative h-[calc(90vh-3rem)] w-full">
             <Image
-              alt={selected.alt}
+              alt={selectedAlt}
               className="object-contain"
               fill
               sizes="96vw"
@@ -71,7 +73,7 @@ export function ProductGallery({
         <div aria-label="Product image thumbnails" className="flex gap-3">
           {images.map((image, index) => (
             <button
-              aria-label={`Show image ${index + 1}: ${image.alt}`}
+              aria-label={`Show image ${index + 1}: ${image.alt || title}`}
               aria-pressed={index === selectedIndex}
               className={`relative size-16 overflow-hidden rounded-lg border-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring sm:size-20 ${
                 index === selectedIndex ? "border-brand" : "border-silver"

@@ -186,7 +186,7 @@ export default async function AdminOrderDetailPage({
               <a
                 className="bg-primary text-primary-foreground lift-sm press hover-fine:hover:bg-primary-hover focus-visible:outline-ring mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-md px-4 py-2 text-center font-semibold focus-visible:outline-2 focus-visible:outline-offset-2"
                 href={whatsappHref}
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 target="_blank"
               >
                 Message customer on WhatsApp

@@ -6,9 +6,10 @@ import { isOwnerTodo, siteConfig } from "@/lib/site-config";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 
 export const metadata = contentMetadata({
-  title: "Contact Art Passion",
+  title: "Contact us",
   description:
-    "Ask about a handmade product, a gift, or an order. Contact Art Passion on WhatsApp, by email, or through social media.",
+    "Questions about a handmade piece, an order or a gift? Message Art Passion on WhatsApp, send an email, or follow the shop on Instagram and Facebook anytime.",
+  path: "/contact",
 });
 
 const buttonClass =
@@ -40,7 +41,7 @@ export default function ContactPage() {
           <a
             className={buttonClass}
             href={whatsapp}
-            rel="noreferrer"
+            rel="noopener noreferrer"
             target="_blank"
           >
             <MessageCircle aria-hidden="true" className="size-5" />
@@ -77,7 +78,7 @@ export default function ContactPage() {
               <a
                 className={outlineButtonClass}
                 href={siteConfig.instagramUrl}
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 target="_blank"
               >
                 Instagram
@@ -87,7 +88,7 @@ export default function ContactPage() {
               <a
                 className={outlineButtonClass}
                 href={siteConfig.facebookUrl}
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 target="_blank"
               >
                 Facebook

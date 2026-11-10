@@ -1,5 +1,7 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Heart, MessageCircle, Sparkles } from "lucide-react";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { Container } from "@/components/storefront/container";
 import { Logo } from "@/components/logo";
 import { ProductGrid } from "@/components/storefront/product-grid";
@@ -8,17 +10,14 @@ import { SectionHeading } from "@/components/storefront/section-heading";
 import { getPublishedCategories } from "@/lib/queries/categories";
 import { categoryDescriptions } from "@/lib/queries/categories";
 import { getPublishedProducts } from "@/lib/queries/products";
+import { buildStoreJsonLd } from "@/lib/seo/json-ld";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { StorefrontChrome } from "@/components/storefront/storefront-chrome";
 
-const organizationJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  name: "Art Passion",
-  logo: new URL(
-    "/logo-badge.png",
-    process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
-  ).toString(),
+// Title and description come from the root layout defaults, which describe the
+// home page. Only the canonical has to be stated here.
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
 };
 
 export default async function Home() {
@@ -37,12 +36,7 @@ export default async function Home() {
   return (
     <StorefrontChrome>
     <div>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(organizationJsonLd).replace(/</g, "\\u003c"),
-        }}
-      />
+      <JsonLd data={buildStoreJsonLd()} />
       <section className="bg-brand-hero">
         <Container className="grid items-center gap-10 py-16 sm:py-24 lg:grid-cols-[1.1fr_0.9fr] lg:py-28">
           <div className="max-w-2xl">
@@ -193,7 +187,7 @@ export default async function Home() {
               <a
                 className="bg-brand text-brand-foreground hover:bg-brand-hover focus-visible:outline-ring inline-flex min-h-12 shrink-0 items-center gap-2 rounded-md px-5 py-3 font-semibold lift-sm press focus-visible:outline-2 focus-visible:outline-offset-2"
                 href={whatsapp}
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 target="_blank"
               >
                 <MessageCircle aria-hidden="true" className="size-5" />

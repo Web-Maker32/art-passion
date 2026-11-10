@@ -2,12 +2,14 @@ import { MessageCircle } from "lucide-react";
 import { CtaLink } from "@/components/content/cta";
 import { PageSection, PageShell } from "@/components/content/PageShell";
 import { contentMetadata } from "@/lib/content/metadata";
-import { deliveryInfoLine, siteConfig } from "@/lib/site-config";
+import { siteConfig } from "@/lib/site-config";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 
 export const metadata = contentMetadata({
   title: "Shipping and returns",
-  description: `${deliveryInfoLine}. How handmade Art Passion orders are packed, delivered and returned.`,
+  description:
+    "How Art Passion packs and posts handmade orders across Pakistan, what delivery costs, how long pieces take to make, and how returns and exchanges are handled.",
+  path: "/shipping-and-returns",
 });
 
 export default function ShippingAndReturnsPage() {

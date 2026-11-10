@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Cormorant_Garamond, Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/sonner";
+import { siteConfig } from "@/lib/site-config";
+import { getSiteUrl } from "@/lib/seo/site-url";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -20,20 +22,27 @@ const cormorantGaramond = Cormorant_Garamond({
   weight: ["500", "600", "700"],
 });
 
+// The home page description doubles as the default for any route that does not
+// set its own. Canonicals are set per page, never here, so a page cannot
+// inherit the wrong canonical URL.
+const defaultTitle = `${siteConfig.storeName} | Handmade felt play sets and art kits in Pakistan`;
+const defaultDescription =
+  "Art Passion makes handmade felt play sets, coloring kits, painting kits and gift sets in Pakistan, packed by hand and posted with care across the country.";
+
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
-  ),
+  metadataBase: new URL(getSiteUrl()),
   title: {
-    default: "Art Passion | the passion of art",
-    template: "%s | Art Passion",
+    default: defaultTitle,
+    template: `%s | ${siteConfig.storeName}`,
   },
-  description:
-    "Handmade felt play sets, creative kits, and thoughtful gifts, made with passion in Pakistan.",
+  description: defaultDescription,
+  applicationName: siteConfig.storeName,
   openGraph: {
-    title: "Art Passion | the passion of art",
-    description:
-      "Handmade felt play sets, creative kits, and thoughtful gifts, made with passion in Pakistan.",
+    title: defaultTitle,
+    description: defaultDescription,
+    siteName: siteConfig.storeName,
+    locale: "en_PK",
+    type: "website",
     images: [
       {
         url: "/og-image.png",
@@ -42,13 +51,11 @@ export const metadata: Metadata = {
         alt: "Art Passion - the passion of art",
       },
     ],
-    type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Art Passion | the passion of art",
-    description:
-      "Handmade felt play sets, creative kits, and thoughtful gifts, made with passion in Pakistan.",
+    title: defaultTitle,
+    description: defaultDescription,
     images: {
       url: "/og-image.png",
       alt: "Art Passion - the passion of art",

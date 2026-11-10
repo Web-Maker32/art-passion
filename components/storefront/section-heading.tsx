@@ -8,23 +8,28 @@ export function SectionHeading({
   headingId,
   href,
   linkLabel = "Explore all",
+  level = 2,
 }: {
   title: string;
   description?: string;
   headingId?: string;
   href?: string;
   linkLabel?: string;
+  /** 1 when the heading is the page title, 2 inside a section. */
+  level?: 1 | 2;
 }) {
+  const Heading = level === 1 ? "h1" : "h2";
+
   return (
     <ScrollReveal>
       <div className="mb-6 flex flex-col justify-between gap-2 min-[640px]:flex-row min-[640px]:items-end">
         <div className="min-w-0">
-          <h2
+          <Heading
             className="font-heading text-foreground text-2xl font-bold tracking-tight sm:text-3xl"
             id={headingId}
           >
             {title}
-          </h2>
+          </Heading>
           {description && (
             <p className="text-muted-foreground mt-2 max-w-2xl">{description}</p>
           )}

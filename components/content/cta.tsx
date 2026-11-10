@@ -31,7 +31,7 @@ export function CtaLink({
 
   if (isExternal) {
     return (
-      <a className={classes} href={href} rel="noreferrer" target="_blank">
+      <a className={classes} href={href} rel="noopener noreferrer" target="_blank">
         {children}
       </a>
     );

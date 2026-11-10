@@ -8,11 +8,14 @@ import {
 } from "@/components/ui/accordion";
 import { faqItems } from "@/lib/content/faq";
 import { contentMetadata } from "@/lib/content/metadata";
+import { buildFaqJsonLd } from "@/lib/seo/json-ld";
+import { JsonLd } from "@/components/seo/JsonLd";
 
 export const metadata = contentMetadata({
   title: "Frequently asked questions",
   description:
-    "Answers about ordering, Easypaisa payment, delivery, handmade differences, custom orders and order status at Art Passion.",
+    "Answers about placing an order, paying by Easypaisa, delivery costs, handmade differences, custom requests and checking the progress and status of your order.",
+  path: "/faq",
 });
 
 export default function FaqPage() {
@@ -21,6 +24,7 @@ export default function FaqPage() {
       intro="Short answers to the questions that come up most often. If yours is not here, please ask."
       title="Frequently asked questions"
     >
+      <JsonLd data={buildFaqJsonLd(faqItems)} />
       <Accordion className="border-silver bg-card rounded-2xl border px-5 sm:px-6">
         {faqItems.map((item, index) => (
           <AccordionItem key={item.question} value={`faq-${index}`}>

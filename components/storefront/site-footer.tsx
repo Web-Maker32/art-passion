@@ -144,7 +144,7 @@ function SocialLink({
       aria-label={label}
       className="text-brand-foreground/80 hover:text-brand-gold focus-visible:outline-gold-light inline-flex size-11 items-center justify-center rounded-md border border-white/15 transition-colors duration-interaction hover:border-brand-gold focus-visible:outline-2 focus-visible:outline-offset-2"
       href={href}
-      rel="noreferrer"
+      rel="noopener noreferrer"
       target="_blank"
     >
       {children}

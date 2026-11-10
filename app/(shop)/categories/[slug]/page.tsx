@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { ProductFiltersPanel } from "@/components/storefront/product-filters";
 import { ProductGrid } from "@/components/storefront/product-grid";
+import { categoryMetaDescriptions } from "@/lib/catalog";
 import { getCategoryBySlug, getPublishedCategories, getPublishedCategorySlugs, categoryDescriptions } from "@/lib/queries/categories";
 import { getPublishedProducts } from "@/lib/queries/products";
+import { buildBreadcrumbJsonLd } from "@/lib/seo/json-ld";
 import {
   parseProductFilters,
   type SearchParamsRecord,
@@ -15,25 +18,38 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<SearchParamsRecord>;
 }): Promise<Metadata> {
-  const { slug } = await params;
+  const [{ slug }, rawSearchParams] = await Promise.all([params, searchParams]);
   const category = await getCategoryBySlug(slug);
-  if (!category) return { title: "Category not found" };
+  if (!category) {
+    return { title: "Category not found", robots: { index: false, follow: false } };
+  }
 
   const products = await getPublishedProducts({ categorySlug: slug });
   const image = products[0]?.images[0]?.url;
   const description =
-    categoryDescriptions[slug] ??
-    `Explore handmade pieces in ${category.name} at Art Passion.`;
+    categoryMetaDescriptions[slug] ??
+    `Explore handmade pieces in ${category.name} at Art Passion, made by hand in Pakistan and posted anywhere in the country.`;
+  const path = `/categories/${category.slug}`;
 
   return {
     title: category.name,
     description,
+    alternates: { canonical: path },
+    // Filtered views are thin duplicates of the clean category listing.
+    robots:
+      Object.keys(rawSearchParams).length > 0
+        ? { index: false, follow: true }
+        : undefined,
     openGraph: {
       title: `${category.name} | Art Passion`,
       description,
+      url: path,
+      type: "website",
       ...(image ? { images: [{ url: image, alt: category.name }] } : {}),
     },
   };
@@ -64,6 +80,13 @@ export default async function CategoryPage({
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+      <JsonLd
+        data={buildBreadcrumbJsonLd([
+          { name: "Home", path: "/" },
+          { name: "Shop", path: "/products" },
+          { name: category.name, path: `/categories/${category.slug}` },
+        ])}
+      />
       <p className="text-sm font-semibold tracking-wide text-gold-text uppercase">
         Handmade collection
       </p>

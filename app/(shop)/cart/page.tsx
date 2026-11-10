@@ -11,6 +11,7 @@ import { buildWhatsAppLink } from "@/lib/whatsapp";
 export const metadata = {
   title: "Your cart",
   description: "Review your Art Passion handmade finds.",
+  robots: { index: false, follow: false },
 };
 
 export default async function CartPage() {
@@ -165,7 +166,7 @@ export default async function CartPage() {
               <a
                 className="border-brand text-foreground lift-sm press hover-fine:hover:bg-brand/5 focus-visible:outline-ring mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-md border px-4 py-2 text-center font-semibold focus-visible:outline-2 focus-visible:outline-offset-2"
                 href={whatsappHref}
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 target="_blank"
               >
                 Order cart on WhatsApp

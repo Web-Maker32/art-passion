@@ -23,9 +23,7 @@ export function ProductCard({ product }: { product: ProductCardData }) {
           <div className="bg-muted relative aspect-square overflow-hidden rounded-t-xl">
             <Image
               alt={
-                imageSrc === "/placeholder.svg"
-                  ? ""
-                  : (image?.alt ?? product.title)
+                imageSrc === "/placeholder.svg" ? "" : image?.alt || product.title
               }
               className={`object-cover image-zoom ${
                 outOfStock ? "opacity-90 grayscale-[20%]" : ""

@@ -11,6 +11,8 @@ const suggestedTerms = ["felt", "coloring kit", "painting kit", "gift set"];
 export const metadata: Metadata = {
   title: "Search handmade products",
   description: "Search Art Passion's handmade gifts, felt sets, and creative kits.",
+  // Search results are generated from a query string, so they are never indexed.
+  robots: { index: false, follow: false },
 };
 
 export default async function SearchPage({
@@ -28,6 +30,7 @@ export default async function SearchPage({
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
       <SectionHeading
         description="Find a handmade piece, creative kit, or thoughtful gift."
+        level={1}
         title="Search the collection"
       />
       <form action="/search" className="mb-8 flex max-w-2xl gap-2">

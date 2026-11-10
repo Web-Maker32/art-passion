@@ -3,9 +3,10 @@ import { contentMetadata } from "@/lib/content/metadata";
 import { siteConfig } from "@/lib/site-config";
 
 export const metadata = contentMetadata({
-  title: "About Art Passion",
+  title: "About us",
   description:
-    "The story behind Art Passion, a one-person handmade shop making felt play sets, creative kits and thoughtful gifts in Pakistan.",
+    "Meet Art Passion, a one-person handmade shop in Pakistan making handmade felt play sets, coloring kits, painting kits and gift sets in small batches by hand.",
+  path: "/about",
 });
 
 export default function AboutPage() {

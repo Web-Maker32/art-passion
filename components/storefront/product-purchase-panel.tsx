@@ -194,7 +194,7 @@ export function ProductPurchasePanel({
             <a
               className="flex min-h-12 items-center justify-center rounded-md border border-brand px-4 text-center font-semibold text-foreground lift-sm press hover-fine:hover:bg-brand/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
               href={whatsappHref}
-              rel="noreferrer"
+              rel="noopener noreferrer"
               target="_blank"
             >
               Ask about this product on WhatsApp

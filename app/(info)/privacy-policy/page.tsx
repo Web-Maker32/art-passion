@@ -7,7 +7,8 @@ import { siteConfig } from "@/lib/site-config";
 export const metadata = contentMetadata({
   title: "Privacy policy",
   description:
-    "What information Art Passion collects when you order, why it is needed, and how to ask about your details.",
+    "What information Art Passion collects when you place an order, why it is needed, how long it is kept, and how to ask about, correct or remove your details.",
+  path: "/privacy-policy",
 });
 
 export default function PrivacyPolicyPage() {

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Check } from "lucide-react";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { Badge } from "@/components/ui/badge";
 import { ProductGallery } from "@/components/storefront/product-gallery";
 import { ProductGrid } from "@/components/storefront/product-grid";
@@ -12,8 +13,10 @@ import { deliveryInfoLine, siteConfig } from "@/lib/site-config";
 import {
   getProductBySlug,
   getPublishedProductSlugs,
-  getPublishedProducts,
+  getRelatedProducts,
 } from "@/lib/queries/products";
+import { buildBreadcrumbJsonLd, buildProductJsonLd, trimDescription } from "@/lib/seo/json-ld";
+import { absoluteUrl } from "@/lib/seo/site-url";
 
 const productTypeLabels: Record<string, string> = {
   KIT: "Creative kit",
@@ -34,16 +37,24 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const product = await getProductBySlug(slug);
-  if (!product) return { title: "Product not found" };
+  if (!product) {
+    // Unpublished or unknown products: the page renders the 404 and is not indexed.
+    return { title: "Product not found", robots: { index: false, follow: false } };
+  }
 
   const image = product.images[0];
-  const description = product.shortDescription ?? product.description;
+  const description =
+    product.shortDescription?.trim() || trimDescription(product.description);
+  const path = `/products/${product.slug}`;
+
   return {
     title: product.title,
     description,
+    alternates: { canonical: path },
     openGraph: {
       title: product.title,
       description,
+      url: path,
       type: "website",
       ...(image
         ? { images: [{ url: image.url, alt: image.alt || product.title }] }
@@ -61,16 +72,23 @@ export default async function ProductPage({
   const product = await getProductBySlug(slug);
   if (!product) notFound();
 
-  const relatedProducts = (await getPublishedProducts({
+  const relatedProducts = await getRelatedProducts({
     categorySlug: product.category.slug,
-  }))
-    .filter((item) => item.slug !== product.slug)
-    .slice(0, 4);
-  const canonicalOrigin = process.env.SITE_URL || "http://localhost:3000";
-  const productUrl = new URL(`/products/${product.slug}`, canonicalOrigin).toString();
+    productSlug: product.slug,
+  });
+  const productUrl = absoluteUrl(`/products/${product.slug}`);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
+      <JsonLd data={buildProductJsonLd(product, { url: productUrl })} />
+      <JsonLd
+        data={buildBreadcrumbJsonLd([
+          { name: "Home", path: "/" },
+          { name: "Shop", path: "/products" },
+          { name: product.category.name, path: `/categories/${product.category.slug}` },
+          { name: product.title, path: `/products/${product.slug}` },
+        ])}
+      />
       <nav aria-label="Breadcrumb" className="mb-6 text-sm">
         <ol className="flex flex-wrap items-center gap-2 text-muted-foreground">
           <li>
@@ -227,7 +245,11 @@ export default async function ProductPage({
       {relatedProducts.length > 0 && (
         <section className="mt-16 border-t border-silver pt-10">
           <SectionHeading
-            description={`A few more handmade finds from ${product.category.name}.`}
+            description={
+              relatedProducts.every((item) => item.category.slug === product.category.slug)
+                ? `A few more handmade finds from ${product.category.name}.`
+                : "A few more handmade finds from our collection."
+            }
             href={`/categories/${product.category.slug}`}
             title="You may also love"
           />
