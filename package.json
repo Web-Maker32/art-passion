@@ -17,7 +17,8 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:clean-demo": "tsx scripts/clean-demo-products.ts",
     "db:set-admin-password": "tsx scripts/set-admin-password.ts",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "email:test-owner": "tsx scripts/send-test-owner-email.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -44,6 +45,7 @@
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-hook-form": "^7.91.0",
+    "resend": "^6.37.0",
     "server-only": "^0.0.1",
     "shadcn": "^4.22.1",
     "sonner": "^2.0.8",

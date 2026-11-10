@@ -8,6 +8,7 @@ import {
   getCurrentCartIdForCheckout,
 } from "@/lib/cart";
 import { setOrderAccessCookie } from "@/lib/order-access";
+import { notifyOwnerOfNewOrder } from "@/lib/email/notify-owner";
 import { createOrderFromCart, findOrderByIdempotencyKey } from "@/lib/orders";
 import { consumeRateLimit } from "@/lib/rate-limit";
 
@@ -94,6 +95,16 @@ export async function processCheckout(input: unknown): Promise<CheckoutActionRes
     await setOrderAccessCookie(result.orderNumber, result.accessToken);
     revalidatePath("/cart");
     revalidatePath("/");
+    // Only reached for a freshly created order: duplicate submissions, rejected
+    // carts and failed checkouts return above, so the owner is emailed once.
+    try {
+      notifyOwnerOfNewOrder(result.orderNumber);
+    } catch (error) {
+      console.warn(
+        "Owner notification could not be scheduled.",
+        error instanceof Error ? error.message : "unknown error",
+      );
+    }
     return {
       success: true,
       orderNumber: result.orderNumber,

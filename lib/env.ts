@@ -11,6 +11,11 @@ const envSchema = z.object({
   CLOUDINARY_CLOUD_NAME: z.string().min(1, "CLOUDINARY_CLOUD_NAME is required for image uploads"),
   CLOUDINARY_API_KEY: z.string().min(1, "CLOUDINARY_API_KEY is required for image uploads"),
   CLOUDINARY_API_SECRET: z.string().min(1, "CLOUDINARY_API_SECRET is required for image uploads"),
+  // Owner new-order email (Resend). Optional on purpose: the shop keeps working
+  // without them, the notification is simply skipped and logged once.
+  RESEND_API_KEY: z.string().trim().optional(),
+  ORDER_NOTIFY_EMAIL: z.string().trim().optional(),
+  EMAIL_FROM: z.string().trim().optional(),
 });
 
 export const env = envSchema.parse({
@@ -24,4 +29,7 @@ export const env = envSchema.parse({
   CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
   CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
   CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
+  RESEND_API_KEY: process.env.RESEND_API_KEY,
+  ORDER_NOTIFY_EMAIL: process.env.ORDER_NOTIFY_EMAIL,
+  EMAIL_FROM: process.env.EMAIL_FROM,
 });
