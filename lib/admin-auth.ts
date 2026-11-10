@@ -3,10 +3,7 @@ import "server-only";
 import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
-import {
-  destroyAdminSessionCookie,
-  readAdminSession,
-} from "@/lib/admin-session";
+import { readAdminSession } from "@/lib/admin-session";
 
 export const adminLoginFailureDelayMs = 600;
 
@@ -75,11 +72,6 @@ export async function requireAdmin(): Promise<string> {
   const userId = await resolveAdminUserId();
   if (userId) return userId;
 
-  const session = await readAdminSession();
-  if (session) {
-    // A cookie was presented but is no longer valid (deleted/demoted user).
-    await destroyAdminSessionCookie();
-  }
   redirect("/admin/login");
 }
 

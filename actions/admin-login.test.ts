@@ -15,11 +15,18 @@ const { mocks } = vi.hoisted(() => ({
 vi.mock("@/lib/rate-limit", () => ({
   consumeRateLimit: vi.fn(async () => {
     mocks.rateLimitCalls += 1;
-    return mocks.rateLimitLimited;
+    return {
+      allowed: !mocks.rateLimitLimited,
+      remaining: mocks.rateLimitLimited ? 0 : 4,
+      resetAtMs: 0,
+      retryAfterSeconds: mocks.rateLimitLimited ? 900 : 0,
+      backend: "memory",
+    };
   }),
 }));
 
 vi.mock("@/lib/admin-auth", () => ({
+  assertAdmin: vi.fn(async () => ({ authorized: false })),
   verifyAdminCredentials: vi.fn(async () => mocks.verifyResult),
   delay: vi.fn(async () => {
     mocks.delayCalled = true;
@@ -81,6 +88,7 @@ describe("adminLogin", () => {
     expect(result).toEqual({
       success: false,
       message: "Too many sign-in attempts. Please wait and try again.",
+      retryAfterSeconds: 900,
     });
     expect(mocks.sessionSet).toBe(false);
   });

@@ -11,6 +11,7 @@ import { setOrderAccessCookie } from "@/lib/order-access";
 import { notifyOwnerOfNewOrder } from "@/lib/email/notify-owner";
 import { createOrderFromCart, findOrderByIdempotencyKey } from "@/lib/orders";
 import { consumeRateLimit } from "@/lib/rate-limit";
+import { logger } from "@/lib/logger";
 
 export type CheckoutActionResult =
   | { success: true; orderNumber: string; accessToken: string }
@@ -18,6 +19,7 @@ export type CheckoutActionResult =
       success: false;
       message: string;
       fieldErrors?: Record<string, string>;
+      retryAfterSeconds?: number;
       orderNumber?: string;
     };
 
@@ -37,6 +39,14 @@ function readIdempotencyKey(input: unknown): string | null {
 
 export async function processCheckout(input: unknown): Promise<CheckoutActionResult> {
   try {
+    const limit = await consumeRateLimit("checkout");
+    if (!limit.allowed) {
+      return {
+        success: false,
+        message: "Please wait a moment before trying again.",
+        retryAfterSeconds: limit.retryAfterSeconds,
+      };
+    }
     const idempotencyKey = readIdempotencyKey(input);
     if (idempotencyKey) {
       const existing = await findOrderByIdempotencyKey(idempotencyKey);
@@ -47,13 +57,6 @@ export async function processCheckout(input: unknown): Promise<CheckoutActionRes
           orderNumber: existing.orderNumber,
         };
       }
-    }
-
-    if (await consumeRateLimit({ scope: "checkout", limit: 6 })) {
-      return {
-        success: false,
-        message: "Please wait a moment before trying again.",
-      };
     }
 
     const parsed = checkoutSchema.safeParse(input);
@@ -99,19 +102,16 @@ export async function processCheckout(input: unknown): Promise<CheckoutActionRes
     // carts and failed checkouts return above, so the owner is emailed once.
     try {
       notifyOwnerOfNewOrder(result.orderNumber);
-    } catch (error) {
-      console.warn(
-        "Owner notification could not be scheduled.",
-        error instanceof Error ? error.message : "unknown error",
-      );
+    } catch {
+      logger.warn("notification_failed");
     }
     return {
       success: true,
       orderNumber: result.orderNumber,
       accessToken: result.accessToken,
     };
-  } catch (error) {
-    console.error("Checkout failed.", error);
+  } catch {
+    logger.error("checkout_failed");
     return {
       success: false,
       message: "We could not place your order. Please try again.",

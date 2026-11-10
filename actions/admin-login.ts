@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { adminLoginSchema } from "@/lib/admin-order-status";
 import {
+  assertAdmin,
   adminLoginFailureDelayMs,
   delay,
   verifyAdminCredentials,
@@ -12,10 +13,11 @@ import {
   setAdminSessionCookie,
 } from "@/lib/admin-session";
 import { consumeRateLimit } from "@/lib/rate-limit";
+import { logger } from "@/lib/logger";
 
 export type AdminLoginResult =
   | { success: true }
-  | { success: false; message: string; fieldErrors?: Record<string, string> };
+  | { success: false; message: string; fieldErrors?: Record<string, string>; retryAfterSeconds?: number };
 
 // A single generic message for every failure so we never reveal whether the
 // email exists or the password was wrong.
@@ -26,18 +28,14 @@ export async function adminLogin(input: unknown): Promise<AdminLoginResult> {
   let authorizedUserId: string | null = null;
 
   try {
-    if (
-      await consumeRateLimit({
-        scope: "admin-login",
-        limit: 5,
-        windowMs: 15 * 60_000,
-      })
-    ) {
-      return { success: false, message: rateLimitMessage };
-    }
-
     const parsed = adminLoginSchema.safeParse(input);
+    const email = parsed.success ? parsed.data.email : undefined;
+    const limit = await consumeRateLimit("adminLogin", { email, peek: true });
+    if (!limit.allowed) {
+      return { success: false, message: rateLimitMessage, retryAfterSeconds: limit.retryAfterSeconds };
+    }
     if (!parsed.success) {
+      await consumeRateLimit("adminLogin", { email });
       const fieldErrors: Record<string, string> = {};
       for (const issue of parsed.error.issues) {
         const field = issue.path[0];
@@ -54,14 +52,15 @@ export async function adminLogin(input: unknown): Promise<AdminLoginResult> {
 
     const result = await verifyAdminCredentials(parsed.data);
     if (!result) {
+      await consumeRateLimit("adminLogin", { email });
       // Fixed delay on failure to blunt automated guessing.
       await delay(adminLoginFailureDelayMs);
       return { success: false, message: genericErrorMessage };
     }
 
     authorizedUserId = result.userId;
-  } catch (error) {
-    console.error("Admin sign-in failed.", error);
+  } catch {
+    logger.error("admin_login_failed");
     return { success: false, message: genericErrorMessage };
   }
 
@@ -74,6 +73,7 @@ export async function adminLogin(input: unknown): Promise<AdminLoginResult> {
 }
 
 export async function adminLogout(): Promise<void> {
-  await destroyAdminSessionCookie();
+  const auth = await assertAdmin();
+  if (auth.authorized) await destroyAdminSessionCookie();
   redirect("/admin/login");
 }

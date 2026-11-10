@@ -32,7 +32,7 @@ export function slugifyTitle(title: string): string {
 export const variantInputSchema = z.object({
   // Existing variants carry their database id; new ones omit it. Named
   // variantId because react-hook-form's useFieldArray reserves "id" as its key.
-  variantId: z.string().optional(),
+  variantId: z.string().min(1).max(128).optional(),
   label: z.string().trim().min(1, "Variant label is required.").max(80),
   price: z.coerce
     .number({ message: "Price must be a number." })
@@ -84,7 +84,7 @@ export const productFormSchema = z.object({
     .trim()
     .max(500, "Safety note must be at most 500 characters.")
     .optional(),
-  categoryId: z.string().min(1, "Choose a category."),
+  categoryId: z.string().min(1, "Choose a category.").max(128),
   type: z.enum(["KIT", "FELT_SET", "GIFT_SET", "HANDMADE", "SUPPLY"], {
     message: "Choose a product type.",
   }),
@@ -105,14 +105,14 @@ export const productFormSchema = z.object({
     .max(20)
     .optional()
     .default([]),
-  variants: z.array(variantInputSchema),
+  variants: z.array(variantInputSchema).max(100),
 });
 
 export type ProductFormInput = z.input<typeof productFormSchema>;
 export type ProductFormData = z.output<typeof productFormSchema>;
 
 export const quickStockSchema = z.object({
-  variantId: z.string().min(1),
+  variantId: z.string().min(1).max(128),
   stock: z.coerce
     .number({ message: "Stock must be a number." })
     .int("Stock must be a whole number.")
@@ -121,5 +121,5 @@ export const quickStockSchema = z.object({
 });
 
 export const productIdSchema = z.object({
-  productId: z.string().min(1, "Unknown product."),
+  productId: z.string().min(1, "Unknown product.").max(128),
 });

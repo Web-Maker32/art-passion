@@ -105,7 +105,9 @@ export async function saveAdminProduct(
   const parsed = productFormSchema.safeParse(input);
   if (!parsed.success) return mapZodIssues(parsed.error);
 
-  const result = await saveProduct(parsed.data, productId);
+  const parsedId = productIdSchema.shape.productId.optional().safeParse(productId);
+  if (!parsedId.success) return { success: false, message: "Unknown product." };
+  const result = await saveProduct(parsed.data, parsedId.data);
   return mutationToResult(result);
 }
 

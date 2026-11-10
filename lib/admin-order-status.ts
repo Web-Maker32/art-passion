@@ -25,7 +25,7 @@ export function allowedNextStatuses(from: OrderStatus): readonly OrderStatus[] {
   return orderStatusTransitions[from] ?? [];
 }
 
-const orderNumberSchema = z.string().regex(/^AP-\d{4}-\d{4,}$/, {
+const orderNumberSchema = z.string().max(64).regex(/^AP-\d{4}-\d{4,}$/, {
   message: "Unknown order number.",
 });
 

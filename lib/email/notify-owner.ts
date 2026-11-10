@@ -1,5 +1,6 @@
 import { after } from "next/server";
 import { sendOwnerNewOrderEmail } from "@/lib/email/send-owner-new-order";
+import { logger } from "@/lib/logger";
 
 /**
  * Runs the owner notification after the checkout response has been sent, so the
@@ -13,11 +14,8 @@ export function notifyOwnerOfNewOrder(orderNumber: string): void {
   const run = async (): Promise<void> => {
     try {
       await sendOwnerNewOrderEmail(orderNumber);
-    } catch (error) {
-      console.warn(
-        `Owner notification for ${orderNumber} failed:`,
-        error instanceof Error ? error.message : "unknown error",
-      );
+    } catch {
+      logger.warn("notification_failed");
     }
   };
 

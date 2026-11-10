@@ -18,6 +18,7 @@
     "db:clean-demo": "tsx scripts/clean-demo-products.ts",
     "db:set-admin-password": "tsx scripts/set-admin-password.ts",
     "db:studio": "prisma studio",
+    "db:backup": "tsx scripts/backup-database.ts",
     "email:test-owner": "tsx scripts/send-test-owner-email.ts"
   },
   "prisma": {
@@ -33,6 +34,8 @@
     "@neondatabase/serverless": "^1.2.0",
     "@prisma/adapter-neon": "^7.10.1",
     "@prisma/client": "^7.10.1",
+    "@upstash/ratelimit": "^2.2.0",
+    "@upstash/redis": "^1.41.0",
     "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
     "cloudinary": "^2.11.0",

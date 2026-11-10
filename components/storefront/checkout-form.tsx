@@ -96,8 +96,7 @@ export function CheckoutForm({
         }
         setError("root", { message: result.message });
         delete formElement.dataset.submitting;
-      } catch (error) {
-        console.error("Checkout submission failed.", error);
+      } catch {
         setError("root", {
           message: "We could not place your order. Check your connection and try again.",
         });

@@ -1,46 +1,105 @@
-import { createHash } from "node:crypto";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 
-import { buildCloudinarySignature } from "@/lib/storage";
+const { cloud } = vi.hoisted(() => ({
+  cloud: {
+    uploadCalls: 0,
+    destroyCalls: 0,
+    fail: false,
+    build: null as null | ((options: { public_id: string; folder: string }) => unknown),
+  },
+}));
 
-const secret = "test-api-secret-not-a-real-secret";
+vi.mock("cloudinary", () => {
+  const uploader = {
+    upload_stream: vi.fn((options: { public_id: string; folder: string }, callback: (error: Error | null, result?: unknown) => void) => {
+      cloud.uploadCalls += 1;
+      const stream = {
+        on: vi.fn(() => stream),
+        end: vi.fn(() => {
+          if (cloud.fail) callback(new Error("provider failure"));
+          else callback(null, cloud.build?.(options));
+        }),
+      };
+      return stream;
+    }),
+    destroy: vi.fn(async () => {
+      cloud.destroyCalls += 1;
+      return { result: "ok" };
+    }),
+  };
+  return { v2: { config: vi.fn(), uploader } };
+});
 
-function sha1(value: string): string {
-  return createHash("sha1").update(value).digest("hex");
-}
+import { cloudinaryProvider } from "@/lib/storage";
 
-describe("buildCloudinarySignature", () => {
-  it("sorts params, joins with &, appends the secret and SHA-1 hashes", () => {
-    const signature = buildCloudinarySignature(
-      {
-        folder: "art-passion/products",
-        allowed_formats: "jpg",
-        timestamp: 1_000,
-      },
-      secret,
-    );
+const jpeg = new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0, 0, 0, 0, 0, 0]);
 
-    const expected = sha1(
-      "allowed_formats=jpg&folder=art-passion/products&timestamp=1000" + secret,
-    );
-    expect(signature).toBe(expected);
+beforeEach(() => {
+  cloud.uploadCalls = 0;
+  cloud.destroyCalls = 0;
+  cloud.fail = false;
+  cloud.build = (options) => ({
+    public_id: `${options.folder}/${options.public_id}`,
+    secure_url: `https://res.cloudinary.com/test-cloud/image/upload/v1700000000/${options.folder}/${options.public_id}.jpg`,
+    resource_type: "image",
+    format: "jpg",
+    bytes: jpeg.byteLength,
+  });
+});
+
+describe("cloudinaryProvider.uploadImage", () => {
+  it("uploads through upload_stream into the fixed folder and returns a verified server-owned asset", async () => {
+    const asset = await cloudinaryProvider.uploadImage(jpeg, "image/jpeg");
+    expect(cloud.uploadCalls).toBe(1);
+    expect(asset.format).toBe("jpg");
+    expect(asset.bytes).toBe(jpeg.byteLength);
+    expect(asset.publicId.startsWith("art-passion/products/")).toBe(true);
+    expect(asset.url).toBe(`https://res.cloudinary.com/test-cloud/image/upload/v1700000000/${asset.publicId}.jpg`);
   });
 
-  it("excludes empty, null and undefined params", () => {
-    const signature = buildCloudinarySignature(
-      { a: "1", b: "", c: null, d: undefined, e: "2" },
-      secret,
-    );
-    expect(signature).toBe(sha1("a=1&e=2" + secret));
+  it("rejects a response whose byte count does not match the upload and cleans up", async () => {
+    cloud.build = (options) => ({
+      public_id: `${options.folder}/${options.public_id}`,
+      secure_url: `https://res.cloudinary.com/test-cloud/image/upload/v1/${options.folder}/${options.public_id}.jpg`,
+      resource_type: "image",
+      format: "jpg",
+      bytes: jpeg.byteLength + 1,
+    });
+    await expect(cloudinaryProvider.uploadImage(jpeg, "image/jpeg")).rejects.toThrow(/verified/);
+    expect(cloud.destroyCalls).toBe(1);
   });
 
-  it("normalizes booleans to 1 and 0", () => {
-    const signature = buildCloudinarySignature(
-      { flag: true, other: false },
-      secret,
-    );
-    expect(signature).toBe(sha1("flag=1&other=0" + secret));
+  it("rejects untrusted delivery URLs and mismatched formats", async () => {
+    cloud.build = (options) => ({
+      public_id: `${options.folder}/${options.public_id}`,
+      secure_url: `https://evil.test/${options.folder}/${options.public_id}.jpg`,
+      resource_type: "image",
+      format: "jpg",
+      bytes: jpeg.byteLength,
+    });
+    await expect(cloudinaryProvider.uploadImage(jpeg, "image/jpeg")).rejects.toThrow(/verified/);
+
+    cloud.build = (options) => ({
+      public_id: `${options.folder}/${options.public_id}`,
+      secure_url: `https://res.cloudinary.com/test-cloud/image/upload/v1/${options.folder}/${options.public_id}.png`,
+      resource_type: "image",
+      format: "png",
+      bytes: jpeg.byteLength,
+    });
+    await expect(cloudinaryProvider.uploadImage(jpeg, "image/jpeg")).rejects.toThrow(/verified/);
+  });
+
+  it("never forwards invalid bytes or signatures", async () => {
+    await expect(cloudinaryProvider.uploadImage(new Uint8Array(), "image/jpeg")).rejects.toThrow(/Invalid/);
+    await expect(cloudinaryProvider.uploadImage(new Uint8Array(4_000_001), "image/jpeg")).rejects.toThrow(/Invalid/);
+    await expect(cloudinaryProvider.uploadImage(jpeg, "image/png")).rejects.toThrow(/Invalid/);
+    expect(cloud.uploadCalls).toBe(0);
+  });
+
+  it("does not expose provider errors", async () => {
+    cloud.fail = true;
+    await expect(cloudinaryProvider.uploadImage(jpeg, "image/jpeg")).rejects.toThrow("Image upload failed.");
   });
 });

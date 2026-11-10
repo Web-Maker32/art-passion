@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/db";
 import { buildSitemapEntries } from "@/lib/seo/sitemap-entries";
+import { logger } from "@/lib/logger";
 
 /**
  * Public pages only. Published products keep their real updatedAt; if the
@@ -21,11 +22,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ]);
 
     return buildSitemapEntries({ categories, products });
-  } catch (error) {
-    console.warn(
-      "Sitemap: the catalogue could not be read, publishing static pages only.",
-      error instanceof Error ? error.message : "unknown error",
-    );
+  } catch {
+    logger.warn("sitemap_failed");
 
     return buildSitemapEntries({ categories: [], products: [] });
   }

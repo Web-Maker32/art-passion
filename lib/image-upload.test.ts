@@ -1,9 +1,15 @@
 import { describe, expect, it } from "vitest";
 import {
+  detectImageMime,
+  IMAGE_SIZE_MESSAGE,
   MAX_FILE_BYTES,
-  signatureRequestSchema,
+  uploadProductSchema,
   validateImageFile,
 } from "@/lib/image-upload";
+
+const jpeg = new Uint8Array([0xff, 0xd8, 0xff, 0xe0]);
+const png = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+const webp = new Uint8Array([0x52, 0x49, 0x46, 0x46, 0, 0, 0, 0, 0x57, 0x45, 0x42, 0x50]);
 
 describe("validateImageFile (client guard)", () => {
   it("accepts JPEG, PNG and WebP within the size limit", () => {
@@ -14,52 +20,37 @@ describe("validateImageFile (client guard)", () => {
 
   it("rejects any other MIME type", () => {
     expect(validateImageFile("image/gif", 1024)).toMatch(/JPEG, PNG and WebP/i);
-    expect(validateImageFile("application/pdf", 1024)).toMatch(
-      /JPEG, PNG and WebP/i,
-    );
+    expect(validateImageFile("application/pdf", 1024)).toMatch(/JPEG, PNG and WebP/i);
   });
 
-  it("rejects empty and oversized files", () => {
+  it("rejects empty and oversized files using the 4,000,000-byte message", () => {
     expect(validateImageFile("image/png", 0)).toMatch(/empty/i);
-    expect(validateImageFile("image/png", MAX_FILE_BYTES + 1)).toMatch(/5 MB/i);
+    expect(validateImageFile("image/png", MAX_FILE_BYTES + 1)).toBe(IMAGE_SIZE_MESSAGE);
+    expect(MAX_FILE_BYTES).toBe(4_000_000);
   });
 });
 
-describe("signatureRequestSchema (server guard)", () => {
-  it("accepts a valid request", () => {
-    expect(
-      signatureRequestSchema.safeParse({
-        productId: "p1",
-        mimeType: "image/jpeg",
-        sizeBytes: 1024,
-      }).success,
-    ).toBe(true);
+describe("detectImageMime", () => {
+  it("identifies genuine JPEG, PNG and RIFF/WebP signatures", () => {
+    expect(detectImageMime(jpeg)).toBe("image/jpeg");
+    expect(detectImageMime(png)).toBe("image/png");
+    expect(detectImageMime(webp)).toBe("image/webp");
   });
 
-  it("rejects a disallowed MIME type", () => {
-    expect(
-      signatureRequestSchema.safeParse({
-        productId: "p1",
-        mimeType: "image/gif",
-        sizeBytes: 1024,
-      }).success,
-    ).toBe(false);
+  it("rejects forged, truncated and non-image bytes", () => {
+    expect(detectImageMime(new Uint8Array())).toBeNull();
+    expect(detectImageMime(new Uint8Array([0xff, 0xd8]))).toBeNull();
+    expect(detectImageMime(png.slice(0, 5))).toBeNull();
+    expect(detectImageMime(new TextEncoder().encode("GIF89a"))).toBeNull();
+    expect(detectImageMime(new TextEncoder().encode("<svg></svg>"))).toBeNull();
   });
+});
 
-  it("rejects an oversized or empty file", () => {
-    expect(
-      signatureRequestSchema.safeParse({
-        productId: "p1",
-        mimeType: "image/png",
-        sizeBytes: MAX_FILE_BYTES + 1,
-      }).success,
-    ).toBe(false);
-    expect(
-      signatureRequestSchema.safeParse({
-        productId: "p1",
-        mimeType: "image/png",
-        sizeBytes: 0,
-      }).success,
-    ).toBe(false);
+describe("uploadProductSchema", () => {
+  it("accepts a bounded product id and rejects duplicates or unknown fields", () => {
+    expect(uploadProductSchema.safeParse({ productId: "p1" }).success).toBe(true);
+    expect(uploadProductSchema.safeParse({ productId: "" }).success).toBe(false);
+    expect(uploadProductSchema.safeParse({ productId: "x".repeat(129) }).success).toBe(false);
+    expect(uploadProductSchema.safeParse({ productId: "p1", extra: "1" }).success).toBe(false);
   });
 });

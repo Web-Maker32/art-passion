@@ -17,7 +17,7 @@ export const createCategorySchema = z.object({
 });
 
 export const renameCategorySchema = z.object({
-  id: z.string().min(1, "Unknown category."),
+  id: z.string().min(1, "Unknown category.").max(128),
   name: categoryNameSchema,
 });
 

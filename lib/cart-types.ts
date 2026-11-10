@@ -24,6 +24,7 @@ export type CartView = {
 };
 
 export type CartActionResult = {
+  retryAfterSeconds?: number;
   ok: boolean;
   message: string;
   cart: CartView;

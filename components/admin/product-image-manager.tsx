@@ -4,15 +4,14 @@ import { useRef, useState, useTransition, type ChangeEvent } from "react";
 import Image from "next/image";
 import { toast } from "sonner";
 import {
-  createImageUploadSignature,
   deleteProductImage,
   moveProductImage,
-  saveProductImage,
   setPrimaryProductImage,
   updateProductImageAlt,
 } from "@/actions/admin-images";
 import {
-  MAX_FILE_BYTES,
+  IMAGE_SIZE_MESSAGE,
+  type ImageUploadResult,
   MAX_IMAGES_PER_PRODUCT,
   validateImageFile,
   type ProductImageItem,
@@ -30,8 +29,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-type CloudinaryUploadResponse = { public_id: string; secure_url: string };
 
 type UploadRow = {
   localId: string;
@@ -54,43 +51,32 @@ function createUploadId(): string {
     : `${Date.now()}-${Math.random()}`;
 }
 
-/** Uploads a FormData payload straight to Cloudinary, reporting progress. */
-function uploadToCloudinary(
-  url: string,
+/** Same-origin authenticated upload with progress and hosting-error handling. */
+export function uploadAdminImage(
   form: FormData,
   onProgress: (percent: number) => void,
-): Promise<
-  | { ok: true; data: CloudinaryUploadResponse }
-  | { ok: false; error: string }
-> {
+): Promise<ImageUploadResult> {
   return new Promise((resolve) => {
     const xhr = new XMLHttpRequest();
-    xhr.open("POST", url);
+    xhr.open("POST", "/admin/api/images/upload");
+    xhr.setRequestHeader("X-Admin-Upload", "1");
+    xhr.timeout = 60_000;
     xhr.upload.onprogress = (event) => {
-      if (event.lengthComputable) {
-        onProgress(Math.round((event.loaded / event.total) * 100));
-      }
+      if (event.lengthComputable) onProgress(Math.round((event.loaded / event.total) * 100));
     };
+    const fail = (message: string) => resolve({ success: false, code: "upload_failed", message });
     xhr.onload = () => {
-      let parsed: { public_id?: string; secure_url?: string; error?: { message?: string } } = {};
+      if (xhr.status === 413) { fail(IMAGE_SIZE_MESSAGE); return; }
       try {
-        parsed = JSON.parse(xhr.responseText);
-      } catch {
-        parsed = {};
-      }
-      if (xhr.status >= 200 && xhr.status < 300 && parsed.public_id && parsed.secure_url) {
-        resolve({
-          ok: true,
-          data: { public_id: parsed.public_id, secure_url: parsed.secure_url },
-        });
-      } else {
-        resolve({
-          ok: false,
-          error: parsed.error?.message ?? `Upload failed (HTTP ${xhr.status}).`,
-        });
-      }
+        const parsed: ImageUploadResult = JSON.parse(xhr.responseText);
+        if (xhr.status === 201 && parsed.success && Array.isArray(parsed.images)) { resolve(parsed); return; }
+        if (!parsed.success && typeof parsed.message === "string") { resolve(parsed); return; }
+      } catch { /* Hosting errors may not be JSON. */ }
+      fail("Image upload failed. Please try again.");
     };
-    xhr.onerror = () => resolve({ ok: false, error: "Network error during upload." });
+    xhr.onerror = () => fail("Network error during upload. Please try again.");
+    xhr.ontimeout = () => fail("Upload timed out. Refresh the images before trying again.");
+    xhr.onabort = () => fail("Upload cancelled.");
     xhr.send(form);
   });
 }
@@ -151,41 +137,10 @@ export function ProductImageManager({
       { localId, fileName: file.name, progress: 0, status: "uploading" },
     ]);
 
-    const signature = await createImageUploadSignature({
-      productId,
-      mimeType: file.type,
-      sizeBytes: file.size,
-    });
-    if (!signature.success) {
-      patchUpload(localId, { status: "error", error: signature.message });
-      return;
-    }
-
     const form = new FormData();
+    form.append("productId", productId);
     form.append("file", file);
-    form.append("api_key", signature.upload.apiKey);
-    form.append("timestamp", String(signature.upload.timestamp));
-    form.append("signature", signature.upload.signature);
-    for (const [key, value] of Object.entries(signature.upload.signedParams)) {
-      form.append(key, value);
-    }
-
-    const uploaded = await uploadToCloudinary(
-      signature.upload.uploadUrl,
-      form,
-      (percent) => patchUpload(localId, { progress: percent }),
-    );
-    if (!uploaded.ok) {
-      patchUpload(localId, { status: "error", error: uploaded.error });
-      return;
-    }
-
-    const commit = await saveProductImage({
-      productId,
-      publicId: uploaded.data.public_id,
-      url: uploaded.data.secure_url,
-      alt: "",
-    });
+    const commit = await uploadAdminImage(form, (percent) => patchUpload(localId, { progress: percent }));
     if (!commit.success) {
       patchUpload(localId, { status: "error", error: commit.message });
       return;
@@ -237,7 +192,7 @@ export function ProductImageManager({
         <div>
           <h2 className="font-heading text-lg font-semibold">Images</h2>
           <p className="text-muted-foreground text-sm">
-            JPEG, PNG or WebP, up to {Math.round(MAX_FILE_BYTES / (1024 * 1024))} MB
+            JPEG, PNG or WebP, up to 4 MB (4,000,000 bytes)
             each, max {MAX_IMAGES_PER_PRODUCT} per product. Alt text is required
             to publish.
           </p>
@@ -246,7 +201,7 @@ export function ProductImageManager({
           <input
             aria-describedby="image-upload-hint"
             className="sr-only peer"
-            disabled={remaining <= 0 || isPending}
+            disabled={remaining <= 0 || isPending || uploads.some((row) => row.status === "uploading")}
             id="product-image-upload"
             multiple
             onChange={handleFiles}
@@ -346,6 +301,7 @@ export function ProductImageManager({
                     <Input
                       defaultValue={image.alt}
                       id={`image-alt-${image.id}`}
+                      maxLength={300}
                       key={image.id}
                       onBlur={(event) => handleAltBlur(image, event.target.value)}
                       onKeyDown={(event) => {

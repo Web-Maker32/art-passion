@@ -1,4 +1,5 @@
 import { env } from "@/lib/env";
+import { logger } from "@/lib/logger";
 
 export type OwnerEmailConfig = {
   apiKey: string;
@@ -28,7 +29,5 @@ export function getOwnerEmailConfig(): OwnerEmailConfig | null {
 export function warnOwnerEmailDisabled(): void {
   if (missingConfigWarned) return;
   missingConfigWarned = true;
-  console.warn(
-    "Owner new-order email is disabled. Set RESEND_API_KEY, ORDER_NOTIFY_EMAIL and EMAIL_FROM to turn it on.",
-  );
+  logger.warn("notification_disabled");
 }

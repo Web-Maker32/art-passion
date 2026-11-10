@@ -1,7 +1,7 @@
 import "server-only";
 
 import { prisma } from "@/lib/db";
-import { storage } from "@/lib/storage";
+import { storage, type VerifiedImageAsset } from "@/lib/storage";
 import {
   MAX_IMAGES_PER_PRODUCT,
   type ProductImageItem,
@@ -20,7 +20,8 @@ export type ImageMutationResult =
   | { status: "ok"; message: string; images: ProductImageRow[]; productId: string }
   | { status: "not_found"; message: string }
   | { status: "limit_reached"; message: string }
-  | { status: "storage_error"; message: string };
+  | { status: "storage_error"; message: string }
+  | { status: "conflict"; message: string };
 
 const imageSelect = {
   id: true,
@@ -47,52 +48,34 @@ export async function countProductImages(productId: string): Promise<number> {
 
 export async function commitProductImage(input: {
   productId: string;
-  publicId: string;
-  url: string;
-  alt: string;
+  asset: VerifiedImageAsset;
 }): Promise<ImageMutationResult> {
-  const product = await prisma.product.findUnique({
-    where: { id: input.productId },
-    select: { id: true },
-  });
-  if (!product) {
-    return { status: "not_found", message: "That product could not be found." };
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      return await prisma.$transaction(async (tx): Promise<ImageMutationResult> => {
+        const product = await tx.product.findUnique({ where: { id: input.productId }, select: { id: true } });
+        if (!product) return { status: "not_found", message: "That product could not be found." };
+        const count = await tx.productImage.count({ where: { productId: input.productId } });
+        if (count >= MAX_IMAGES_PER_PRODUCT) {
+          return { status: "limit_reached", message: `A product can have at most ${MAX_IMAGES_PER_PRODUCT} images.` };
+        }
+        const last = await tx.productImage.findFirst({
+          where: { productId: input.productId }, orderBy: { position: "desc" }, select: { position: true },
+        });
+        await tx.productImage.create({ data: {
+          productId: input.productId, publicId: input.asset.publicId, url: input.asset.url,
+          alt: "", position: last ? last.position + 1 : 0, isPrimary: count === 0,
+        } });
+        const images = await tx.productImage.findMany({
+          where: { productId: input.productId }, orderBy: [{ isPrimary: "desc" }, { position: "asc" }], select: imageSelect,
+        });
+        return { status: "ok", message: "Image added.", images, productId: input.productId };
+      }, { isolationLevel: "Serializable", maxWait: 5000, timeout: 5000 });
+    } catch (error) {
+      if (!error || typeof error !== "object" || !("code" in error) || error.code !== "P2034") throw error;
+    }
   }
-
-  const count = await countProductImages(input.productId);
-  if (count >= MAX_IMAGES_PER_PRODUCT) {
-    return {
-      status: "limit_reached",
-      message: `A product can have at most ${MAX_IMAGES_PER_PRODUCT} images.`,
-    };
-  }
-
-  const last = await prisma.productImage.findFirst({
-    where: { productId: input.productId },
-    orderBy: { position: "desc" },
-    select: { position: true },
-  });
-  const position = last ? last.position + 1 : 0;
-  const isFirst = count === 0;
-
-  await prisma.productImage.create({
-    data: {
-      productId: input.productId,
-      publicId: input.publicId,
-      url: input.url,
-      alt: input.alt,
-      position,
-      isPrimary: isFirst,
-    },
-  });
-
-  const images = await listProductImages(input.productId);
-  return {
-    status: "ok",
-    message: "Image added.",
-    images,
-    productId: input.productId,
-  };
+  return { status: "conflict", message: "Images changed while saving. Please try again." };
 }
 
 export async function setPrimaryImage(

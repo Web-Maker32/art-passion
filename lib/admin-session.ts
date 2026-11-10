@@ -119,5 +119,11 @@ export async function setAdminSessionCookie(userId: string): Promise<void> {
 
 export async function destroyAdminSessionCookie(): Promise<void> {
   const cookieStore = await cookies();
-  cookieStore.delete(adminSessionCookieName);
+  cookieStore.set(adminSessionCookieName, "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    path: "/admin",
+    maxAge: 0,
+  });
 }

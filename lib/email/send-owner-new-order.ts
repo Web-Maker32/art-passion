@@ -5,6 +5,7 @@ import { createResendClient } from "@/lib/email/client";
 import { getOwnerEmailConfig } from "@/lib/email/config";
 import { buildOwnerNewOrderEmail, type OwnerEmailOrder } from "@/lib/email/template";
 import { env } from "@/lib/env";
+import { logger } from "@/lib/logger";
 
 export type OwnerEmailResult = {
   status: "sent" | "skipped" | "failed";
@@ -28,9 +29,7 @@ export async function sendOwnerNewOrderEmail(
   try {
     const order = await loadOwnerEmailOrder(orderNumber);
     if (!order) {
-      console.warn(
-        `Owner email for ${orderNumber} was skipped: the order could not be read.`,
-      );
+      logger.warn("notification_failed");
       return { status: "failed" };
     }
 
@@ -48,16 +47,13 @@ export async function sendOwnerNewOrderEmail(
     });
 
     if (error) {
-      console.warn(`Owner email for ${orderNumber} was not sent: ${error.message}`);
+      logger.warn("notification_failed");
       return { status: "failed" };
     }
 
     return { status: "sent" };
-  } catch (error) {
-    console.warn(
-      `Owner email for ${orderNumber} failed:`,
-      error instanceof Error ? error.message : "unknown error",
-    );
+  } catch {
+    logger.warn("notification_failed");
     return { status: "failed" };
   }
 }

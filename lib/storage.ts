@@ -1,10 +1,14 @@
 import "server-only";
 
-import { createHash } from "node:crypto";
+import { randomUUID } from "node:crypto";
+import { z } from "zod";
+import { logger } from "@/lib/logger";
 import { v2 as cloudinary } from "cloudinary";
 import { env } from "@/lib/env";
 import {
   MIME_TO_FORMAT,
+  MAX_FILE_BYTES,
+  detectImageMime,
   UPLOAD_FOLDER,
   type AllowedMimeType,
 } from "@/lib/image-upload";
@@ -16,50 +20,30 @@ import {
  * CLOUDINARY_API_SECRET and must never be imported into a client bundle.
  */
 
-export type UploadSignature = {
-  /** Absolute Cloudinary endpoint the browser uploads to directly. */
-  uploadUrl: string;
-  cloudName: string;
-  apiKey: string;
-  timestamp: number;
-  signature: string;
-  /** Params the browser must echo back; they are covered by the signature. */
-  signedParams: Record<string, string>;
+const verifiedAsset = Symbol("verified-image-asset");
+export type VerifiedImageAsset = {
+  publicId: string;
+  url: string;
+  bytes: number;
+  format: string;
+  readonly [verifiedAsset]: true;
 };
+
+const assetResponseSchema = z.object({
+  public_id: z.string().min(1).max(256),
+  secure_url: z.string().url().max(2048),
+  resource_type: z.literal("image"),
+  format: z.enum(["jpg", "png", "webp"]),
+  bytes: z.number().int().positive().max(MAX_FILE_BYTES),
+});
 
 export type DestroyResult =
   | { ok: true }
   | { ok: false; error: string };
 
 export interface StorageProvider {
-  signImageUpload(input: { mimeType: AllowedMimeType }): UploadSignature;
+  uploadImage(bytes: Uint8Array, mimeType: AllowedMimeType): Promise<VerifiedImageAsset>;
   destroyImage(publicId: string): Promise<DestroyResult>;
-}
-
-/**
- * Cloudinary signature: sort the upload params, join as key=value with "&",
- * append the API secret, then take the SHA-1 hex digest. Params with empty or
- * nullish values are excluded, matching Cloudinary's own algorithm.
- */
-export function buildCloudinarySignature(
-  params: Record<string, string | number | boolean | undefined | null>,
-  apiSecret: string,
-): string {
-  const encoded = Object.keys(params)
-    .filter((key) => {
-      const value = params[key];
-      return value !== undefined && value !== null && value !== "";
-    })
-    .sort()
-    .map((key) => {
-      const value = params[key];
-      const normalized =
-        typeof value === "boolean" ? (value ? "1" : "0") : String(value);
-      return `${key}=${normalized}`;
-    })
-    .join("&");
-
-  return createHash("sha1").update(`${encoded}${apiSecret}`).digest("hex");
 }
 
 let configured = false;
@@ -75,26 +59,38 @@ function ensureConfigured(): void {
 }
 
 export const cloudinaryProvider: StorageProvider = {
-  signImageUpload({ mimeType }) {
-    const timestamp = Math.floor(Date.now() / 1000);
-    const folder = UPLOAD_FOLDER;
-    const allowedFormats = MIME_TO_FORMAT[mimeType];
-
-    // folder + allowed_formats + timestamp are signed, so the browser cannot
-    // change the destination folder or upload a disallowed format.
-    const signature = buildCloudinarySignature(
-      { folder, allowed_formats: allowedFormats, timestamp },
-      env.CLOUDINARY_API_SECRET,
-    );
-
-    return {
-      uploadUrl: `https://api.cloudinary.com/v1_1/${env.CLOUDINARY_CLOUD_NAME}/image/upload`,
-      cloudName: env.CLOUDINARY_CLOUD_NAME,
-      apiKey: env.CLOUDINARY_API_KEY,
-      timestamp,
-      signature,
-      signedParams: { folder, allowed_formats: allowedFormats },
-    };
+  async uploadImage(bytes, mimeType) {
+    if (!bytes.length || bytes.length > MAX_FILE_BYTES || detectImageMime(bytes) !== mimeType) {
+      throw new Error("Invalid image.");
+    }
+    ensureConfigured();
+    const id = randomUUID();
+    const publicId = `${UPLOAD_FOLDER}/${id}`;
+    const uploaded: unknown = await new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream({
+        folder: UPLOAD_FOLDER, public_id: id, resource_type: "image",
+        allowed_formats: ["jpg", "png", "webp"], overwrite: false,
+        use_filename: false, unique_filename: false, timeout: 30_000,
+      }, (error, result) => error ? reject(new Error("Image upload failed.")) : resolve(result));
+      stream.on("error", () => reject(new Error("Image upload failed.")));
+      stream.end(Buffer.from(bytes));
+    });
+    const parsed = assetResponseSchema.safeParse(uploaded);
+    if (parsed.success) {
+      const asset = parsed.data;
+      const url = new URL(asset.secure_url);
+      const path = `/${env.CLOUDINARY_CLOUD_NAME}/image/upload/`;
+      const deliveryPath = decodeURIComponent(url.pathname.slice(path.length)).replace(/^v\d+\//, "");
+      if (asset.public_id === publicId && asset.bytes === bytes.length && asset.format === MIME_TO_FORMAT[mimeType] &&
+        url.protocol === "https:" && url.hostname === "res.cloudinary.com" && !url.port && !url.username && !url.password &&
+        !url.search && !url.hash && url.pathname.startsWith(path) && deliveryPath === `${publicId}.${asset.format}`) {
+        return { publicId, url: asset.secure_url, bytes: asset.bytes, format: asset.format, [verifiedAsset]: true };
+      }
+    }
+    // Only the server-generated ID is eligible for cleanup; never trust a returned ID.
+    const cleaned = await cloudinaryProvider.destroyImage(publicId);
+    if (!cleaned.ok) logger.warn("upload_cleanup_failed");
+    throw new Error("Image upload could not be verified.");
   },
 
   async destroyImage(publicId) {
