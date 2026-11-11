@@ -10,6 +10,7 @@ const events = {
   upload_cleanup_failed: "An uploaded image needs manual reconciliation.",
   revalidation_failed: "Saved changes could not refresh the page cache.",
   health_failed: "The database health check failed.",
+  payment_proof_failed: "Saving the customer's payment details failed.",
   script_failed: "The maintenance command failed. Check its configuration.",
   script_complete: "The maintenance command completed.",
   script_started: "The maintenance command started.",

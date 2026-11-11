@@ -37,6 +37,7 @@ enum ProductStatus {
 enum OrderStatus {
   PENDING
   PAID
+  PROCESSING
   SHIPPED
   DELIVERED
   CANCELLED
@@ -150,10 +151,16 @@ model Order {
   country         String
   giftNote        String?
   orderNotes      String?
-  trackingNumber  String?
-  courierName     String?
+  trackingNumber   String?
+  courierName      String?
   paymentReference String?
-  stockRestoredAt DateTime?
+  paymentNote      String?
+  paymentReportedAt DateTime?
+  paidAt           DateTime?
+  shippedAt        DateTime?
+  deliveredAt      DateTime?
+  cancelledAt      DateTime?
+  stockRestoredAt  DateTime?
   userId          String?
   user            User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
   items           OrderItem[]

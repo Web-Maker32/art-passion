@@ -14,6 +14,7 @@ export const rateLimitPolicies = {
   order: { limit: 20, windowMs: 60_000 },
   cart: { limit: 60, windowMs: 60_000 },
   health: { limit: 30, windowMs: 60_000 },
+  paymentProof: { limit: 5, windowMs: 600_000 },
 } as const;
 export type RateLimitPolicy = keyof typeof rateLimitPolicies;
 export type RateLimitResult = {

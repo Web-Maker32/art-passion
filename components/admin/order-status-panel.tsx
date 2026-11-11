@@ -7,6 +7,7 @@ import {
   cancelOrder,
   markOrderDelivered,
   markOrderPaid,
+  markOrderProcessing,
   shipOrder,
 } from "@/actions/admin-orders";
 import type { OrderStatus } from "@/generated/prisma/client";
@@ -24,13 +25,18 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-type Action = "PAID" | "SHIPPED" | "DELIVERED" | "CANCELLED";
+type Action = "PAID" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED";
 
 const actionCopy: Record<Action, { title: string; description: string; cta: string }> = {
   PAID: {
     title: "Mark as paid",
     description: "Confirm you received the Easypaisa transfer for this order.",
     cta: "Mark paid",
+  },
+  PROCESSING: {
+    title: "Start processing",
+    description: "Move this order into packing so it can be shipped next.",
+    cta: "Start processing",
   },
   SHIPPED: {
     title: "Mark as shipped",
@@ -51,6 +57,7 @@ const actionCopy: Record<Action, { title: string; description: string; cta: stri
 
 const labels: Record<Action, string> = {
   PAID: "Mark as paid",
+  PROCESSING: "Start processing",
   SHIPPED: "Mark as shipped",
   DELIVERED: "Mark as delivered",
   CANCELLED: "Cancel order",
@@ -87,6 +94,8 @@ export function OrderStatusPanel({
       let result;
       if (action === "PAID") {
         result = await markOrderPaid({ orderNumber, paymentReference });
+      } else if (action === "PROCESSING") {
+        result = await markOrderProcessing({ orderNumber });
       } else if (action === "SHIPPED") {
         result = await shipOrder({ orderNumber, courierName, trackingNumber });
       } else if (action === "DELIVERED") {

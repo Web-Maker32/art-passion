@@ -64,13 +64,23 @@ export async function changeOrderStatus(
       return { status: "invalid_transition", fromStatus, toStatus } as const;
     }
 
+    const now = new Date();
     const data: {
       status: OrderStatus;
       paymentReference?: string | null;
       courierName?: string | null;
       trackingNumber?: string | null;
       stockRestoredAt?: Date;
+      paidAt?: Date;
+      shippedAt?: Date;
+      deliveredAt?: Date;
+      cancelledAt?: Date;
     } = { status: toStatus };
+
+    if (toStatus === "PAID") data.paidAt = now;
+    if (toStatus === "SHIPPED") data.shippedAt = now;
+    if (toStatus === "DELIVERED") data.deliveredAt = now;
+    if (toStatus === "CANCELLED") data.cancelledAt = now;
 
     if (toStatus === "PAID") {
       const reference = clean(input.paymentReference);
@@ -87,7 +97,7 @@ export async function changeOrderStatus(
     const shouldRestoreStock =
       toStatus === "CANCELLED" && order.stockRestoredAt === null;
     if (shouldRestoreStock) {
-      data.stockRestoredAt = new Date();
+      data.stockRestoredAt = now;
     }
 
     // Compare-and-set: only apply when the order is still in the state we read.

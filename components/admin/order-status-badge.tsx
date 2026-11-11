@@ -7,6 +7,7 @@ const statusConfig: Record<
 > = {
   PENDING: { label: "Pending", variant: "outline" },
   PAID: { label: "Paid", variant: "secondary" },
+  PROCESSING: { label: "Processing", variant: "outline" },
   SHIPPED: { label: "Shipped", variant: "default" },
   DELIVERED: { label: "Delivered", variant: "secondary" },
   CANCELLED: { label: "Cancelled", variant: "destructive" },

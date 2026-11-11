@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
+import { io } from "next/cache";
 import { Container } from "@/components/storefront/container";
-import { env } from "@/lib/env";
+import { PaymentProofForm } from "@/components/storefront/payment-proof-form";
 import { formatPrice } from "@/lib/format";
 import { prisma } from "@/lib/db";
 import {
@@ -8,6 +9,7 @@ import {
   selectOrderAccessToken,
 } from "@/lib/order-access";
 import { manualEasypaisaProvider } from "@/lib/payments/manual";
+import { siteConfig } from "@/lib/site-config";
 import { buildOrderPaymentWhatsAppMessage, buildWhatsAppLink } from "@/lib/whatsapp";
 
 export const metadata: Metadata = {
@@ -30,6 +32,9 @@ export default async function OrderConfirmationPage({
   const [{ orderNumber }, query] = await Promise.all([params, searchParams]);
   const urlToken = typeof query.token === "string" ? query.token : null;
   const cookieValue = await getOrderAccessCookieValue(orderNumber);
+  // cacheComponents: the database connect reads crypto.randomBytes, which is
+  // illegal outside the dynamic stage. Advance before querying.
+  await io();
   const order =
     urlToken || cookieValue
       ? await prisma.order.findUnique({
@@ -61,7 +66,7 @@ export default async function OrderConfirmationPage({
   }
 
   const whatsappHref = buildWhatsAppLink({
-    number: env.WHATSAPP_NUMBER,
+    number: siteConfig.whatsappNumber,
     message: buildOrderPaymentWhatsAppMessage({
       orderNumber: order.orderNumber,
       customerName: order.customerName,
@@ -154,6 +159,7 @@ export default async function OrderConfirmationPage({
               <h3 className="font-semibold">What happens next</h3>
               <ol className="text-muted-foreground mt-2 list-decimal space-y-2 pl-5 text-sm leading-6">
                 <li>Send the payment screenshot on WhatsApp with your order number.</li>
+                <li>Add your transaction ID below so your payment can be matched.</li>
                 <li>I will confirm payment and prepare your order.</li>
               </ol>
               {whatsappHref && (
@@ -166,6 +172,21 @@ export default async function OrderConfirmationPage({
                   Send payment screenshot on WhatsApp
                 </a>
               )}
+            </div>
+            <div className="border-silver mt-5 border-t pt-5">
+              <h3 className="font-semibold">Already sent the payment?</h3>
+              <p className="text-muted-foreground mt-2 text-sm leading-6">
+                Add the Easypaisa transaction ID so your transfer can be matched
+                to this order.
+              </p>
+              <PaymentProofForm
+                canEdit={order.status === "PENDING"}
+                hasReported={order.paymentReportedAt !== null}
+                initialNote={order.paymentNote}
+                initialTransactionId={order.paymentReference}
+                orderNumber={order.orderNumber}
+                token={accessToken}
+              />
             </div>
           </aside>
         </div>

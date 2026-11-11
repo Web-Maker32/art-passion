@@ -2,12 +2,13 @@ import { z } from "zod";
 import type { OrderStatus } from "@/generated/prisma/client";
 
 /**
- * Allowed forward transitions. REFUNDED is intentionally not a target in this
- * phase; refunds are handled manually and recorded as a note for now.
+ * Allowed forward transitions. REFUNDED stays in the enum but is intentionally
+ * not a target yet; refunds are handled manually and recorded as a note.
  */
 const orderStatusTransitions: Record<OrderStatus, readonly OrderStatus[]> = {
   PENDING: ["PAID", "CANCELLED"],
-  PAID: ["SHIPPED", "CANCELLED"],
+  PAID: ["PROCESSING", "CANCELLED"],
+  PROCESSING: ["SHIPPED", "CANCELLED"],
   SHIPPED: ["DELIVERED"],
   DELIVERED: [],
   CANCELLED: [],
@@ -40,6 +41,10 @@ export const shipOrderSchema = z.object({
   orderNumber: orderNumberSchema,
   courierName: z.string().trim().max(120).optional().or(z.literal("")),
   trackingNumber: z.string().trim().max(120).optional().or(z.literal("")),
+});
+
+export const markProcessingSchema = z.object({
+  orderNumber: orderNumberSchema,
 });
 
 export const markDeliveredSchema = z.object({

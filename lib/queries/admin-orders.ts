@@ -26,6 +26,7 @@ export type AdminOrderListRow = {
   customerPhone: string;
   total: number;
   status: OrderStatus;
+  paymentReportedAt: Date | null;
 };
 
 export type AdminOrderListResult = {
@@ -79,6 +80,7 @@ export async function listAdminOrders(
         customerPhone: true,
         total: true,
         status: true,
+        paymentReportedAt: true,
       },
     }),
   ]);
@@ -99,6 +101,12 @@ export const adminOrderDetailSelect = {
   status: true,
   paymentMethod: true,
   paymentReference: true,
+  paymentNote: true,
+  paymentReportedAt: true,
+  paidAt: true,
+  shippedAt: true,
+  deliveredAt: true,
+  cancelledAt: true,
   subtotal: true,
   shipping: true,
   total: true,

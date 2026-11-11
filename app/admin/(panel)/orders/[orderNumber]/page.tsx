@@ -6,6 +6,7 @@ import { formatKarachiDateTime } from "@/lib/admin-datetime";
 import { formatPrice } from "@/lib/format";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { buttonVariants } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { OrderStatusBadge } from "@/components/admin/order-status-badge";
 import { OrderStatusPanel } from "@/components/admin/order-status-panel";
 
@@ -86,7 +87,16 @@ export default async function AdminOrderDetailPage({
             Placed {formatKarachiDateTime(order.createdAt)} (Asia/Karachi)
           </p>
         </div>
-        <OrderStatusBadge status={order.status} />
+        <div className="flex flex-wrap items-center gap-2">
+          <OrderStatusBadge status={order.status} />
+          <Link
+            className={buttonVariants({ variant: "outline", size: "sm" })}
+            href={`/admin/orders/${order.orderNumber}/print`}
+            target="_blank"
+          >
+            Print packing slip
+          </Link>
+        </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
@@ -132,6 +142,37 @@ export default async function AdminOrderDetailPage({
             <h2 className="font-heading text-lg font-semibold" id="history-heading">
               History
             </h2>
+            {(order.paidAt ||
+              order.shippedAt ||
+              order.deliveredAt ||
+              order.cancelledAt) && (
+              <dl className="mt-2 divide-y text-sm">
+                {order.paidAt && (
+                  <DetailRow
+                    label="Paid"
+                    value={formatKarachiDateTime(order.paidAt)}
+                  />
+                )}
+                {order.shippedAt && (
+                  <DetailRow
+                    label="Shipped"
+                    value={formatKarachiDateTime(order.shippedAt)}
+                  />
+                )}
+                {order.deliveredAt && (
+                  <DetailRow
+                    label="Delivered"
+                    value={formatKarachiDateTime(order.deliveredAt)}
+                  />
+                )}
+                {order.cancelledAt && (
+                  <DetailRow
+                    label="Cancelled"
+                    value={formatKarachiDateTime(order.cancelledAt)}
+                  />
+                )}
+              </dl>
+            )}
             {order.events.length === 0 ? (
               <p className="text-muted-foreground mt-2 text-sm">
                 No changes recorded yet.
@@ -207,6 +248,26 @@ export default async function AdminOrderDetailPage({
               />
               <DetailRow label="Reference" value={order.paymentReference ?? "—"} />
             </dl>
+            {order.paymentReportedAt && (
+              <div className="border-silver bg-secondary/40 mt-3 rounded-lg border p-3">
+                <Badge variant="secondary">Customer reported payment</Badge>
+                <p className="mt-2 text-sm">
+                  <span className="text-muted-foreground">Transaction ID:</span>{" "}
+                  <span className="font-semibold">
+                    {order.paymentReference ?? "—"}
+                  </span>
+                </p>
+                {order.paymentNote && (
+                  <p className="mt-1 text-sm">
+                    <span className="text-muted-foreground">Note:</span>{" "}
+                    {order.paymentNote}
+                  </p>
+                )}
+                <p className="text-muted-foreground mt-1 text-xs">
+                  Reported {formatKarachiDateTime(order.paymentReportedAt)}
+                </p>
+              </div>
+            )}
           </section>
 
           <section className="border-silver bg-card rounded-xl border p-5">

@@ -3,6 +3,7 @@ import type { AdminOrderListRow } from "@/lib/queries/admin-orders";
 import { formatKarachiDate } from "@/lib/admin-datetime";
 import { formatPrice } from "@/lib/format";
 import { OrderStatusBadge } from "@/components/admin/order-status-badge";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -14,6 +15,11 @@ import {
 
 const rowLinkClass =
   "font-semibold text-foreground underline-offset-4 hover-fine:hover:underline focus-visible:outline-ring focus-visible:outline-2 focus-visible:outline-offset-2";
+
+function PaymentReportedBadge({ order }: { order: AdminOrderListRow }) {
+  if (order.status !== "PENDING" || !order.paymentReportedAt) return null;
+  return <Badge variant="secondary">Payment reported</Badge>;
+}
 
 export function AdminOrdersTable({ orders }: { orders: AdminOrderListRow[] }) {
   if (orders.length === 0) {
@@ -61,7 +67,10 @@ export function AdminOrdersTable({ orders }: { orders: AdminOrderListRow[] }) {
                   {formatPrice(order.total)}
                 </TableCell>
                 <TableCell>
-                  <OrderStatusBadge status={order.status} />
+                  <div className="flex flex-col items-start gap-1">
+                    <OrderStatusBadge status={order.status} />
+                    <PaymentReportedBadge order={order} />
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
@@ -83,7 +92,10 @@ export function AdminOrdersTable({ orders }: { orders: AdminOrderListRow[] }) {
               >
                 {order.orderNumber}
               </Link>
-              <OrderStatusBadge status={order.status} />
+              <div className="flex flex-col items-end gap-1">
+                <OrderStatusBadge status={order.status} />
+                <PaymentReportedBadge order={order} />
+              </div>
             </div>
             <dl className="text-muted-foreground mt-3 space-y-1 text-sm">
               <div className="flex justify-between gap-3">

@@ -14,6 +14,12 @@ type MockOrder = {
   status: string;
   stockRestoredAt: Date | null;
   items: MockOrderItem[];
+  paidAt?: Date | null;
+  shippedAt?: Date | null;
+  deliveredAt?: Date | null;
+  cancelledAt?: Date | null;
+  courierName?: string | null;
+  trackingNumber?: string | null;
 };
 
 type MockEvent = {
@@ -163,6 +169,52 @@ describe("changeOrderStatus", () => {
     });
   });
 
+  it("stamps paidAt when marking paid", async () => {
+    await changeOrderStatus({
+      orderNumber: "AP-2026-0001",
+      toStatus: "PAID",
+    });
+
+    expect(db.orders[0]?.paidAt).toBeInstanceOf(Date);
+    expect(db.orders[0]?.cancelledAt).toBeUndefined();
+  });
+
+  it("moves PAID -> PROCESSING without a step timestamp", async () => {
+    db.orders[0]!.status = "PAID";
+
+    const result = await changeOrderStatus({
+      orderNumber: "AP-2026-0001",
+      toStatus: "PROCESSING",
+    });
+
+    expect(result).toEqual({
+      status: "changed",
+      fromStatus: "PAID",
+      toStatus: "PROCESSING",
+    });
+    expect(db.orders[0]?.status).toBe("PROCESSING");
+    expect(db.orders[0]?.paidAt).toBeUndefined();
+    expect(db.orders[0]?.shippedAt).toBeUndefined();
+    expect(db.events[0]?.toStatus).toBe("PROCESSING");
+  });
+
+  it("rejects PAID -> SHIPPED and writes no event", async () => {
+    db.orders[0]!.status = "PAID";
+
+    const result = await changeOrderStatus({
+      orderNumber: "AP-2026-0001",
+      toStatus: "SHIPPED",
+    });
+
+    expect(result).toEqual({
+      status: "invalid_transition",
+      fromStatus: "PAID",
+      toStatus: "SHIPPED",
+    });
+    expect(db.orders[0]?.status).toBe("PAID");
+    expect(db.events).toHaveLength(0);
+  });
+
   it("rejects an invalid transition and writes no event", async () => {
     const result = await changeOrderStatus({
       orderNumber: "AP-2026-0001",
@@ -201,7 +253,39 @@ describe("changeOrderStatus", () => {
     // variant-2 (made-to-order, qty 1): unchanged at 3
     expect(db.variants.get("variant-2")).toBe(3);
     expect(db.orders[0]?.stockRestoredAt).toBeInstanceOf(Date);
+    expect(db.orders[0]?.cancelledAt).toBeInstanceOf(Date);
     expect(db.events[0]?.note).toBe("Customer requested");
+  });
+
+  it("does not restock an order whose items never reduced stock", async () => {
+    // Made-to-order lines are never decremented at checkout, so cancelling an
+    // all-made-to-order order must leave every variant alone.
+    db.orders[0]!.items = [
+      { variantId: "variant-2", quantity: 3, madeToOrder: true },
+    ];
+
+    const result = await changeOrderStatus({
+      orderNumber: "AP-2026-0001",
+      toStatus: "CANCELLED",
+    });
+
+    expect(result.status).toBe("changed");
+    expect(db.variants.get("variant-2")).toBe(3);
+    expect(db.orders[0]?.stockRestoredAt).toBeInstanceOf(Date);
+  });
+
+  it("does not restock again when stock was already restored", async () => {
+    const restoredAt = new Date("2026-01-01T00:00:00.000Z");
+    db.orders[0]!.stockRestoredAt = restoredAt;
+
+    const result = await changeOrderStatus({
+      orderNumber: "AP-2026-0001",
+      toStatus: "CANCELLED",
+    });
+
+    expect(result.status).toBe("changed");
+    expect(db.variants.get("variant-1")).toBe(5);
+    expect(db.orders[0]?.stockRestoredAt).toBe(restoredAt);
   });
 
   it("does not restore stock twice (guard via stockRestoredAt)", async () => {
@@ -251,8 +335,8 @@ describe("changeOrderStatus", () => {
     expect(db.orders[0]?.stockRestoredAt).toBeInstanceOf(Date);
   });
 
-  it("ships with courier and tracking, writes event", async () => {
-    db.orders[0]!.status = "PAID";
+  it("ships from PROCESSING with courier and tracking, writes event", async () => {
+    db.orders[0]!.status = "PROCESSING";
 
     const result = await changeOrderStatus({
       orderNumber: "AP-2026-0001",
@@ -263,8 +347,22 @@ describe("changeOrderStatus", () => {
 
     expect(result.status).toBe("changed");
     expect(db.orders[0]?.status).toBe("SHIPPED");
+    expect(db.orders[0]?.shippedAt).toBeInstanceOf(Date);
+    expect(db.orders[0]?.courierName).toBe("TCS");
+    expect(db.orders[0]?.trackingNumber).toBe("TRK-999");
     expect(db.events).toHaveLength(1);
     expect(db.events[0]?.toStatus).toBe("SHIPPED");
+  });
+
+  it("stamps deliveredAt when marking delivered", async () => {
+    db.orders[0]!.status = "SHIPPED";
+
+    await changeOrderStatus({
+      orderNumber: "AP-2026-0001",
+      toStatus: "DELIVERED",
+    });
+
+    expect(db.orders[0]?.deliveredAt).toBeInstanceOf(Date);
   });
 
   it("delivers from SHIPPED and writes event", async () => {

@@ -10,6 +10,7 @@ import {
   cancelOrderSchema,
   markDeliveredSchema,
   markPaidSchema,
+  markProcessingSchema,
   shipOrderSchema,
 } from "@/lib/admin-order-status";
 
@@ -73,6 +74,28 @@ export async function markOrderPaid(
     paymentReference: parsed.data.paymentReference ?? null,
   });
   return toActionResult(result, parsed.data.orderNumber, "Order marked as paid.");
+}
+
+export async function markOrderProcessing(
+  input: unknown,
+): Promise<AdminOrderActionResult> {
+  const auth = await assertAdmin();
+  if (!auth.authorized) return unauthorizedResult;
+
+  const parsed = markProcessingSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, message: firstIssueMessage(parsed.error) };
+  }
+
+  const result = await changeOrderStatus({
+    orderNumber: parsed.data.orderNumber,
+    toStatus: "PROCESSING",
+  });
+  return toActionResult(
+    result,
+    parsed.data.orderNumber,
+    "Order moved to processing.",
+  );
 }
 
 export async function shipOrder(
