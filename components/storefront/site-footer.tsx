@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { MessageCircle } from "lucide-react";
+import { Heart, Mail, MessageCircle, Truck, Wallet } from "lucide-react";
 import { Container } from "@/components/storefront/container";
 import { Logo } from "@/components/logo";
 import { storeCategories } from "@/lib/catalog";
@@ -40,35 +40,61 @@ export function SiteFooter() {
   ];
   const hasInstagram = !isOwnerTodo(siteConfig.instagramUrl);
   const hasFacebook = !isOwnerTodo(siteConfig.facebookUrl);
+  const hasEmail = !isOwnerTodo(siteConfig.contactEmail);
+  const hasCity = !isOwnerTodo(siteConfig.city);
 
   return (
     <footer className="border-brand-gold/40 bg-brand-deep text-brand-foreground relative z-30 mt-auto border-t pb-[88px]">
-      <Container className="grid gap-10 py-12 sm:grid-cols-2 lg:grid-cols-4">
-        <div>
+      <Container className="grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
+        <div className="sm:col-span-2 lg:col-span-1">
           <Link
             aria-label={`${siteConfig.storeName} home`}
-            className="focus-visible:outline-gold-light inline-flex items-center gap-4 rounded-sm p-2 focus-visible:outline-2 focus-visible:outline-offset-2"
+            className="focus-visible:outline-gold-light inline-flex items-center gap-4 rounded-md p-2 focus-visible:outline-2 focus-visible:outline-offset-2"
             href="/"
           >
-            <Logo priority={false} size={96} variant="gold" />
+            <Logo priority={false} size={88} variant="gold" />
             <span>
               <span className="font-brand-display text-brand-gold block text-2xl leading-none font-semibold">
                 {siteConfig.storeName}
               </span>
-              <span className="text-brand-foreground mt-1 block text-xs tracking-wide">
+              <span className="text-brand-foreground/85 mt-1.5 block text-xs tracking-[0.08em]">
                 {siteConfig.tagline}
               </span>
             </span>
           </Link>
-          <p className="text-brand-foreground/80 mt-3 max-w-xs text-sm">
+          <p className="text-brand-foreground/80 mt-4 max-w-xs text-sm leading-relaxed">
             Thoughtful, handmade pieces and creative kits, packed by hand and
             sent from {siteConfig.country}.
           </p>
-          <SocialLinks
-            hasFacebook={hasFacebook}
-            hasInstagram={hasInstagram}
-            whatsapp={whatsapp}
-          />
+          {(whatsapp || hasEmail) && (
+            <ul className="mt-5 space-y-1 text-sm">
+              {whatsapp && (
+                <li>
+                  <a
+                    className="text-brand-foreground/85 hover:text-brand-gold focus-visible:outline-gold-light inline-flex min-h-9 items-center gap-2.5 rounded-sm transition-colors duration-interaction focus-visible:outline-2 focus-visible:outline-offset-2"
+                    href={whatsapp}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <MessageCircle aria-hidden="true" className="text-brand-gold size-4" />
+                    WhatsApp us
+                  </a>
+                </li>
+              )}
+              {hasEmail && (
+                <li>
+                  <a
+                    className="text-brand-foreground/85 hover:text-brand-gold focus-visible:outline-gold-light inline-flex min-h-9 items-center gap-2.5 rounded-sm transition-colors duration-interaction focus-visible:outline-2 focus-visible:outline-offset-2"
+                    href={`mailto:${siteConfig.contactEmail}`}
+                  >
+                    <Mail aria-hidden="true" className="text-brand-gold size-4" />
+                    {siteConfig.contactEmail}
+                  </a>
+                </li>
+              )}
+            </ul>
+          )}
+          <SocialLinks hasFacebook={hasFacebook} hasInstagram={hasInstagram} />
         </div>
         <FooterLinkList heading="Shop" links={shopLinks} />
         <FooterLinkList heading="Help" links={helpLinks} />
@@ -76,14 +102,32 @@ export function SiteFooter() {
       </Container>
 
       <div className="border-brand-gold/30 border-t">
-        <Container className="text-brand-gold py-3 text-center text-sm font-medium">
-          {deliveryInfoLine}
+        <Container className="flex flex-col items-center justify-center gap-2 py-4 text-center text-sm font-medium sm:flex-row sm:gap-5">
+          <span className="text-brand-gold inline-flex items-center gap-2">
+            <Truck aria-hidden="true" className="size-4" />
+            {deliveryInfoLine}
+          </span>
+          <span aria-hidden="true" className="text-brand-gold/40 hidden sm:inline">
+            •
+          </span>
+          <span className="text-brand-foreground/85 inline-flex items-center gap-2">
+            <Wallet aria-hidden="true" className="text-brand-gold size-4" />
+            Pay easily with Easypaisa
+          </span>
         </Container>
       </div>
 
       <div className="border-brand-gold/30 border-t">
-        <Container className="text-brand-foreground/70 py-4 text-center text-sm">
-          © {copyrightYear} {siteConfig.storeName}. All rights reserved.
+        <Container className="flex flex-col items-center justify-between gap-2 py-5 text-center text-sm sm:flex-row sm:text-left">
+          <p className="text-brand-foreground/70">
+            © {copyrightYear} {siteConfig.storeName}. All rights reserved.
+          </p>
+          {hasCity && (
+            <p className="text-brand-foreground/80 inline-flex items-center gap-1.5">
+              <Heart aria-hidden="true" className="text-blush size-3.5" />
+              Handmade with love in {siteConfig.city}
+            </p>
+          )}
         </Container>
       </div>
     </footer>
@@ -93,18 +137,16 @@ export function SiteFooter() {
 function SocialLinks({
   hasInstagram,
   hasFacebook,
-  whatsapp,
 }: {
   hasInstagram: boolean;
   hasFacebook: boolean;
-  whatsapp: string | null;
 }) {
-  if (!hasInstagram && !hasFacebook && !whatsapp) {
+  if (!hasInstagram && !hasFacebook) {
     return null;
   }
 
   return (
-    <div className="mt-4 flex flex-wrap items-center gap-2">
+    <div className="mt-5 flex flex-wrap items-center gap-2.5">
       {hasInstagram && (
         <SocialLink
           href={siteConfig.instagramUrl}
@@ -119,11 +161,6 @@ function SocialLinks({
           label={`${siteConfig.storeName} on Facebook`}
         >
           <FacebookIcon />
-        </SocialLink>
-      )}
-      {whatsapp && (
-        <SocialLink href={whatsapp} label={`Message ${siteConfig.storeName} on WhatsApp`}>
-          <MessageCircle aria-hidden="true" className="size-5" />
         </SocialLink>
       )}
     </div>
@@ -142,7 +179,7 @@ function SocialLink({
   return (
     <a
       aria-label={label}
-      className="text-brand-foreground/80 hover:text-brand-gold focus-visible:outline-gold-light inline-flex size-11 items-center justify-center rounded-md border border-white/15 transition-colors duration-interaction hover:border-brand-gold focus-visible:outline-2 focus-visible:outline-offset-2"
+      className="text-brand-foreground/80 hover:text-brand-gold focus-visible:outline-gold-light inline-flex size-11 items-center justify-center rounded-full border border-white/15 transition-colors duration-interaction hover:border-brand-gold focus-visible:outline-2 focus-visible:outline-offset-2"
       href={href}
       rel="noopener noreferrer"
       target="_blank"
@@ -161,12 +198,14 @@ function FooterLinkList({
 }) {
   return (
     <nav aria-label={heading}>
-      <h2 className="font-heading text-base font-semibold">{heading}</h2>
-      <ul className="mt-3 space-y-2">
+      <h2 className="font-heading text-brand-foreground text-base font-semibold">
+        {heading}
+      </h2>
+      <ul className="mt-3 space-y-1">
         {links.map(({ href, label }) => (
           <li key={`${heading}-${href}`}>
             <Link
-              className="text-brand-foreground/80 hover:text-brand-gold focus-visible:outline-gold-light text-sm underline-offset-4 transition-colors duration-interaction hover:underline hover:decoration-brand-gold focus-visible:outline-2 focus-visible:outline-offset-2"
+              className="text-brand-foreground/80 hover:text-brand-gold focus-visible:outline-gold-light inline-flex min-h-9 items-center rounded-sm text-sm underline-offset-4 transition-colors duration-interaction hover:underline hover:decoration-brand-gold focus-visible:outline-2 focus-visible:outline-offset-2"
               href={href}
             >
               {label}

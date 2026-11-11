@@ -2,7 +2,7 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-@source inline("duration-interaction ease-interaction shadow-card shadow-card-hover lift lift-sm press image-zoom cart-count-pop skeleton-shimmer scroll-reveal-pending scroll-reveal-enter");
+@source inline("duration-interaction ease-interaction shadow-card shadow-card-hover shadow-soft lift lift-sm press image-zoom cart-count-pop skeleton-shimmer scroll-reveal-pending scroll-reveal-enter bg-cta-band stitch-border glow-gold float-slow float-slower twinkle");
 
 @custom-variant dark (&:is(.dark *));
 @custom-variant hover-fine (@media (hover: hover) and (pointer: fine));
@@ -11,8 +11,8 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-mono: ui-monospace, "SFMono-Regular", "Menlo", "Consolas", monospace;
+  --font-heading: var(--font-fraunces);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -33,7 +33,7 @@
   --color-header-teal: var(--header-teal);
   --color-brand-hover: var(--brand-hover);
   --color-brand-foreground: var(--brand-foreground);
-  --font-brand-display: var(--font-cormorant-garamond);
+  --font-brand-display: var(--font-fraunces);
   --color-primary-hover: var(--primary-hover);
   --color-gold: var(--gold);
   --color-gold-light: var(--gold-light);
@@ -70,6 +70,59 @@
   --ease-interaction: var(--motion-easing);
   --shadow-card: var(--card-shadow);
   --shadow-card-hover: var(--card-shadow-hover);
+  --shadow-soft: var(--soft-shadow);
+  /* Teal brand scale */
+  --color-teal-50: var(--teal-50);
+  --color-teal-100: var(--teal-100);
+  --color-teal-200: var(--teal-200);
+  --color-teal-300: var(--teal-300);
+  --color-teal-400: var(--teal-400);
+  --color-teal-500: var(--teal-500);
+  --color-teal-600: var(--teal-600);
+  --color-teal-700: var(--teal-700);
+  --color-teal-800: var(--teal-800);
+  --color-teal-900: var(--teal-900);
+  --color-teal-950: var(--teal-950);
+  /* Gold accent scale */
+  --color-gold-50: var(--gold-50);
+  --color-gold-100: var(--gold-100);
+  --color-gold-200: var(--gold-200);
+  --color-gold-300: var(--gold-300);
+  --color-gold-400: var(--gold-400);
+  --color-gold-500: var(--gold-500);
+  --color-gold-600: var(--gold-600);
+  --color-gold-700: var(--gold-700);
+  --color-gold-800: var(--gold-800);
+  --color-gold-900: var(--gold-900);
+  /* Warm surfaces + semantic status colours */
+  --color-cream: var(--cream);
+  --color-cream-deep: var(--cream-deep);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-error: var(--destructive);
+  --color-error-foreground: var(--error-foreground);
+  /* Type scale: display, h1-h4, body (>=16px), small */
+  --text-display: clamp(2.75rem, 1.6rem + 4.2vw, 4.75rem);
+  --text-display--line-height: 1.04;
+  --text-display--letter-spacing: -0.025em;
+  --text-h1: clamp(2.125rem, 1.5rem + 2.4vw, 3.25rem);
+  --text-h1--line-height: 1.1;
+  --text-h1--letter-spacing: -0.02em;
+  --text-h2: clamp(1.625rem, 1.25rem + 1.4vw, 2.25rem);
+  --text-h2--line-height: 1.15;
+  --text-h2--letter-spacing: -0.015em;
+  --text-h3: clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem);
+  --text-h3--line-height: 1.25;
+  --text-h4: 1.125rem;
+  --text-h4--line-height: 1.35;
+  --text-body: 1rem;
+  --text-body--line-height: 1.65;
+  --text-small: 0.875rem;
+  --text-small--line-height: 1.55;
 }
 
 :root {
@@ -84,13 +137,51 @@
   --primary-hover: var(--brand-hover);
   --gold: oklch(0.731 0.115 85);
   --gold-light: oklch(0.841 0.108 90.1);
-  --gold-text: oklch(0.55 0.101 81.8);
+  --gold-text: oklch(0.52 0.101 81.8);
   --focus-ring: var(--gold-text);
   --card-shadow: 0 2px 8px color-mix(in oklch, var(--brand-deep) 12%, transparent);
   --card-shadow-hover:
     0 12px 24px color-mix(in oklch, var(--brand-deep) 20%, transparent),
     0 2px 8px color-mix(in oklch, var(--brand-gold) 18%, transparent);
   --brand-gradient-gold: var(--gold-text);
+  /* Teal brand scale (hue ~190, anchored on --brand / --brand-deep) */
+  --teal-50: oklch(0.972 0.014 190);
+  --teal-100: oklch(0.935 0.032 190);
+  --teal-200: oklch(0.875 0.055 190);
+  --teal-300: oklch(0.79 0.075 190);
+  --teal-400: oklch(0.68 0.09 190);
+  --teal-500: oklch(0.57 0.095 190);
+  --teal-600: oklch(0.47 0.085 190);
+  --teal-700: oklch(0.372 0.058 189.9);
+  --teal-800: oklch(0.31 0.05 190);
+  --teal-900: oklch(0.26 0.045 190);
+  --teal-950: oklch(0.21 0.04 190);
+  /* Gold accent scale (anchored on --gold-light / --gold / --gold-text) */
+  --gold-50: oklch(0.97 0.03 90);
+  --gold-100: oklch(0.93 0.06 90);
+  --gold-200: oklch(0.88 0.09 88);
+  --gold-300: oklch(0.841 0.108 90.1);
+  --gold-400: oklch(0.78 0.115 86);
+  --gold-500: oklch(0.731 0.115 85);
+  --gold-600: oklch(0.62 0.11 83);
+  --gold-700: oklch(0.52 0.101 81.8);
+  --gold-800: oklch(0.45 0.085 80);
+  --gold-900: oklch(0.36 0.07 78);
+  /* Warm cream surfaces (light mode) */
+  --cream: oklch(0.98 0.01 87.5);
+  --cream-deep: oklch(0.949 0.011 89.7);
+  /* Semantic status colours, AA-friendly foregrounds */
+  --success: oklch(0.52 0.13 155);
+  --success-foreground: oklch(0.98 0.02 155);
+  --warning: oklch(0.78 0.15 85);
+  --warning-foreground: oklch(0.28 0.06 80);
+  --info: oklch(0.52 0.12 240);
+  --info-foreground: oklch(0.98 0.02 240);
+  --error-foreground: oklch(0.985 0.01 27);
+  /* Elevation level 1 (resting chrome); levels 2/3 are the card shadows */
+  --soft-shadow:
+    0 1px 2px color-mix(in oklch, var(--brand-deep) 8%, transparent),
+    0 2px 6px color-mix(in oklch, var(--brand-deep) 6%, transparent);
   --silver: oklch(0.882 0.009 264.5);
   --silver-strong: oklch(0.845 0.01 267.3);
   --blush: oklch(0.573 0.176 354.2);
@@ -118,7 +209,7 @@
   --chart-3: var(--blush);
   --chart-4: var(--orchid);
   --chart-5: var(--silver-strong);
-  --radius: 0.625rem;
+  --radius: 0.75rem;
   --sidebar: oklch(0.949 0.011 89.7);
   --sidebar-foreground: oklch(0.275 0.015 196.3);
   --sidebar-primary: var(--brand);
@@ -172,7 +263,17 @@
   --chart-3: var(--orchid);
   --chart-4: var(--silver);
   --chart-5: var(--gold);
-  --radius: 0.625rem;
+  --radius: 0.75rem;
+  /* Dark mode surfaces become deep teal; status tones lift for contrast */
+  --cream: #0a2523;
+  --cream-deep: #0c2b29;
+  --success: oklch(0.72 0.14 155);
+  --success-foreground: oklch(0.2 0.05 155);
+  --warning: oklch(0.82 0.15 85);
+  --warning-foreground: oklch(0.25 0.06 80);
+  --info: oklch(0.72 0.12 240);
+  --info-foreground: oklch(0.2 0.05 240);
+  --soft-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 2px 8px rgb(0 0 0 / 0.25);
   --sidebar: #0f302e;
   --sidebar-foreground: #fbf8f1;
   --sidebar-primary: var(--gold-light);
@@ -200,12 +301,102 @@
 @utility bg-brand-hero {
   background-image:
     radial-gradient(
-      ellipse at 86% 14%,
-      color-mix(in oklch, var(--gold-light) 22%, transparent),
-      transparent 42%
+      ellipse 60% 50% at 84% 12%,
+      color-mix(in oklch, var(--gold-light) 26%, transparent),
+      transparent 60%
     ),
-    linear-gradient(115deg, oklch(0.27 0.045 190) 0%, var(--brand) 100%);
+    radial-gradient(
+      ellipse 48% 42% at 6% 94%,
+      color-mix(in oklch, var(--orchid) 18%, transparent),
+      transparent 62%
+    ),
+    radial-gradient(
+      ellipse 40% 34% at 72% 82%,
+      color-mix(in oklch, var(--blush) 12%, transparent),
+      transparent 60%
+    ),
+    linear-gradient(
+      118deg,
+      oklch(0.24 0.045 190) 0%,
+      var(--brand) 55%,
+      oklch(0.32 0.05 190) 100%
+    );
   color: var(--brand-foreground);
+}
+
+@utility bg-cta-band {
+  background-image:
+    radial-gradient(
+      ellipse 50% 65% at 92% 18%,
+      color-mix(in oklch, var(--gold-light) 22%, transparent),
+      transparent 62%
+    ),
+    radial-gradient(
+      ellipse 40% 50% at 4% 100%,
+      color-mix(in oklch, var(--orchid) 14%, transparent),
+      transparent 60%
+    ),
+    linear-gradient(120deg, var(--brand-deep) 0%, var(--brand) 100%);
+  color: var(--brand-foreground);
+}
+
+/* Felt-style stitched border used on category and trust cards. */
+@utility stitch-border {
+  border: 2px dashed color-mix(in oklch, var(--brand-gold) 55%, transparent);
+}
+
+@utility glow-gold {
+  box-shadow:
+    0 0 0 1px color-mix(in oklch, var(--brand-gold) 40%, transparent),
+    0 10px 34px color-mix(in oklch, var(--brand-gold) 22%, transparent);
+}
+
+@utility float-slow {
+  animation: float-slow 7s var(--motion-easing) infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@utility float-slower {
+  animation: float-slow 11s var(--motion-easing) infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@utility twinkle {
+  animation: twinkle 3.6s ease-in-out infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.9);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.12);
+  }
 }
 
 @utility lift {
@@ -506,9 +697,16 @@ select[aria-invalid="true"],
   }
   body {
     @apply bg-background text-foreground;
+    font-size: var(--text-body);
+    line-height: 1.65;
   }
   html {
     @apply font-sans;
+  }
+  /* Fraunces SOFT axis rounds the serifs for a friendly, handmade feel. */
+  .font-heading,
+  .font-brand-display {
+    font-variation-settings: "SOFT" 100;
   }
 }
 

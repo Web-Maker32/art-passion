@@ -14,13 +14,13 @@ export function ProductCard({ product }: { product: ProductCardData }) {
 
   return (
     <ScrollReveal className="h-full">
-      <article className="group relative z-30 h-full rounded-xl border border-silver bg-card shadow-card motion-safe:lift hover-fine:hover:border-brand-gold focus-within:border-brand-gold">
+      <article className="group relative z-30 h-full rounded-2xl border border-silver bg-card shadow-card motion-safe:lift hover-fine:hover:border-brand-gold focus-within:border-brand-gold">
         <Link
           aria-label={`View ${product.title}`}
-          className="flex h-full flex-col rounded-xl"
+          className="flex h-full flex-col rounded-2xl"
           href={`/products/${product.slug}`}
         >
-          <div className="bg-muted relative aspect-square overflow-hidden rounded-t-xl">
+          <div className="bg-muted relative aspect-square overflow-hidden rounded-t-2xl">
             <Image
               alt={
                 imageSrc === "/placeholder.svg" ? "" : image?.alt || product.title
@@ -45,21 +45,22 @@ export function ProductCard({ product }: { product: ProductCardData }) {
               />
             )}
             {outOfStock && (
-              <span className="absolute top-2 left-2 rounded-full border border-border bg-background/95 px-2 py-1 text-xs font-semibold text-foreground shadow-card">
+              <span className="absolute top-3 left-3 rounded-full border border-border bg-background/95 px-2.5 py-1 text-xs font-semibold text-foreground shadow-soft">
                 Out of stock
               </span>
             )}
           </div>
-          <div className="flex flex-1 flex-col space-y-2 p-4">
-            <p className="text-gold-text text-xs font-semibold tracking-wide uppercase">
+          <div className="flex flex-1 flex-col p-4 sm:p-5">
+            <p className="text-gold-text text-xs font-semibold tracking-[0.1em] uppercase">
               {product.category.name}
             </p>
-            <h3 className="font-heading text-card-foreground line-clamp-2 text-base font-semibold sm:text-lg">
+            <h3 className="font-heading text-card-foreground mt-1.5 line-clamp-2 text-base leading-snug font-semibold sm:text-lg">
               {product.title}
             </h3>
             {lowestPrice !== undefined && (
-              <p className="text-brand mt-auto pt-2 font-semibold">
-                From {formatPrice(lowestPrice)}
+              <p className="text-brand mt-auto pt-3 font-semibold">
+                <span className="text-muted-foreground text-xs font-medium">From </span>
+                {formatPrice(lowestPrice)}
               </p>
             )}
           </div>
