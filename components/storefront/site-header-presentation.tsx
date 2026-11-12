@@ -17,7 +17,15 @@ import { MiniCart } from "@/components/storefront/mini-cart";
 import type { CartView } from "@/lib/cart-types";
 import { siteConfig } from "@/lib/site-config";
 
-export function SiteHeaderPresentation({ cart }: { cart: CartView }) {
+export function SiteHeaderPresentation({
+  cart,
+  deliveryFee,
+  freeDeliveryThreshold,
+}: {
+  cart: CartView;
+  deliveryFee: number;
+  freeDeliveryThreshold: number;
+}) {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const { resolvedTheme, setTheme } = useTheme();
@@ -101,7 +109,11 @@ export function SiteHeaderPresentation({ cart }: { cart: CartView }) {
             >
               <Search aria-hidden="true" className="size-5" />
             </Link>
-            <MiniCart cart={cart} />
+            <MiniCart
+              cart={cart}
+              deliveryFee={deliveryFee}
+              freeDeliveryThreshold={freeDeliveryThreshold}
+            />
             <div className="lg:hidden">
               <MobileNav />
             </div>

@@ -25,7 +25,7 @@ export default function FaqPage() {
       title="Frequently asked questions"
     >
       <JsonLd data={buildFaqJsonLd(faqItems)} />
-      <Accordion className="border-silver bg-card rounded-2xl border px-5 sm:px-6">
+      <Accordion className="border-border bg-card overflow-hidden rounded-2xl border">
         {faqItems.map((item, index) => (
           <AccordionItem key={item.question} value={`faq-${index}`}>
             <AccordionTrigger>{item.question}</AccordionTrigger>

@@ -55,14 +55,14 @@ export function ProductFiltersPanel({
 
   return (
     <form
-      className="grid gap-4 rounded-xl border border-silver bg-card p-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6"
+      className="grid gap-4 rounded-2xl border border-silver bg-card p-4 shadow-soft sm:grid-cols-2 sm:p-5 lg:grid-cols-3 xl:grid-cols-6"
       onSubmit={applyFilters}
     >
       {!lockedCategory && (
         <label className="grid gap-1.5 text-sm font-medium">
           Category
           <select
-            className="h-10 rounded-md border border-input bg-background px-3 text-foreground transition-colors duration-interaction ease-interaction"
+            className="h-11 rounded-lg border border-input bg-background px-3 text-foreground transition-colors duration-interaction ease-interaction"
             defaultValue={filters.category ?? ""}
             name="category"
           >
@@ -78,7 +78,7 @@ export function ProductFiltersPanel({
       <label className="grid gap-1.5 text-sm font-medium">
         Product type
         <select
-          className="h-10 rounded-md border border-input bg-background px-3 text-foreground transition-colors duration-interaction ease-interaction"
+          className="h-11 rounded-lg border border-input bg-background px-3 text-foreground transition-colors duration-interaction ease-interaction"
           defaultValue={filters.type ?? ""}
           name="type"
         >
@@ -93,7 +93,7 @@ export function ProductFiltersPanel({
       <label className="grid gap-1.5 text-sm font-medium">
         Min price (PKR)
         <input
-          className="h-10 rounded-md border border-input bg-background px-3 text-foreground transition-colors duration-interaction ease-interaction"
+          className="h-11 rounded-lg border border-input bg-background px-3 text-foreground transition-colors duration-interaction ease-interaction"
           defaultValue={filters.minPrice ?? ""}
           min="0"
           name="minPrice"
@@ -103,7 +103,7 @@ export function ProductFiltersPanel({
       <label className="grid gap-1.5 text-sm font-medium">
         Max price (PKR)
         <input
-          className="h-10 rounded-md border border-input bg-background px-3 text-foreground transition-colors duration-interaction ease-interaction"
+          className="h-11 rounded-lg border border-input bg-background px-3 text-foreground transition-colors duration-interaction ease-interaction"
           defaultValue={filters.maxPrice ?? ""}
           min="0"
           name="maxPrice"
@@ -113,7 +113,7 @@ export function ProductFiltersPanel({
       <label className="grid gap-1.5 text-sm font-medium">
         Sort by
         <select
-          className="h-10 rounded-md border border-input bg-background px-3 text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+          className="h-11 rounded-lg border border-input bg-background px-3 text-foreground transition-colors duration-interaction ease-interaction"
           defaultValue={filters.sort}
           name="sort"
         >
@@ -123,16 +123,16 @@ export function ProductFiltersPanel({
         </select>
       </label>
       <div className="flex items-center gap-4 sm:col-span-2 lg:col-span-1 xl:flex-col xl:items-stretch xl:justify-end">
-        <label className="flex min-h-10 items-center gap-2 text-sm font-medium">
+        <label className="flex min-h-11 items-center gap-2.5 text-sm font-medium">
           <input
-            className="size-4 accent-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+            className="size-5 accent-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
             defaultChecked={filters.inStock}
             name="inStock"
             type="checkbox"
           />
           In stock only
         </label>
-        <Button className="min-h-10" type="submit">
+        <Button className="w-full xl:w-auto" type="submit">
           Apply filters
         </Button>
       </div>

@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { JsonLd } from "@/components/seo/JsonLd";
+import { Breadcrumb } from "@/components/storefront/breadcrumb";
+import { CategoryChips } from "@/components/storefront/category-chips";
+import { Container } from "@/components/storefront/container";
 import { ProductFiltersPanel } from "@/components/storefront/product-filters";
 import { ProductGrid } from "@/components/storefront/product-grid";
+import { SectionHeading } from "@/components/storefront/section-heading";
 import { categoryMetaDescriptions } from "@/lib/catalog";
 import { getCategoryBySlug, getPublishedCategories, getPublishedCategorySlugs, categoryDescriptions } from "@/lib/queries/categories";
 import { getPublishedProducts } from "@/lib/queries/products";
@@ -77,30 +81,32 @@ export default async function CategoryPage({
   const description =
     categoryDescriptions[slug] ??
     `Explore handmade pieces in ${category.name} at Art Passion.`;
+  const breadcrumbItems = [
+    { name: "Home", path: "/" },
+    { name: "Shop", path: "/products" },
+    { name: category.name, path: `/categories/${category.slug}` },
+  ];
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
-      <JsonLd
-        data={buildBreadcrumbJsonLd([
-          { name: "Home", path: "/" },
-          { name: "Shop", path: "/products" },
-          { name: category.name, path: `/categories/${category.slug}` },
-        ])}
+    <Container className="py-10 lg:py-14">
+      <JsonLd data={buildBreadcrumbJsonLd(breadcrumbItems)} />
+      <Breadcrumb items={breadcrumbItems} />
+      <SectionHeading
+        description={description}
+        eyebrow="Handmade collection"
+        level={1}
+        title={category.name}
       />
-      <p className="text-sm font-semibold tracking-wide text-gold-text uppercase">
-        Handmade collection
-      </p>
-      <h1 className="mt-2 font-heading text-3xl font-bold tracking-tight sm:text-4xl">
-        {category.name}
-      </h1>
-      <p className="mt-3 max-w-2xl text-muted-foreground">{description}</p>
-      <div className="mt-7">
-        <ProductFiltersPanel
-          categories={categories}
-          filters={filters}
-          lockedCategory={slug}
-        />
-      </div>
+      <CategoryChips
+        activeSlug={slug}
+        categories={categories}
+        className="mb-6"
+      />
+      <ProductFiltersPanel
+        categories={categories}
+        filters={filters}
+        lockedCategory={slug}
+      />
       <div className="mt-8">
         <ProductGrid
           emptyMessage="This collection is still being prepared. Browse the full shop to see everything that is available now."
@@ -108,6 +114,6 @@ export default async function CategoryPage({
           products={products}
         />
       </div>
-    </div>
+    </Container>
   );
 }

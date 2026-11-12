@@ -2,7 +2,7 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-@source inline("duration-interaction ease-interaction shadow-card shadow-card-hover shadow-soft lift lift-sm press image-zoom cart-count-pop skeleton-shimmer scroll-reveal-pending scroll-reveal-enter bg-cta-band stitch-border glow-gold float-slow float-slower twinkle");
+@source inline("duration-interaction ease-interaction shadow-card shadow-card-hover shadow-soft lift lift-sm press image-zoom cart-count-pop skeleton-shimmer scroll-reveal-pending scroll-reveal-enter bg-cta-band stitch-border glow-gold float-slow float-slower twinkle scrollbar-brand");
 
 @custom-variant dark (&:is(.dark *));
 @custom-variant hover-fine (@media (hover: hover) and (pointer: fine));
@@ -200,7 +200,7 @@
   --muted-foreground: oklch(0.275 0.015 196.3);
   --accent: var(--gold-light);
   --accent-foreground: oklch(0.284 0.038 189.8);
-  --destructive: oklch(0.577 0.245 27.325);
+  --destructive: oklch(0.52 0.245 27.325);
   --border: var(--silver);
   --input: var(--silver-strong);
   --ring: var(--gold);
@@ -254,7 +254,7 @@
   --muted-foreground: #f2ebdd;
   --accent: var(--gold);
   --accent-foreground: #0a2523;
-  --destructive: oklch(0.704 0.191 22.216);
+  --destructive: oklch(0.73 0.191 22.216);
   --border: var(--silver);
   --input: var(--silver-strong);
   --ring: var(--gold-light);
@@ -399,6 +399,27 @@
   }
 }
 
+/* Thin brand-tinted scrollbar for horizontal chip rows and scroll regions. */
+@utility scrollbar-brand {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklch, var(--brand-gold) 55%, transparent)
+    transparent;
+
+  &::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: color-mix(in oklch, var(--brand-gold) 55%, transparent);
+    border-radius: 9999px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
 @utility lift {
   transition-property:
     transform, box-shadow, color, background-color, border-color;
@@ -536,6 +557,123 @@
   }
 }
 
+/* Floating WhatsApp button: no size growth, a small hover lift with a soft
+   gold glow, a tilting icon, a sliding desktop label and a slow idle pulse.
+   Touch devices get press feedback only; reduced motion keeps colour and
+   shadow changes without any movement. */
+@utility whatsapp-float {
+  transition:
+    transform var(--motion-duration) ease-out,
+    box-shadow var(--motion-duration) ease-out,
+    background-color var(--motion-duration) ease-out;
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      transform: translateY(-2px);
+      background-color: var(--brand-hover);
+      box-shadow:
+        0 0 0 1px color-mix(in oklch, var(--brand-gold) 40%, transparent),
+        0 10px 34px color-mix(in oklch, var(--brand-gold) 22%, transparent);
+    }
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition-property: background-color, box-shadow;
+
+    &:hover,
+    &:active {
+      transform: none;
+    }
+  }
+}
+
+@utility whatsapp-float-icon {
+  transition: transform var(--motion-duration) ease-out;
+
+  @media (hover: hover) and (pointer: fine) {
+    :where(.group):hover & {
+      transform: rotate(-12deg);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+
+    :where(.group):hover & {
+      transform: none;
+    }
+  }
+}
+
+@utility whatsapp-float-label {
+  opacity: 0;
+  transform: translateX(8px);
+  transition:
+    opacity var(--motion-duration) ease-out,
+    transform var(--motion-duration) ease-out;
+
+  @media (hover: hover) and (pointer: fine) {
+    :where(.group):hover &,
+    :where(.group):focus-visible & {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transform: none;
+    transition-property: opacity;
+  }
+}
+
+@keyframes whatsapp-pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in oklch, var(--brand-gold) 35%, transparent);
+  }
+
+  70% {
+    box-shadow: 0 0 0 10px transparent;
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+@utility whatsapp-float-pulse {
+  animation: whatsapp-pulse 3s ease-out infinite;
+  transition: opacity var(--motion-duration) ease-out;
+
+  @media (hover: hover) and (pointer: fine) {
+    :where(.group):hover & {
+      animation: none;
+      opacity: 0;
+    }
+  }
+
+  :where(.group):focus-visible & {
+    animation: none;
+    opacity: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* Keep the float out of the way while a drawer, menu or dialog is open so it
+   can never sit over mini-cart or navigation controls. */
+body:has([data-slot="sheet-overlay"]) .whatsapp-float,
+body:has([data-slot="dialog-overlay"]) .whatsapp-float {
+  visibility: hidden;
+}
+
 @utility skeleton-shimmer {
   &.bg-muted,
   & .bg-muted {
@@ -621,6 +759,24 @@
   box-shadow: none;
 }
 
+/* Accordion rows: the card clips outer outlines, so the gold focus ring is
+   drawn inside the row, and the first/last triggers borrow the card radius.
+   Unlayered so it wins over the global outline-offset above. */
+[data-slot="accordion-trigger"]:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+}
+
+[data-slot="accordion-item"]:first-child [data-slot="accordion-trigger"] {
+  border-start-start-radius: calc(var(--radius) * 1.8);
+  border-start-end-radius: calc(var(--radius) * 1.8);
+}
+
+[data-slot="accordion-item"]:last-child:not([data-open]) [data-slot="accordion-trigger"] {
+  border-end-start-radius: calc(var(--radius) * 1.8);
+  border-end-end-radius: calc(var(--radius) * 1.8);
+}
+
 input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):focus-visible,
 textarea:focus-visible,
 select:focus-visible,
@@ -674,7 +830,7 @@ select[aria-invalid="true"],
       text-decoration-color: var(--gold-text);
     }
   }
-  button:not([data-slot="button"]):not(:disabled) {
+  button:not([data-slot="button"]):not([data-slot="accordion-trigger"]):not(:disabled) {
     @apply lift-sm press;
   }
   [data-sonner-toaster] [data-sonner-toast] {

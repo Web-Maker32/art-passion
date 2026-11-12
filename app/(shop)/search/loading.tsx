@@ -7,7 +7,7 @@ export default function SearchLoading() {
     >
       <div className="h-9 w-64 rounded bg-muted" />
       <div className="mt-6 h-12 max-w-2xl rounded bg-muted" />
-      <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+      <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
         {Array.from({ length: 8 }, (_, index) => (
           <div className="space-y-3" key={index}>
             <div className="aspect-square rounded-xl bg-muted" />

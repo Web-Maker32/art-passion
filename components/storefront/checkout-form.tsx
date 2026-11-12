@@ -1,9 +1,20 @@
 "use client";
 
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  CircleAlert,
+  MapPin,
+  MessageCircle,
+  NotebookPen,
+  ShoppingBag,
+  User,
+  Wallet,
+  type LucideIcon,
+} from "lucide-react";
 import { processCheckout } from "@/actions/checkout";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -16,18 +27,39 @@ import {
 
 type FormField = Exclude<keyof CheckoutFormInput, "termsAccepted" | "honeypot" | "idempotencyKey">;
 
-const textFields: Array<{
+type FieldConfig = {
   name: FormField;
   label: string;
   type?: string;
   autoComplete?: string;
   required?: boolean;
   optional?: boolean;
-}> = [
+  helper?: string;
+  wide?: boolean;
+};
+
+const contactFields: FieldConfig[] = [
   { name: "fullName", label: "Full name", autoComplete: "name", required: true },
-  { name: "mobileNumber", label: "Mobile number", type: "tel", autoComplete: "tel", required: true },
-  { name: "email", label: "Email address", type: "email", autoComplete: "email", optional: true },
-  { name: "deliveryAddress", label: "Delivery address", autoComplete: "street-address", required: true },
+  {
+    name: "mobileNumber",
+    label: "Mobile number",
+    type: "tel",
+    autoComplete: "tel",
+    required: true,
+    helper: "We'll confirm your order on this number.",
+  },
+  { name: "email", label: "Email address", type: "email", autoComplete: "email", optional: true, wide: true },
+];
+
+const addressFields: FieldConfig[] = [
+  {
+    name: "deliveryAddress",
+    label: "Delivery address",
+    autoComplete: "street-address",
+    required: true,
+    helper: "Include house, street and area.",
+    wide: true,
+  },
   { name: "city", label: "City", autoComplete: "address-level2", required: true },
   { name: "province", label: "Province", autoComplete: "address-level1", required: true },
   { name: "postalCode", label: "Postal code", autoComplete: "postal-code", optional: true },
@@ -105,8 +137,58 @@ export function CheckoutForm({
     });
   });
 
+  function renderField({ name, label, type = "text", autoComplete, required, optional, helper, wide }: FieldConfig) {
+    const error = errors[name];
+    const multiline = name === "deliveryAddress";
+    const describedBy =
+      [helper ? `${name}-helper` : null, error ? `${name}-error` : null]
+        .filter(Boolean)
+        .join(" ") || undefined;
+    return (
+      <div className={wide ? "sm:col-span-2" : undefined} key={name}>
+        <label className="mb-1.5 block text-sm font-medium" htmlFor={name}>
+          {label}{required ? " *" : optional ? <span className="text-muted-foreground"> (optional)</span> : null}
+        </label>
+        {multiline ? (
+          <textarea
+            autoComplete={autoComplete}
+            className="min-h-24 w-full resize-y rounded-lg border border-input bg-transparent px-3 py-2 text-base outline-none transition-colors placeholder:text-muted-foreground dark:bg-input/30"
+            id={name}
+            maxLength={500}
+            {...register(name)}
+            aria-describedby={describedBy}
+            aria-invalid={Boolean(error)}
+          />
+        ) : (
+          <Input
+            autoComplete={autoComplete}
+            className="min-h-11 rounded-lg px-3"
+            id={name}
+            inputMode={name === "mobileNumber" ? "tel" : undefined}
+            placeholder={name === "mobileNumber" ? "03XX XXXXXXX" : undefined}
+            type={type}
+            {...register(name)}
+            aria-describedby={describedBy}
+            aria-invalid={Boolean(error)}
+          />
+        )}
+        {helper && (
+          <p className="text-muted-foreground mt-1.5 text-xs" id={`${name}-helper`}>
+            {helper}
+          </p>
+        )}
+        {error?.message && (
+          <p className="mt-1.5 flex items-start gap-1.5 text-sm text-destructive" id={`${name}-error`}>
+            <CircleAlert aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
+            <span>{error.message}</span>
+          </p>
+        )}
+      </div>
+    );
+  }
+
   return (
-    <form className="space-y-7" noValidate onSubmit={submit}>
+    <form className="space-y-5" noValidate onSubmit={submit}>
       <input type="hidden" {...register("idempotencyKey")} />
       <div
         aria-hidden="true"
@@ -121,59 +203,36 @@ export function CheckoutForm({
         />
       </div>
 
-      <section aria-labelledby="customer-details-heading">
-        <h2 className="font-heading text-xl font-semibold" id="customer-details-heading">
-          Delivery details
-        </h2>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          {textFields.map(({ name, label, type = "text", autoComplete, required, optional }) => {
-            const error = errors[name];
-            const multiline = name === "deliveryAddress";
-            return (
-              <div className={multiline ? "sm:col-span-2" : undefined} key={name}>
-                <label className="mb-1.5 block text-sm font-medium" htmlFor={name}>
-                  {label}{required ? " *" : optional ? <span className="text-muted-foreground"> (optional)</span> : null}
-                </label>
-                {multiline ? (
-                  <textarea
-                    autoComplete={autoComplete}
-                    className="min-h-24 w-full resize-y rounded-md border border-input bg-transparent px-3 py-2 text-base outline-none transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50 dark:bg-input/30"
-                    id={name}
-                    maxLength={500}
-                    {...register(name)}
-                    aria-describedby={error ? `${name}-error` : undefined}
-                    aria-invalid={Boolean(error)}
-                  />
-                ) : (
-                  <Input
-                    autoComplete={autoComplete}
-                    className="min-h-11 rounded-md px-3 focus-visible:ring-2 focus-visible:ring-ring/50"
-                    id={name}
-                    inputMode={name === "mobileNumber" ? "tel" : undefined}
-                    placeholder={name === "mobileNumber" ? "03XX XXXXXXX" : undefined}
-                    type={type}
-                    {...register(name)}
-                    aria-describedby={error ? `${name}-error` : undefined}
-                    aria-invalid={Boolean(error)}
-                  />
-                )}
-                {error?.message && (
-                  <p className="mt-1 text-sm text-destructive" id={`${name}-error`}>
-                    {error.message}
-                  </p>
-                )}
-              </div>
-            );
-          })}
+      {errors.root?.message && (
+        <div
+          className="border-destructive/30 bg-destructive/10 text-destructive flex items-start gap-2.5 rounded-xl border px-4 py-3 text-sm font-medium"
+          role="alert"
+        >
+          <CircleAlert aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
+          <p>{errors.root.message}</p>
         </div>
+      )}
 
-        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+      <FormSection icon={User} id="contact-heading" title="Contact details">
+        <div className="grid gap-4 sm:grid-cols-2">
+          {contactFields.map(renderField)}
+        </div>
+      </FormSection>
+
+      <FormSection icon={MapPin} id="address-heading" title="Delivery details">
+        <div className="grid gap-4 sm:grid-cols-2">
+          {addressFields.map(renderField)}
+        </div>
+      </FormSection>
+
+      <FormSection icon={NotebookPen} id="notes-heading" title="Notes (optional)">
+        <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label className="mb-1.5 block text-sm font-medium" htmlFor="giftNote">
-              Gift note <span className="text-muted-foreground">(optional)</span>
+              Gift note
             </label>
             <textarea
-              className="min-h-20 w-full resize-y rounded-md border border-input bg-transparent px-3 py-2 text-base outline-none transition-colors focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50 dark:bg-input/30"
+              className="min-h-20 w-full resize-y rounded-lg border border-input bg-transparent px-3 py-2 text-base outline-none transition-colors dark:bg-input/30"
               id="giftNote"
               maxLength={200}
               {...register("giftNote")}
@@ -181,17 +240,18 @@ export function CheckoutForm({
               aria-invalid={Boolean(errors.giftNote)}
             />
             {errors.giftNote?.message && (
-              <p className="mt-1 text-sm text-destructive" id="giftNote-error">
-                {errors.giftNote.message}
+              <p className="mt-1.5 flex items-start gap-1.5 text-sm text-destructive" id="giftNote-error">
+                <CircleAlert aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
+                <span>{errors.giftNote.message}</span>
               </p>
             )}
           </div>
           <div>
             <label className="mb-1.5 block text-sm font-medium" htmlFor="orderNotes">
-              Order notes <span className="text-muted-foreground">(optional)</span>
+              Order notes
             </label>
             <textarea
-              className="min-h-20 w-full resize-y rounded-md border border-input bg-transparent px-3 py-2 text-base outline-none transition-colors focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50 dark:bg-input/30"
+              className="min-h-20 w-full resize-y rounded-lg border border-input bg-transparent px-3 py-2 text-base outline-none transition-colors dark:bg-input/30"
               id="orderNotes"
               maxLength={500}
               {...register("orderNotes")}
@@ -199,28 +259,27 @@ export function CheckoutForm({
               aria-invalid={Boolean(errors.orderNotes)}
             />
             {errors.orderNotes?.message && (
-              <p className="mt-1 text-sm text-destructive" id="orderNotes-error">
-                {errors.orderNotes.message}
+              <p className="mt-1.5 flex items-start gap-1.5 text-sm text-destructive" id="orderNotes-error">
+                <CircleAlert aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
+                <span>{errors.orderNotes.message}</span>
               </p>
             )}
           </div>
         </div>
-      </section>
+      </FormSection>
 
-      <section aria-labelledby="payment-heading" className="border-silver border-t pt-5">
-        <h2 className="font-heading text-xl font-semibold" id="payment-heading">
-          Easypaisa wallet transfer
-        </h2>
-        <p className="text-muted-foreground mt-2 text-sm leading-6">
+      <FormSection icon={Wallet} id="payment-heading" title="Easypaisa wallet transfer">
+        <p className="text-muted-foreground text-sm leading-6">
           Easypaisa wallet transfer is the only online payment method. After placing your order, you will see the account details. Send the payment screenshot on WhatsApp with your order number. Your order stays pending until payment is checked by hand.
         </p>
         {whatsappHref ? (
           <a
-            className="border-brand text-foreground lift-sm press hover-fine:hover:bg-brand/5 focus-visible:outline-ring mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-md border px-4 py-2 text-center font-semibold focus-visible:outline-2 focus-visible:outline-offset-2"
+            className="border-brand text-foreground lift-sm press hover-fine:hover:bg-brand/5 focus-visible:outline-ring mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg border px-4 py-2 text-center font-semibold focus-visible:outline-2 focus-visible:outline-offset-2"
             href={whatsappHref}
             rel="noopener noreferrer"
             target="_blank"
           >
+            <MessageCircle aria-hidden="true" className="size-5 shrink-0 text-brand" />
             Prefer cash on delivery? Order on WhatsApp
           </a>
         ) : (
@@ -228,9 +287,9 @@ export function CheckoutForm({
             WhatsApp ordering is currently unavailable.
           </p>
         )}
-      </section>
+      </FormSection>
 
-      <div className="border-silver border-t pt-5">
+      <div className="border-silver bg-card rounded-2xl border p-5 shadow-soft sm:p-6">
         <Controller
           control={control}
           name="termsAccepted"
@@ -253,26 +312,54 @@ export function CheckoutForm({
           )}
         />
         {errors.termsAccepted?.message && (
-          <p className="mt-1 text-sm text-destructive" id="terms-error" role="alert">
-            {errors.termsAccepted.message}
+          <p className="mt-1.5 flex items-start gap-1.5 text-sm text-destructive" id="terms-error" role="alert">
+            <CircleAlert aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
+            <span>{errors.termsAccepted.message}</span>
           </p>
         )}
-      </div>
-
-      {errors.root?.message && (
-        <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive" role="alert">
-          {errors.root.message}
+        <Button
+          aria-busy={isPending}
+          className="mt-5 w-full"
+          disabled={isPending}
+          size="lg"
+          type="submit"
+        >
+          <ShoppingBag aria-hidden="true" className="size-4" />
+          {isPending ? "Placing your order..." : "Place order"}
+        </Button>
+        <p className="text-muted-foreground mt-3 text-center text-xs">
+          You will see the Easypaisa account details on the next step.
         </p>
-      )}
-
-      <Button
-        aria-busy={isPending}
-        className="min-h-12 w-full text-base"
-        disabled={isPending}
-        type="submit"
-      >
-        {isPending ? "Placing your order..." : "Place order"}
-      </Button>
+      </div>
     </form>
+  );
+}
+
+function FormSection({
+  icon: Icon,
+  id,
+  title,
+  children,
+}: {
+  icon: LucideIcon;
+  id: string;
+  title: string;
+  children: ReactNode;
+}) {
+  return (
+    <section
+      aria-labelledby={id}
+      className="border-silver bg-card rounded-2xl border p-5 shadow-soft sm:p-6"
+    >
+      <div className="flex items-center gap-2.5">
+        <span className="bg-gold/20 text-gold-text dark:text-gold-light inline-flex size-9 shrink-0 items-center justify-center rounded-xl">
+          <Icon aria-hidden="true" className="size-4.5" />
+        </span>
+        <h2 className="font-heading text-card-foreground text-lg font-semibold" id={id}>
+          {title}
+        </h2>
+      </div>
+      <div className="mt-5">{children}</div>
+    </section>
   );
 }

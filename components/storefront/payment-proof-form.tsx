@@ -2,13 +2,14 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { CircleAlert, CircleCheck } from "lucide-react";
 import { reportPaymentProof } from "@/actions/payment-proof";
 import { paymentProofSavedMessage } from "@/lib/payment-proof-schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 const textareaClassName =
-  "min-h-20 w-full resize-y rounded-md border border-input bg-transparent px-3 py-2 text-base outline-none transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50 dark:bg-input/30";
+  "min-h-20 w-full resize-y rounded-lg border border-input bg-transparent px-3 py-2 text-base outline-none transition-colors placeholder:text-muted-foreground dark:bg-input/30";
 
 type PaymentProofFormProps = {
   orderNumber: string;
@@ -72,9 +73,10 @@ export function PaymentProofForm({
 
   if (!editing) {
     return (
-      <div className="border-silver bg-secondary/40 mt-4 rounded-lg border p-4">
-        <p className="text-sm font-medium" role="status">
-          {paymentProofSavedMessage}
+      <div className="border-success/30 bg-success/10 mt-4 rounded-xl border p-4">
+        <p className="flex items-start gap-2 text-sm font-medium" role="status">
+          <CircleCheck aria-hidden="true" className="text-success mt-0.5 size-4 shrink-0" />
+          <span>{paymentProofSavedMessage}</span>
         </p>
         <dl className="mt-3 space-y-1 text-sm">
           <div className="flex justify-between gap-3">
@@ -119,6 +121,7 @@ export function PaymentProofForm({
           aria-describedby={fieldErrors.transactionId ? "transaction-id-error" : undefined}
           aria-invalid={Boolean(fieldErrors.transactionId)}
           autoComplete="off"
+          className="min-h-11 rounded-lg px-3"
           id="transaction-id"
           maxLength={40}
           onChange={(event) => setTransactionId(event.target.value)}
@@ -126,8 +129,9 @@ export function PaymentProofForm({
           value={transactionId}
         />
         {fieldErrors.transactionId && (
-          <p className="text-destructive mt-1 text-sm" id="transaction-id-error">
-            {fieldErrors.transactionId}
+          <p className="text-destructive mt-1.5 flex items-start gap-1.5 text-sm" id="transaction-id-error">
+            <CircleAlert aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
+            <span>{fieldErrors.transactionId}</span>
           </p>
         )}
       </div>
@@ -147,19 +151,29 @@ export function PaymentProofForm({
           value={note}
         />
         {fieldErrors.note && (
-          <p className="text-destructive mt-1 text-sm" id="payment-note-error">
-            {fieldErrors.note}
+          <p className="text-destructive mt-1.5 flex items-start gap-1.5 text-sm" id="payment-note-error">
+            <CircleAlert aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
+            <span>{fieldErrors.note}</span>
           </p>
         )}
       </div>
 
       {rootError && (
-        <p className="text-destructive text-sm" role="alert">
-          {rootError}
-        </p>
+        <div
+          className="border-destructive/30 bg-destructive/10 text-destructive flex items-start gap-2 rounded-lg border px-3 py-2.5 text-sm"
+          role="alert"
+        >
+          <CircleAlert aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
+          <p>{rootError}</p>
+        </div>
       )}
 
-      <Button className="min-h-11 w-full" disabled={isPending} type="submit">
+      <Button
+        aria-busy={isPending}
+        className="w-full"
+        disabled={isPending}
+        type="submit"
+      >
         {isPending ? "Sending…" : "Submit payment details"}
       </Button>
     </form>

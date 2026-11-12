@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
+import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import {
   clearCartAction,
@@ -52,10 +53,10 @@ export function CartItemControls({
 
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <div className="flex items-center rounded-md border border-input">
+      <div className="flex items-center rounded-lg border border-input">
         <button
           aria-label={`Decrease quantity of ${productTitle}, ${variantLabel}`}
-          className="min-h-11 min-w-11 rounded-l-md transition-colors duration-interaction hover-fine:hover:bg-muted active:bg-muted/80 focus-visible:outline-2 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-50"
+          className="min-h-11 min-w-11 rounded-l-lg transition-colors duration-interaction hover-fine:hover:bg-muted active:bg-muted/80 focus-visible:outline-2 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-50"
           disabled={pending || !editable || quantity <= 1}
           onClick={() => changeQuantity(quantity - 1)}
           type="button"
@@ -72,7 +73,7 @@ export function CartItemControls({
         </span>
         <button
           aria-label={`Increase quantity of ${productTitle}, ${variantLabel}`}
-          className="min-h-11 min-w-11 rounded-r-md transition-colors duration-interaction hover-fine:hover:bg-muted active:bg-muted/80 focus-visible:outline-2 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-50"
+          className="min-h-11 min-w-11 rounded-r-lg transition-colors duration-interaction hover-fine:hover:bg-muted active:bg-muted/80 focus-visible:outline-2 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-50"
           disabled={pending || !available || quantity >= maxQuantity}
           onClick={() => changeQuantity(quantity + 1)}
           type="button"
@@ -84,9 +85,10 @@ export function CartItemControls({
         disabled={pending}
         onClick={remove}
         type="button"
-        className="min-h-11 px-3 hover-fine:hover:text-blush hover-fine:hover:bg-blush/10"
+        className="min-h-11 px-3 hover-fine:hover:text-destructive hover-fine:hover:bg-destructive/10"
         variant="ghost"
       >
+        <Trash2 aria-hidden="true" className="size-4" />
         Remove
       </Button>
       <span aria-live="polite" className="sr-only">

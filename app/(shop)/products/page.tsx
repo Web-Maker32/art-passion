@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { CategoryChips } from "@/components/storefront/category-chips";
+import { Container } from "@/components/storefront/container";
 import { ProductFiltersPanel } from "@/components/storefront/product-filters";
 import { ProductGrid } from "@/components/storefront/product-grid";
 import { SectionHeading } from "@/components/storefront/section-heading";
-import {
-  getPublishedCategories,
-} from "@/lib/queries/categories";
+import { getPublishedCategories } from "@/lib/queries/categories";
 import { getPublishedProducts } from "@/lib/queries/products";
 import {
   parseProductFilters,
@@ -56,11 +56,17 @@ export default async function ProductsPage({
   );
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+    <Container className="py-10 lg:py-14">
       <SectionHeading
         description="Discover handmade play sets, creative kits, and gifts made with care."
+        eyebrow="Handmade in Pakistan"
         level={1}
         title="Shop the collection"
+      />
+      <CategoryChips
+        activeSlug={filters.category}
+        categories={categories}
+        className="mb-6"
       />
       <ProductFiltersPanel categories={categories} filters={filters} />
       <p className="my-5 text-sm text-muted-foreground" aria-live="polite">
@@ -74,7 +80,7 @@ export default async function ProductsPage({
       {totalPages > 1 && (
         <nav
           aria-label="Product pages"
-          className="mt-8 flex items-center justify-center gap-4"
+          className="mt-10 flex items-center justify-center gap-3 sm:gap-4"
         >
           {currentPage > 1 && (
             <PageLink
@@ -83,7 +89,10 @@ export default async function ProductsPage({
               text="Previous"
             />
           )}
-          <span aria-current="page" className="text-sm font-medium">
+          <span
+            aria-current="page"
+            className="text-sm font-medium text-muted-foreground"
+          >
             Page {currentPage} of {totalPages}
           </span>
           {currentPage < totalPages && (
@@ -95,29 +104,7 @@ export default async function ProductsPage({
           )}
         </nav>
       )}
-      {categories.length > 0 && (
-        <section aria-labelledby="category-links-heading" className="mt-12">
-          <h2
-            className="font-heading text-xl font-bold"
-            id="category-links-heading"
-          >
-            Browse by category
-          </h2>
-          <ul className="mt-3 flex flex-wrap gap-2">
-            {categories.map((category) => (
-              <li key={category.id}>
-                <Link
-                  className="inline-flex min-h-10 items-center rounded-full border border-silver px-4 text-sm font-medium hover:border-brand hover:text-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-                  href={`/categories/${category.slug}`}
-                >
-                  {category.name}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-    </div>
+    </Container>
   );
 }
 
@@ -142,7 +129,7 @@ function PageLink({
 
   return (
     <Link
-      className="inline-flex min-h-11 items-center rounded-md border border-silver px-4 font-medium transition-colors duration-interaction hover-fine:hover:border-brand-gold hover-fine:hover:text-brand active:border-brand-gold active:bg-brand-gold/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+      className="inline-flex min-h-11 items-center rounded-lg border border-silver bg-card px-4 font-medium transition-colors duration-interaction hover-fine:hover:border-brand-gold hover-fine:hover:text-brand active:border-brand-gold active:bg-brand-gold/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
       href={`/products?${params.toString()}`}
     >
       {text}

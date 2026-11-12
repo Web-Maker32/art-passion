@@ -1,8 +1,21 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Check } from "lucide-react";
+import {
+  Baby,
+  Check,
+  Layers,
+  Package,
+  Ruler,
+  ShieldCheck,
+  Truck,
+  type LucideIcon,
+} from "lucide-react";
+import { cn } from "cn";
 import { JsonLd } from "@/components/seo/JsonLd";
+import { Breadcrumb } from "@/components/storefront/breadcrumb";
+import { Container } from "@/components/storefront/container";
 import { Badge } from "@/components/ui/badge";
 import { ProductGallery } from "@/components/storefront/product-gallery";
 import { ProductGrid } from "@/components/storefront/product-grid";
@@ -78,70 +91,46 @@ export default async function ProductPage({
   });
   const productUrl = absoluteUrl(`/products/${product.slug}`);
 
+  const breadcrumbItems = [
+    { name: "Home", path: "/" },
+    { name: "Shop", path: "/products" },
+    { name: product.category.name, path: `/categories/${product.category.slug}` },
+    { name: product.title, path: `/products/${product.slug}` },
+  ];
+
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
+    <Container className="py-8 lg:py-12">
       <JsonLd data={buildProductJsonLd(product, { url: productUrl })} />
-      <JsonLd
-        data={buildBreadcrumbJsonLd([
-          { name: "Home", path: "/" },
-          { name: "Shop", path: "/products" },
-          { name: product.category.name, path: `/categories/${product.category.slug}` },
-          { name: product.title, path: `/products/${product.slug}` },
-        ])}
-      />
-      <nav aria-label="Breadcrumb" className="mb-6 text-sm">
-        <ol className="flex flex-wrap items-center gap-2 text-muted-foreground">
-          <li>
-            <Link
-              className="underline-offset-4 hover:text-foreground hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-              href="/products"
-            >
-              Shop
-            </Link>
-          </li>
-          <li aria-hidden="true">/</li>
-          <li>
-            <Link
-              className="underline-offset-4 hover:text-foreground hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-              href={`/categories/${product.category.slug}`}
-            >
-              {product.category.name}
-            </Link>
-          </li>
-          <li aria-hidden="true">/</li>
-          <li aria-current="page" className="font-medium text-foreground">
-            {product.title}
-          </li>
-        </ol>
-      </nav>
+      <JsonLd data={buildBreadcrumbJsonLd(breadcrumbItems)} />
+      <Breadcrumb items={breadcrumbItems} />
 
       <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
         <ProductGallery images={product.images} title={product.title} />
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <Badge className="bg-blush text-white hover:bg-blush">
+            <Badge variant="gold">
               {productTypeLabels[product.type] ?? product.type}
             </Badge>
-            <Badge className="bg-orchid text-white hover:bg-orchid">
+            <Badge
+              render={<Link href={`/categories/${product.category.slug}`} />}
+              variant="outline"
+            >
               {product.category.name}
             </Badge>
           </div>
-          <h1 className="mt-4 font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+          <h1 className="font-heading text-foreground mt-4 text-h1 font-bold text-balance">
             {product.title}
           </h1>
           {product.variants[0] && (
-            <p className="mt-3 text-xl font-semibold text-brand">
+            <p className="text-brand mt-3 text-xl font-semibold">
               From {formatPrice(product.variants[0].price)}
             </p>
           )}
           {product.shortDescription && (
-            <p className="mt-4 text-lg leading-8 text-muted-foreground">
+            <p className="text-muted-foreground mt-4 text-lg leading-8">
               {product.shortDescription}
             </p>
           )}
-          <p className="mt-5 whitespace-pre-line leading-7 text-muted-foreground">
-            {product.description}
-          </p>
           <div className="mt-6">
             <ProductPurchasePanel
               leadTimeDays={product.leadTimeDays}
@@ -152,95 +141,82 @@ export default async function ProductPage({
               whatsappNumber={siteConfig.whatsappNumber}
             />
           </div>
+        </div>
+      </div>
+
+      <section className="mt-14">
+        <SectionHeading eyebrow="The details" title="About this piece" />
+        <p className="text-muted-foreground max-w-3xl whitespace-pre-line leading-7">
+          {product.description}
+        </p>
+        {product.tags.length > 0 && (
+          <ul className="mt-5 flex flex-wrap gap-2">
+            {product.tags.map((tag) => (
+              <li
+                className="rounded-full border border-silver bg-muted px-3 py-1.5 text-sm text-muted-foreground"
+                key={tag}
+              >
+                {tag}
+              </li>
+            ))}
+          </ul>
+        )}
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {product.whatsIncluded.length > 0 && (
-            <section className="mt-7">
-              <h2 className="font-heading text-lg font-semibold">
-                What&apos;s included
-              </h2>
-              <ul className="mt-2 space-y-1.5">
+            <DetailCard icon={Package} title="What's included">
+              <ul className="space-y-1.5">
                 {product.whatsIncluded.map((item) => (
-                  <li className="flex gap-2 text-muted-foreground" key={item}>
+                  <li className="flex gap-2" key={item}>
                     <Check
                       aria-hidden="true"
-                      className="mt-1 size-4 shrink-0 text-brand"
+                      className="mt-0.5 size-4 shrink-0 text-brand"
                     />
                     <span>{item}</span>
                   </li>
                 ))}
               </ul>
-            </section>
+            </DetailCard>
           )}
-          {(product.size || product.recommendedAge) && (
-            <dl className="mt-6 grid gap-3 sm:grid-cols-2">
-              {product.size && (
-                <div className="rounded-lg border border-silver bg-card p-3">
-                  <dt className="text-xs font-semibold tracking-wide uppercase">
-                    Size
-                  </dt>
-                  <dd className="mt-1 text-sm">{product.size}</dd>
-                </div>
-              )}
-              {product.recommendedAge && (
-                <div className="rounded-lg border border-silver bg-card p-3">
-                  <dt className="text-xs font-semibold tracking-wide uppercase">
-                    Recommended age
-                  </dt>
-                  <dd className="mt-1 text-sm">{product.recommendedAge}</dd>
-                </div>
-              )}
-            </dl>
+          {product.size && (
+            <DetailCard icon={Ruler} title="Size">
+              {product.size}
+            </DetailCard>
           )}
-          {product.safetyNote && (
-            <p className="mt-4 rounded-lg border border-gold/50 bg-muted px-4 py-3 text-sm text-muted-foreground">
-              <strong className="font-semibold text-foreground">
-                Safety note:{" "}
-              </strong>
-              {product.safetyNote}
-            </p>
+          {product.recommendedAge && (
+            <DetailCard icon={Baby} title="Recommended age">
+              {product.recommendedAge}
+            </DetailCard>
           )}
-          <p className="mt-4 text-sm text-muted-foreground">
-            {deliveryInfoLine}.{" "}
-            <Link
-              className="text-foreground underline underline-offset-4"
-              href="/shipping-and-returns"
-            >
-              Delivery details
-            </Link>
-          </p>
           {product.materials.length > 0 && (
-            <section className="mt-7">
-              <h2 className="font-heading text-lg font-semibold">Materials</h2>
-              <ul className="mt-2 flex flex-wrap gap-2">
+            <DetailCard icon={Layers} title="Materials">
+              <ul className="flex flex-wrap gap-2">
                 {product.materials.map((material) => (
                   <li
-                    className="rounded-full bg-muted px-3 py-1.5 text-sm"
+                    className="rounded-full border border-silver bg-background px-3 py-1"
                     key={material}
                   >
                     {material}
                   </li>
                 ))}
               </ul>
-            </section>
+            </DetailCard>
           )}
-          {product.tags.length > 0 && (
-            <section className="mt-5">
-              <h2 className="font-heading text-lg font-semibold">Tags</h2>
-              <ul className="mt-2 flex flex-wrap gap-2">
-                {product.tags.map((tag, index) => (
-                  <li
-                    className={`rounded-full px-3 py-1.5 text-sm font-medium text-white ${
-                      index % 2 === 0 ? "bg-blush" : "bg-orchid"
-                    }`}
-                    key={tag}
-                  >
-                    {tag}
-                  </li>
-                ))}
-              </ul>
-            </section>
+          {product.safetyNote && (
+            <DetailCard icon={ShieldCheck} title="Safety note">
+              {product.safetyNote}
+            </DetailCard>
           )}
+          <DetailCard icon={Truck} title="Delivery">
+            {deliveryInfoLine}.{" "}
+            <Link
+              className="text-foreground font-medium underline underline-offset-4"
+              href="/shipping-and-returns"
+            >
+              Delivery details
+            </Link>
+          </DetailCard>
         </div>
-      </div>
+      </section>
 
       {relatedProducts.length > 0 && (
         <section className="mt-16 border-t border-silver pt-10">
@@ -256,6 +232,39 @@ export default async function ProductPage({
           <ProductGrid products={relatedProducts} />
         </section>
       )}
+    </Container>
+  );
+}
+
+function DetailCard({
+  icon: Icon,
+  title,
+  children,
+  className,
+}: {
+  icon: LucideIcon;
+  title: string;
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "rounded-2xl border border-silver bg-card p-5 shadow-soft",
+        className,
+      )}
+    >
+      <div className="flex items-center gap-2.5">
+        <span className="bg-gold/20 text-gold-text dark:text-gold-light inline-flex size-9 shrink-0 items-center justify-center rounded-xl">
+          <Icon aria-hidden="true" className="size-4.5" />
+        </span>
+        <h3 className="font-heading text-card-foreground text-base font-semibold">
+          {title}
+        </h3>
+      </div>
+      <div className="text-muted-foreground mt-3 text-sm leading-relaxed">
+        {children}
+      </div>
     </div>
   );
 }

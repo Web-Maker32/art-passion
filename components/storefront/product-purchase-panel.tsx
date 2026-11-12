@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { Check } from "lucide-react";
+import { Check, MessageCircle, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 import { addToCart } from "@/actions/cart";
 import { Button } from "@/components/ui/button";
@@ -57,7 +57,7 @@ export function ProductPurchasePanel({
   });
 
   return (
-    <div className="space-y-5 rounded-2xl border border-silver bg-card p-5 sm:p-6">
+    <div className="space-y-5 rounded-2xl border border-silver bg-card p-5 shadow-soft sm:p-6">
       {variants.length > 1 ? (
         <fieldset>
           <legend className="mb-2 text-sm font-semibold">Choose an option</legend>
@@ -137,10 +137,10 @@ export function ProductPurchasePanel({
           )}
           <div className="flex flex-wrap items-center gap-3">
             <span className="text-sm font-semibold">Quantity</span>
-            <div className="flex items-center rounded-md border border-input">
+            <div className="flex items-center rounded-lg border border-input">
               <button
                 aria-label="Decrease quantity"
-                className="min-h-11 min-w-11 rounded-l-md hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring"
+                className="min-h-11 min-w-11 rounded-l-lg hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring"
                 disabled={quantity <= 1}
                 onClick={() => setQuantity((value) => Math.max(1, value - 1))}
                 type="button"
@@ -152,7 +152,7 @@ export function ProductPurchasePanel({
               </span>
               <button
                 aria-label="Increase quantity"
-                className="min-h-11 min-w-11 rounded-r-md hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring"
+                className="min-h-11 min-w-11 rounded-r-lg hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring"
                 disabled={quantity >= maxQuantity}
                 onClick={() =>
                   setQuantity((value) => Math.min(maxQuantity, value + 1))
@@ -165,7 +165,7 @@ export function ProductPurchasePanel({
           </div>
           <Button
             aria-busy={isPending}
-            className="min-h-12 w-full"
+            className="w-full"
             disabled={isPending || selected.stock <= 0}
             onClick={() => {
               startTransition(async () => {
@@ -186,17 +186,23 @@ export function ProductPurchasePanel({
                 }
               });
             }}
+            size="lg"
             type="button"
           >
+            <ShoppingBag aria-hidden="true" className="size-4" />
             {isPending ? "Adding..." : "Add to cart"}
           </Button>
           {whatsappHref && (
             <a
-              className="flex min-h-12 items-center justify-center rounded-md border border-brand px-4 text-center font-semibold text-foreground lift-sm press hover-fine:hover:bg-brand/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+              className="flex min-h-12 items-center justify-center gap-2 rounded-lg border border-brand px-4 text-center font-semibold text-foreground lift-sm press hover-fine:hover:bg-brand/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
               href={whatsappHref}
               rel="noopener noreferrer"
               target="_blank"
             >
+              <MessageCircle
+                aria-hidden="true"
+                className="size-5 shrink-0 text-brand"
+              />
               Ask about this product on WhatsApp
             </a>
           )}

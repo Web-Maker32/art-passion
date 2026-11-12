@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { ShieldCheck } from "lucide-react";
+import { Callout } from "@/components/content/callout";
 import { PageSection, PageShell } from "@/components/content/PageShell";
 import { legalLastUpdated, legalReviewNote } from "@/lib/content/legal";
 import { contentMetadata } from "@/lib/content/metadata";
@@ -18,16 +20,14 @@ export default function PrivacyPolicyPage() {
       lastUpdated={legalLastUpdated}
       title="Privacy policy"
     >
-      <p className="border-silver rounded-lg border border-dashed p-4 text-sm">
-        {legalReviewNote}
-      </p>
+      <Callout dashed>{legalReviewNote}</Callout>
 
       <PageSection heading="Who we are">
         <p>
           {siteConfig.storeName} is a small handmade shop based in{" "}
           {siteConfig.country}. One person runs the shop, answers messages and
           packs orders. The contact details are on the{" "}
-          <Link className="text-foreground underline underline-offset-4" href="/contact">
+          <Link className="text-brand dark:text-gold-light font-medium underline underline-offset-4" href="/contact">
             contact page
           </Link>
           .
@@ -72,14 +72,19 @@ export default function PrivacyPolicyPage() {
           Easypaisa payments are sent directly from your wallet to the shop
           account shown on the{" "}
           <Link
-            className="text-foreground underline underline-offset-4"
+            className="text-brand dark:text-gold-light font-medium underline underline-offset-4"
             href="/payment-info"
           >
             payment information page
           </Link>
-          . We never ask for your Easypaisa PIN, password or one-time code, and
-          you should never share them with anyone.
+          .
         </p>
+        <Callout icon={ShieldCheck} tone="warning">
+          <p>
+            We never ask for your Easypaisa PIN, password or one-time code, and
+            you should never share them with anyone.
+          </p>
+        </Callout>
       </PageSection>
 
       <PageSection heading="Cookies">

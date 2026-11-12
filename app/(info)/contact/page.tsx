@@ -1,4 +1,4 @@
-import { Mail, MessageCircle } from "lucide-react";
+import { ArrowRight, Mail, MessageCircle } from "lucide-react";
 import { PageSection, PageShell } from "@/components/content/PageShell";
 import { contactDetails } from "@/lib/content/faq";
 import { contentMetadata } from "@/lib/content/metadata";
@@ -12,11 +12,11 @@ export const metadata = contentMetadata({
   path: "/contact",
 });
 
-const buttonClass =
-  "focus-visible:outline-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-brand px-5 font-semibold text-brand-foreground lift-sm press hover-fine:hover:bg-brand-hover focus-visible:outline-2 focus-visible:outline-offset-2";
+const cardBase =
+  "focus-visible:outline-ring group flex min-h-14 items-center gap-4 rounded-2xl border p-5 lift-sm press focus-visible:outline-2 focus-visible:outline-offset-2";
 
 const outlineButtonClass =
-  "focus-visible:outline-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-silver px-5 font-semibold text-foreground lift-sm press hover-fine:hover:border-brand hover-fine:hover:bg-brand/5 focus-visible:outline-2 focus-visible:outline-offset-2";
+  "focus-visible:outline-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-silver px-5 font-semibold text-foreground lift-sm press hover-fine:hover:border-brand hover-fine:hover:bg-brand/5 focus-visible:outline-2 focus-visible:outline-offset-2";
 
 export default function ContactPage() {
   const whatsapp = buildWhatsAppLink({
@@ -32,41 +32,65 @@ export default function ContactPage() {
       intro="We would love to hear from you. Ask about a product, a gift, a custom idea, or an order you have already placed."
       title="Contact us"
     >
-      <PageSection heading="WhatsApp">
-        <p>
-          WhatsApp is the quickest way to reach the shop. Send a message with
-          the product name or your order number, and add a photo if it helps.
-        </p>
+      <div className="grid gap-4 sm:grid-cols-2">
         {whatsapp ? (
           <a
-            className={buttonClass}
+            className={`${cardBase} border-brand bg-brand text-brand-foreground hover-fine:hover:bg-brand-hover`}
             href={whatsapp}
             rel="noopener noreferrer"
             target="_blank"
           >
-            <MessageCircle aria-hidden="true" className="size-5" />
-            Message us on WhatsApp
+            <span className="bg-brand-foreground/15 inline-flex size-11 shrink-0 items-center justify-center rounded-xl">
+              <MessageCircle aria-hidden="true" className="size-5" />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="font-heading block text-lg font-semibold">
+                Message us on WhatsApp
+              </span>
+              <span className="text-brand-foreground/85 mt-1 block text-sm leading-6">
+                WhatsApp is the quickest way to reach the shop. Send a message
+                with the product name or your order number, and add a photo if
+                it helps.
+              </span>
+            </span>
+            <ArrowRight
+              aria-hidden="true"
+              className="size-5 shrink-0 transition-transform duration-interaction ease-interaction motion-safe:group-hover:translate-x-0.5 motion-reduce:transition-none"
+            />
           </a>
         ) : (
-          <p className="border-silver rounded-lg border border-dashed p-4 text-sm">
+          <p className="border-silver text-muted-foreground rounded-2xl border border-dashed p-5 text-sm">
             {siteConfig.whatsappNumber}
           </p>
         )}
-      </PageSection>
 
-      <PageSection heading="Email">
-        <p>Prefer email? Write to us and we will reply when we can.</p>
         {hasEmail ? (
-          <a className={outlineButtonClass} href={`mailto:${siteConfig.contactEmail}`}>
-            <Mail aria-hidden="true" className="size-5" />
-            {siteConfig.contactEmail}
+          <a
+            className={`${cardBase} border-silver bg-card text-foreground shadow-soft hover-fine:hover:border-brand`}
+            href={`mailto:${siteConfig.contactEmail}`}
+          >
+            <span className="bg-gold/20 text-gold-text dark:text-gold-light inline-flex size-11 shrink-0 items-center justify-center rounded-xl">
+              <Mail aria-hidden="true" className="size-5" />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="font-heading block text-lg font-semibold break-all">
+                {siteConfig.contactEmail}
+              </span>
+              <span className="text-muted-foreground mt-1 block text-sm leading-6">
+                Prefer email? Write to us and we will reply when we can.
+              </span>
+            </span>
+            <ArrowRight
+              aria-hidden="true"
+              className="text-muted-foreground size-5 shrink-0 transition-transform duration-interaction ease-interaction motion-safe:group-hover:translate-x-0.5 motion-reduce:transition-none"
+            />
           </a>
         ) : (
-          <p className="border-silver rounded-lg border border-dashed p-4 text-sm">
+          <p className="border-silver text-muted-foreground rounded-2xl border border-dashed p-5 text-sm">
             {siteConfig.contactEmail}
           </p>
         )}
-      </PageSection>
+      </div>
 
       {(hasInstagram || hasFacebook) && (
         <PageSection heading="Follow along">

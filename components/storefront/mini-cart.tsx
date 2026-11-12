@@ -3,7 +3,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ShoppingBag } from "lucide-react";
+import { cn } from "cn";
 import { CartCountBadge } from "@/components/storefront/cart-count-badge";
+import { FreeDeliveryProgress } from "@/components/storefront/free-delivery-progress";
+import { buttonVariants } from "@/components/ui/button";
 import {
   Sheet,
   SheetClose,
@@ -17,15 +20,24 @@ import {
 import { formatPrice } from "@/lib/format";
 import type { CartView } from "@/lib/cart-types";
 
-export function MiniCart({ cart }: { cart: CartView }) {
+export function MiniCart({
+  cart,
+  deliveryFee,
+  freeDeliveryThreshold,
+}: {
+  cart: CartView;
+  deliveryFee: number;
+  freeDeliveryThreshold: number;
+}) {
   const countLabel =
     cart.itemCount > 99 ? "99+" : String(cart.itemCount);
+  const total = cart.subtotal + deliveryFee;
 
   return (
     <Sheet>
       <SheetTrigger
         aria-label={`Shopping cart, ${cart.itemCount} items`}
-        className="text-brand-foreground hover:text-gold-light focus-visible:outline-gold-light relative inline-flex min-h-11 min-w-11 items-center justify-center rounded-md p-2 transition-colors duration-interaction hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2"
+        className="text-brand-foreground hover:text-gold-light focus-visible:outline-gold-light relative inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg p-2 transition-colors duration-interaction hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2"
         render={<button type="button" />}
       >
         <ShoppingBag aria-hidden="true" className="size-5" />
@@ -46,13 +58,13 @@ export function MiniCart({ cart }: { cart: CartView }) {
           </SheetDescription>
         </SheetHeader>
         {cart.items.length ? (
-          <ul className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4">
+          <ul className="scrollbar-brand min-h-0 flex-1 space-y-4 overflow-y-auto px-4">
             {cart.items.map((item) => (
               <li
                 className="flex gap-3 border-b border-border pb-4 transition-colors duration-interaction hover-fine:hover:bg-muted/60"
                 key={item.itemId}
               >
-                <div className="bg-muted relative size-16 shrink-0 overflow-hidden rounded-md">
+                <div className="bg-muted relative size-16 shrink-0 overflow-hidden rounded-lg">
                   <Image
                     alt={item.imageAlt}
                     className="object-cover"
@@ -69,7 +81,7 @@ export function MiniCart({ cart }: { cart: CartView }) {
                     {item.variantLabel} · Qty {item.quantity}
                   </p>
                   {item.message && (
-                    <p className="text-gold-text mt-1 text-xs font-medium">
+                    <p className="text-gold-text dark:text-gold-light mt-1 text-xs font-medium">
                       {item.message}
                     </p>
                   )}
@@ -81,15 +93,48 @@ export function MiniCart({ cart }: { cart: CartView }) {
             ))}
           </ul>
         ) : (
-          <p className="text-muted-foreground flex-1 px-4 py-8">
-            Your cart is empty. Find something lovely to make or gift.
-          </p>
+          <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-10 text-center">
+            <span className="bg-gold/20 text-gold-text dark:text-gold-light inline-flex size-14 items-center justify-center rounded-2xl">
+              <ShoppingBag aria-hidden="true" className="size-6" />
+            </span>
+            <p className="text-muted-foreground max-w-xs">
+              Your cart is empty. Find something lovely to make or gift.
+            </p>
+            <SheetClose
+              nativeButton={false}
+              render={
+                <Link
+                  className={cn(buttonVariants({ variant: "outline" }))}
+                  href="/products"
+                />
+              }
+            >
+              Continue shopping
+            </SheetClose>
+          </div>
         )}
         <SheetFooter className="border-t border-border">
-          <div className="flex items-center justify-between gap-4 text-base font-semibold">
-            <span>Subtotal</span>
-            <span>{formatPrice(cart.subtotal)}</span>
-          </div>
+          <FreeDeliveryProgress
+            deliveryFee={deliveryFee}
+            subtotal={cart.subtotal}
+            threshold={freeDeliveryThreshold}
+          />
+          <dl className="space-y-2 text-sm">
+            <div className="flex items-center justify-between gap-4">
+              <dt className="text-muted-foreground">Subtotal</dt>
+              <dd className="font-semibold">{formatPrice(cart.subtotal)}</dd>
+            </div>
+            <div className="flex items-center justify-between gap-4">
+              <dt className="text-muted-foreground">Delivery</dt>
+              <dd className="font-semibold">
+                {deliveryFee ? formatPrice(deliveryFee) : "Free"}
+              </dd>
+            </div>
+            <div className="flex items-center justify-between gap-4 border-t border-border pt-2 text-base font-bold">
+              <dt>Total</dt>
+              <dd>{formatPrice(total)}</dd>
+            </div>
+          </dl>
           {cart.unavailableCount > 0 && (
             <p className="text-destructive text-sm" role="status">
               Remove or update unavailable items before checkout.
@@ -102,10 +147,10 @@ export function MiniCart({ cart }: { cart: CartView }) {
               </p>
             )}
           <SheetClose
-          nativeButton={false}
+            nativeButton={false}
             render={
               <Link
-                className="bg-primary text-primary-foreground hover:bg-primary-hover focus-visible:outline-ring inline-flex min-h-11 items-center justify-center rounded-md px-4 py-2 font-semibold focus-visible:outline-2 focus-visible:outline-offset-2"
+                className={cn(buttonVariants({ variant: "outline" }), "w-full")}
                 href="/cart"
               />
             }
@@ -116,7 +161,7 @@ export function MiniCart({ cart }: { cart: CartView }) {
             nativeButton={false}
             render={
               <Link
-                className="bg-primary text-primary-foreground hover:bg-primary-hover focus-visible:outline-ring inline-flex min-h-11 items-center justify-center rounded-md px-4 py-2 font-semibold focus-visible:outline-2 focus-visible:outline-offset-2"
+                className={cn(buttonVariants(), "w-full")}
                 href="/checkout"
               />
             }

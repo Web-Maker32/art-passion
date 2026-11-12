@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Callout } from "@/components/content/callout";
 import { PageSection, PageShell } from "@/components/content/PageShell";
 import { legalLastUpdated, legalReviewNote } from "@/lib/content/legal";
 import { contentMetadata } from "@/lib/content/metadata";
@@ -18,9 +19,7 @@ export default function TermsPage() {
       lastUpdated={legalLastUpdated}
       title="Terms"
     >
-      <p className="border-silver rounded-lg border border-dashed p-4 text-sm">
-        {legalReviewNote}
-      </p>
+      <Callout dashed>{legalReviewNote}</Callout>
 
       <PageSection heading="About these terms">
         <p>
@@ -71,7 +70,7 @@ export default function TermsPage() {
           Delivery timing depends on where you live and on the courier. Full
           details are on the{" "}
           <Link
-            className="text-foreground underline underline-offset-4"
+            className="text-brand dark:text-gold-light font-medium underline underline-offset-4"
             href="/shipping-and-returns"
           >
             shipping and returns page
@@ -105,7 +104,7 @@ export default function TermsPage() {
       <PageSection heading="Questions">
         <p>
           If a term here does not match what you were told, please{" "}
-          <Link className="text-foreground underline underline-offset-4" href="/contact">
+          <Link className="text-brand dark:text-gold-light font-medium underline underline-offset-4" href="/contact">
             contact us
           </Link>{" "}
           and we will sort it out.

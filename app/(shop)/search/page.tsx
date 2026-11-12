@@ -1,12 +1,18 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Search } from "lucide-react";
 import { CtaLink } from "@/components/content/cta";
+import { Container } from "@/components/storefront/container";
 import { ProductGrid } from "@/components/storefront/product-grid";
 import { SectionHeading } from "@/components/storefront/section-heading";
+import { Button } from "@/components/ui/button";
 import { storeCategories } from "@/lib/catalog";
 import { searchPublishedProducts } from "@/lib/queries/products";
 
 const suggestedTerms = ["felt", "coloring kit", "painting kit", "gift set"];
+
+const suggestionChip =
+  "focus-visible:outline-ring inline-flex min-h-11 items-center rounded-full border border-silver bg-card px-4 text-sm font-medium transition-colors duration-interaction hover-fine:hover:border-brand-gold hover-fine:hover:text-brand focus-visible:outline-2 focus-visible:outline-offset-2";
 
 export const metadata: Metadata = {
   title: "Search handmade products",
@@ -27,9 +33,10 @@ export default async function SearchPage({
   const products = query ? await searchPublishedProducts(query) : [];
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+    <Container className="py-10 lg:py-14">
       <SectionHeading
         description="Find a handmade piece, creative kit, or thoughtful gift."
+        eyebrow="Search the shop"
         level={1}
         title="Search the collection"
       />
@@ -37,28 +44,30 @@ export default async function SearchPage({
         <label className="sr-only" htmlFor="product-search">
           Search products
         </label>
-        <input
-          autoComplete="off"
-          className="min-h-12 min-w-0 flex-1 rounded-md border border-input bg-background px-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-          defaultValue={query}
-          id="product-search"
-          maxLength={100}
-          name="q"
-          placeholder="Try “felt animals” or “painting kit”"
-          type="search"
-        />
-        <button
-          className="min-h-12 rounded-md bg-brand px-5 font-semibold text-brand-foreground hover:bg-brand-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-          type="submit"
-        >
+        <div className="relative min-w-0 flex-1">
+          <Search
+            aria-hidden="true"
+            className="text-muted-foreground pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2"
+          />
+          <input
+            autoComplete="off"
+            className="h-12 w-full rounded-xl border border-input bg-background pr-4 pl-11 text-foreground transition-colors duration-interaction ease-interaction"
+            defaultValue={query}
+            id="product-search"
+            maxLength={100}
+            name="q"
+            placeholder="Try “felt animals” or “painting kit”"
+            type="search"
+          />
+        </div>
+        <Button className="shrink-0" size="lg" type="submit">
           Search
-        </button>
+        </Button>
       </form>
       {query ? (
         <>
           <p className="mb-5 text-sm text-muted-foreground" aria-live="polite">
-            {products.length} {products.length === 1 ? "result" : "results"} for
-            {" "}
+            {products.length} {products.length === 1 ? "result" : "results"} for{" "}
             <span className="font-semibold text-foreground">“{query}”</span>
           </p>
           {products.length > 0 ? (
@@ -79,7 +88,7 @@ export default async function SearchPage({
                 {suggestedTerms.map((term) => (
                   <li key={term}>
                     <Link
-                      className="focus-visible:outline-ring inline-flex min-h-11 items-center rounded-full border border-silver px-4 text-sm font-medium hover-fine:hover:border-brand hover-fine:hover:bg-brand/5 focus-visible:outline-2 focus-visible:outline-offset-2"
+                      className={suggestionChip}
                       href={`/search?q=${encodeURIComponent(term)}`}
                     >
                       {term}
@@ -94,7 +103,7 @@ export default async function SearchPage({
                 {storeCategories.map((category) => (
                   <li key={category.slug}>
                     <Link
-                      className="focus-visible:outline-ring inline-flex min-h-11 items-center rounded-full border border-silver px-4 text-sm font-medium hover-fine:hover:border-brand hover-fine:hover:bg-brand/5 focus-visible:outline-2 focus-visible:outline-offset-2"
+                      className={suggestionChip}
                       href={`/categories/${category.slug}`}
                     >
                       {category.name}
@@ -112,10 +121,13 @@ export default async function SearchPage({
           )}
         </>
       ) : (
-        <p className="rounded-xl bg-muted p-6 text-muted-foreground">
-          Enter a title, material, or idea to search our collection.
-        </p>
+        <div className="rounded-2xl border border-dashed border-silver-strong bg-muted/60 px-6 py-12 text-center">
+          <Search aria-hidden="true" className="text-gold-text mx-auto size-8" />
+          <p className="text-muted-foreground mx-auto mt-3 max-w-md">
+            Enter a title, material, or idea to search our collection.
+          </p>
+        </div>
       )}
-    </div>
+    </Container>
   );
 }
