@@ -1,14 +1,19 @@
 import Link from "next/link";
+import type { AdminOrderDateRange } from "@/lib/queries/admin-orders";
 import { buttonVariants } from "@/components/ui/button";
 
 function buildHref(
   page: number,
   status: string,
   search: string,
+  dateRange: AdminOrderDateRange,
+  paymentReported: boolean,
 ): string {
   const params = new URLSearchParams();
   if (status && status !== "ALL") params.set("status", status);
   if (search) params.set("search", search);
+  if (dateRange !== "all") params.set("date", dateRange);
+  if (paymentReported) params.set("reported", "1");
   params.set("page", String(page));
   return `/admin/orders?${params.toString()}`;
 }
@@ -19,12 +24,16 @@ export function OrdersPagination({
   total,
   status,
   search,
+  dateRange,
+  paymentReported,
 }: {
   page: number;
   totalPages: number;
   total: number;
   status: string;
   search: string;
+  dateRange: AdminOrderDateRange;
+  paymentReported: boolean;
 }) {
   if (totalPages <= 1) {
     return (
@@ -49,7 +58,13 @@ export function OrdersPagination({
         {hasPrev ? (
           <Link
             className={buttonVariants({ variant: "outline", size: "sm" })}
-            href={buildHref(page - 1, status, search)}
+            href={buildHref(
+              page - 1,
+              status,
+              search,
+              dateRange,
+              paymentReported,
+            )}
           >
             Previous
           </Link>
@@ -68,7 +83,13 @@ export function OrdersPagination({
         {hasNext ? (
           <Link
             className={buttonVariants({ variant: "outline", size: "sm" })}
-            href={buildHref(page + 1, status, search)}
+            href={buildHref(
+              page + 1,
+              status,
+              search,
+              dateRange,
+              paymentReported,
+            )}
           >
             Next
           </Link>

@@ -69,12 +69,14 @@ export default async function ProductsPage({
         className="mb-6"
       />
       <ProductFiltersPanel categories={categories} filters={filters} />
-      <p className="my-5 text-sm text-muted-foreground" aria-live="polite">
-        {products.length} {products.length === 1 ? "piece" : "pieces"} to explore
+      <p className="text-muted-foreground my-5 text-sm" aria-live="polite">
+        {products.length} {products.length === 1 ? "piece" : "pieces"} to
+        explore
       </p>
       <ProductGrid
         emptyMessage="Try adjusting your filters, or explore all of our handmade pieces."
         emptyTitle="No products match those filters"
+        heading="Products"
         products={pagedProducts}
       />
       {totalPages > 1 && (
@@ -91,7 +93,7 @@ export default async function ProductsPage({
           )}
           <span
             aria-current="page"
-            className="text-sm font-medium text-muted-foreground"
+            className="text-muted-foreground text-sm font-medium"
           >
             Page {currentPage} of {totalPages}
           </span>
@@ -129,7 +131,7 @@ function PageLink({
 
   return (
     <Link
-      className="inline-flex min-h-11 items-center rounded-lg border border-silver bg-card px-4 font-medium transition-colors duration-interaction hover-fine:hover:border-brand-gold hover-fine:hover:text-brand active:border-brand-gold active:bg-brand-gold/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+      className="border-silver bg-card duration-interaction hover-fine:hover:border-brand-gold hover-fine:hover:text-brand active:border-brand-gold active:bg-brand-gold/10 focus-visible:outline-ring inline-flex min-h-11 items-center rounded-lg border px-4 font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
       href={`/products?${params.toString()}`}
     >
       {text}

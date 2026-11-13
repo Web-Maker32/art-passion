@@ -1,5 +1,6 @@
 import { ArrowRight, Mail, MessageCircle } from "lucide-react";
 import { PageSection, PageShell } from "@/components/content/PageShell";
+import { CtaLink } from "@/components/content/cta";
 import { contactDetails } from "@/lib/content/faq";
 import { contentMetadata } from "@/lib/content/metadata";
 import { isOwnerTodo, siteConfig } from "@/lib/site-config";
@@ -121,6 +122,11 @@ export default function ContactPage() {
           </div>
         </PageSection>
       )}
+
+      <PageSection heading="Already placed an order?">
+        <p>Use your order number and checkout phone number to see its latest status.</p>
+        <CtaLink href="/track-order" variant="outline">Track order</CtaLink>
+      </PageSection>
 
       <PageSection heading="Response time">
         <p>{contactDetails.responseTime}</p>

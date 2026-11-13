@@ -46,6 +46,11 @@ export default function ShippingAndReturnsPage() {
         </p>
       </PageSection>
 
+      <PageSection heading="Track your parcel">
+        <p>Check your order status with your order number and checkout phone number. Courier details appear when they are available.</p>
+        <CtaLink href="/track-order" variant="outline">Track order</CtaLink>
+      </PageSection>
+
       <PageSection heading="How orders are packed">
         <p>
           Every order is packed by hand. Pieces are wrapped so they do not move

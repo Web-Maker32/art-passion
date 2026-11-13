@@ -1,10 +1,19 @@
 import Link from "next/link";
+import type { AdminProductStockFilter } from "@/lib/queries/admin-products";
 import { buttonVariants } from "@/components/ui/button";
 
-function buildHref(page: number, status: string, search: string): string {
+function buildHref(
+  page: number,
+  status: string,
+  search: string,
+  categoryId: string,
+  stock: AdminProductStockFilter,
+): string {
   const params = new URLSearchParams();
   if (status && status !== "ALL") params.set("status", status);
   if (search) params.set("search", search);
+  if (categoryId) params.set("category", categoryId);
+  if (stock !== "all") params.set("stock", stock);
   params.set("page", String(page));
   return `/admin/products?${params.toString()}`;
 }
@@ -15,12 +24,16 @@ export function ProductsPagination({
   total,
   status,
   search,
+  categoryId,
+  stock,
 }: {
   page: number;
   totalPages: number;
   total: number;
   status: string;
   search: string;
+  categoryId: string;
+  stock: AdminProductStockFilter;
 }) {
   if (totalPages <= 1) {
     return (
@@ -45,7 +58,7 @@ export function ProductsPagination({
         {hasPrev ? (
           <Link
             className={buttonVariants({ variant: "outline", size: "sm" })}
-            href={buildHref(page - 1, status, search)}
+            href={buildHref(page - 1, status, search, categoryId, stock)}
           >
             Previous
           </Link>
@@ -64,7 +77,7 @@ export function ProductsPagination({
         {hasNext ? (
           <Link
             className={buttonVariants({ variant: "outline", size: "sm" })}
-            href={buildHref(page + 1, status, search)}
+            href={buildHref(page + 1, status, search, categoryId, stock)}
           >
             Next
           </Link>

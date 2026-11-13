@@ -4,6 +4,7 @@ export const navigationLinks = [
   { href: "/#categories", label: "Categories" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
+  { href: "/track-order", label: "Track order" },
 ];
 
 export function isNavigationLinkActive(href: string, pathname: string) {

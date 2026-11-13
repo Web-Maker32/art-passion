@@ -16,7 +16,8 @@ const suggestionChip =
 
 export const metadata: Metadata = {
   title: "Search handmade products",
-  description: "Search Art Passion's handmade gifts, felt sets, and creative kits.",
+  description:
+    "Search Art Passion's handmade gifts, felt sets, and creative kits.",
   // Search results are generated from a query string, so they are never indexed.
   robots: { index: false, follow: false },
 };
@@ -27,7 +28,7 @@ export default async function SearchPage({
   searchParams: Promise<{ q?: string | string[] }>;
 }) {
   const params = await searchParams;
-  const query = (Array.isArray(params.q) ? params.q[0] : params.q ?? "")
+  const query = (Array.isArray(params.q) ? params.q[0] : (params.q ?? ""))
     .trim()
     .slice(0, 100);
   const products = query ? await searchPublishedProducts(query) : [];
@@ -51,7 +52,7 @@ export default async function SearchPage({
           />
           <input
             autoComplete="off"
-            className="h-12 w-full rounded-xl border border-input bg-background pr-4 pl-11 text-foreground transition-colors duration-interaction ease-interaction"
+            className="border-input bg-background text-foreground duration-interaction ease-interaction h-12 w-full rounded-xl border pr-4 pl-11 transition-colors"
             defaultValue={query}
             id="product-search"
             maxLength={100}
@@ -66,18 +67,19 @@ export default async function SearchPage({
       </form>
       {query ? (
         <>
-          <p className="mb-5 text-sm text-muted-foreground" aria-live="polite">
+          <p className="text-muted-foreground mb-5 text-sm" aria-live="polite">
             {products.length} {products.length === 1 ? "result" : "results"} for{" "}
-            <span className="font-semibold text-foreground">“{query}”</span>
+            <span className="text-foreground font-semibold">“{query}”</span>
           </p>
           {products.length > 0 ? (
             <ProductGrid
               emptyMessage="Try a different word, or browse all of our handmade pieces."
               emptyTitle="We could not find a match"
+              heading="Search results"
               products={products}
             />
           ) : (
-            <div className="rounded-2xl border border-dashed border-silver-strong bg-muted/60 px-6 py-10">
+            <div className="border-silver-strong bg-muted/60 rounded-2xl border border-dashed px-6 py-10">
               <h2 className="font-heading text-center text-xl font-semibold">
                 No results for “{query}”
               </h2>
@@ -121,8 +123,11 @@ export default async function SearchPage({
           )}
         </>
       ) : (
-        <div className="rounded-2xl border border-dashed border-silver-strong bg-muted/60 px-6 py-12 text-center">
-          <Search aria-hidden="true" className="text-gold-text mx-auto size-8" />
+        <div className="border-silver-strong bg-muted/60 rounded-2xl border border-dashed px-6 py-12 text-center">
+          <Search
+            aria-hidden="true"
+            className="text-gold-text mx-auto size-8"
+          />
           <p className="text-muted-foreground mx-auto mt-3 max-w-md">
             Enter a title, material, or idea to search our collection.
           </p>

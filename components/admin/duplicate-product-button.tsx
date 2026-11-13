@@ -32,7 +32,7 @@ export function DuplicateProductButton({ productId }: { productId: string }) {
           }
         })
       }
-      size="xs"
+      size="sm"
       type="button"
       variant="outline"
     >

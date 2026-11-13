@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 
-import { consumeRateLimit, rateLimitIp } from "@/lib/rate-limit";
+import { consumeRateLimit, consumeTrackOrderRateLimit, rateLimitIp } from "@/lib/rate-limit";
 
 function headersFor(ip: string): Headers {
   return new Headers({ "x-forwarded-for": `${ip}, 10.0.0.1` });
@@ -60,6 +60,35 @@ describe("consumeRateLimit (in-memory fallback without Upstash env)", () => {
     for (let attempt = 0; attempt < 5; attempt++) {
       expect((await consumeRateLimit("checkout", { requestHeaders: headers })).allowed).toBe(true);
     }
+  });
+});
+
+describe("tracking rate limits", () => {
+  it("allows ten attempts per IP even when the order number changes", async () => {
+    const headers = headersFor("203.0.113.200");
+    for (let index = 0; index < 10; index++) {
+      expect((await consumeTrackOrderRateLimit(headers, `AP-2026-8${index}00`)).allowed).toBe(true);
+    }
+    expect((await consumeTrackOrderRateLimit(headers, "AP-2026-8999")).allowed).toBe(false);
+  });
+  it("blocks a sixth attempt per canonical order number across IPs", async () => {
+    for (let index = 0; index < 5; index++) {
+      expect((await consumeTrackOrderRateLimit(headersFor(`198.51.100.${200 + index}`), " ap-2026-9998 ")).allowed).toBe(true);
+    }
+    const result = await consumeTrackOrderRateLimit(headersFor("198.51.100.220"), "AP-2026-9998");
+    expect(result.allowed).toBe(false);
+    expect(result.retryAfterSeconds).toBeGreaterThan(0);
+    expect(result.retryAfterSeconds).toBeLessThanOrEqual(900);
+  });
+  it("allows another attempt after the fifteen-minute window expires", async () => {
+    vi.useFakeTimers();
+    try {
+      const headers = headersFor("203.0.113.230");
+      for (let index = 0; index < 5; index++) await consumeTrackOrderRateLimit(headers, "AP-2026-9997");
+      expect((await consumeTrackOrderRateLimit(headers, "AP-2026-9997")).allowed).toBe(false);
+      vi.advanceTimersByTime(900_001);
+      expect((await consumeTrackOrderRateLimit(headers, "AP-2026-9997")).allowed).toBe(true);
+    } finally { vi.useRealTimers(); }
   });
 });
 

@@ -12,6 +12,7 @@ import {
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 
 const helpLinks = [
+  { href: "/track-order", label: "Track order" },
   { href: "/faq", label: "FAQ" },
   { href: "/shipping-and-returns", label: "Shipping and returns" },
   { href: "/payment-info", label: "Payment information" },

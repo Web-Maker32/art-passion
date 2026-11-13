@@ -89,7 +89,7 @@ export function CategoriesManager({
             value={newName}
           />
         </div>
-        <Button disabled={isPending} type="submit">
+        <Button className="min-h-11" disabled={isPending} type="submit">
           {isPending ? "Adding…" : "Add category"}
         </Button>
       </form>
@@ -125,6 +125,7 @@ export function CategoriesManager({
                     />
                     <div className="flex gap-2">
                       <Button
+                        className="min-h-11"
                         disabled={isPending}
                         onClick={() => commitRename(category.id)}
                         size="sm"
@@ -133,6 +134,7 @@ export function CategoriesManager({
                         {isPending ? "Saving…" : "Save"}
                       </Button>
                       <Button
+                        className="min-h-11"
                         disabled={isPending}
                         onClick={cancelRename}
                         size="sm"
@@ -155,6 +157,7 @@ export function CategoriesManager({
                       </p>
                     </div>
                     <Button
+                      className="min-h-11"
                       disabled={isPending}
                       onClick={() => startRename(category)}
                       size="sm"

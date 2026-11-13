@@ -11,6 +11,7 @@ const events = {
   revalidation_failed: "Saved changes could not refresh the page cache.",
   health_failed: "The database health check failed.",
   payment_proof_failed: "Saving the customer's payment details failed.",
+  track_order_failed: "The public order lookup failed.",
   script_failed: "The maintenance command failed. Check its configuration.",
   script_complete: "The maintenance command completed.",
   script_started: "The maintenance command started.",

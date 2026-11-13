@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { requireAdmin } from "@/lib/admin-auth";
 import { listAdminCategories } from "@/lib/admin-categories";
 import { CategoriesManager } from "@/components/admin/categories-manager";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 
 export const metadata: Metadata = {
   title: "Categories",
@@ -18,15 +19,10 @@ export default async function AdminCategoriesPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-heading text-2xl font-bold sm:text-3xl">
-          Categories
-        </h1>
-        <p className="text-muted-foreground mt-1 text-sm">
-          Add categories or rename existing ones. The URL slug stays the same
-          when you rename, so existing links keep working.
-        </p>
-      </div>
+      <AdminPageHeader
+        title="Categories"
+        description="Add categories or rename existing ones. The URL slug stays the same when you rename, so existing links keep working."
+      />
 
       <CategoriesManager categories={categories} />
     </div>

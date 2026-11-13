@@ -6,6 +6,7 @@ import { ProductStatusBadge } from "@/components/admin/product-status-badge";
 import { VariantQuickStock } from "@/components/admin/variant-quick-stock";
 import { DuplicateProductButton } from "@/components/admin/duplicate-product-button";
 import { Badge } from "@/components/ui/badge";
+import { buttonVariants } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -33,7 +34,7 @@ function Thumbnail({ product }: { product: AdminProductListRow }) {
     return (
       <div
         aria-hidden="true"
-        className="bg-muted flex size-10 shrink-0 items-center justify-center rounded-lg text-xs font-semibold text-muted-foreground"
+        className="bg-muted text-muted-foreground flex size-10 shrink-0 items-center justify-center rounded-lg text-xs font-semibold"
       >
         AP
       </div>
@@ -52,9 +53,7 @@ function Thumbnail({ product }: { product: AdminProductListRow }) {
 
 function VariantStockList({ product }: { product: AdminProductListRow }) {
   if (product.variants.length === 0) {
-    return (
-      <p className="text-muted-foreground text-xs">No variants yet.</p>
-    );
+    return <p className="text-muted-foreground text-xs">No variants yet.</p>;
   }
   return (
     <ul className="space-y-1.5">
@@ -88,7 +87,7 @@ function VariantStockList({ product }: { product: AdminProductListRow }) {
 function VariantSection({ product }: { product: AdminProductListRow }) {
   return (
     <details className="mt-2">
-      <summary className="text-muted-foreground cursor-pointer text-xs font-medium underline-offset-4 hover-fine:hover:underline focus-visible:outline-ring focus-visible:outline-2 focus-visible:outline-offset-2">
+      <summary className="text-muted-foreground hover-fine:hover:underline focus-visible:outline-ring cursor-pointer text-xs font-medium underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2">
         Stock ({product.variants.length})
       </summary>
       <div className="mt-2">
@@ -103,10 +102,7 @@ function ProductTitleCell({ product }: { product: AdminProductListRow }) {
     <div className="flex items-start gap-3">
       <Thumbnail product={product} />
       <div className="min-w-0">
-        <Link
-          className={titleLinkClass}
-          href={`/admin/products/${product.id}`}
-        >
+        <Link className={titleLinkClass} href={`/admin/products/${product.id}`}>
           {product.title}
         </Link>
         {product.madeToOrder && (
@@ -128,7 +124,10 @@ export function AdminProductsTable({
     return (
       <p className="border-silver bg-card text-muted-foreground rounded-xl border p-6 text-center text-sm">
         No products match these filters.{" "}
-        <Link className="text-foreground underline underline-offset-4" href="/admin/products/new">
+        <Link
+          className="text-foreground underline underline-offset-4"
+          href="/admin/products/new"
+        >
           Create the first one
         </Link>
         .
@@ -170,7 +169,18 @@ export function AdminProductsTable({
                   <VariantSection product={product} />
                 </TableCell>
                 <TableCell className="text-right">
-                  <DuplicateProductButton productId={product.id} />
+                  <div className="flex flex-wrap items-center justify-end gap-2">
+                    <Link
+                      className={buttonVariants({
+                        variant: "outline",
+                        size: "sm",
+                      })}
+                      href={`/admin/products/${product.id}`}
+                    >
+                      Edit
+                    </Link>
+                    <DuplicateProductButton productId={product.id} />
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
@@ -181,7 +191,10 @@ export function AdminProductsTable({
       {/* Mobile cards */}
       <ul className="space-y-3 md:hidden">
         {products.map((product) => (
-          <li className="border-silver bg-card rounded-xl border p-4" key={product.id}>
+          <li
+            className="border-silver bg-card rounded-xl border p-4"
+            key={product.id}
+          >
             <div className="flex items-start justify-between gap-3">
               <ProductTitleCell product={product} />
               <ProductStatusBadge status={product.status} />
@@ -201,7 +214,13 @@ export function AdminProductsTable({
               </div>
             </dl>
             <VariantSection product={product} />
-            <div className="mt-3 flex justify-end">
+            <div className="mt-3 flex flex-wrap justify-end gap-2">
+              <Link
+                className={buttonVariants({ variant: "outline", size: "sm" })}
+                href={`/admin/products/${product.id}`}
+              >
+                Edit
+              </Link>
               <DuplicateProductButton productId={product.id} />
             </div>
           </li>

@@ -8,7 +8,7 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: "*",
         allow: "/",
         // Private or thin routes. They also carry meta robots noindex.
-        disallow: ["/admin", "/api", "/cart", "/checkout", "/order", "/search"],
+        disallow: ["/admin", "/api", "/cart", "/checkout", "/order", "/track-order", "/search"],
       },
     ],
     sitemap: absoluteUrl("/sitemap.xml"),

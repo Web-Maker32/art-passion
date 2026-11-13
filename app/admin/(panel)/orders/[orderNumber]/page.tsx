@@ -9,6 +9,8 @@ import { buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { OrderStatusBadge } from "@/components/admin/order-status-badge";
 import { OrderStatusPanel } from "@/components/admin/order-status-panel";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { CopyButton } from "@/components/ui/copy-button";
 
 export const metadata: Metadata = {
   title: "Order detail",
@@ -19,7 +21,13 @@ export const metadata: Metadata = {
 // usePathname(), which blocks prerendering. Render this page at request time.
 export const instant = false;
 
-function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
+function DetailRow({
+  label,
+  value,
+}: {
+  label: string;
+  value: React.ReactNode;
+}) {
   return (
     <div className="flex justify-between gap-4 py-1.5">
       <dt className="text-muted-foreground">{label}</dt>
@@ -40,11 +48,19 @@ export default async function AdminOrderDetailPage({
   if (!order) {
     return (
       <div className="space-y-4">
-        <h1 className="font-heading text-2xl font-bold">Order not found</h1>
-        <p className="text-muted-foreground text-sm">
-          No order matches <span className="text-foreground">{orderNumber}</span>.
-        </p>
-        <Link className={buttonVariants({ variant: "outline" })} href="/admin/orders">
+        <AdminPageHeader
+          title="Order not found"
+          description={
+            <>
+              No order matches{" "}
+              <span className="text-foreground">{orderNumber}</span>.
+            </>
+          }
+        />
+        <Link
+          className={buttonVariants({ variant: "outline" })}
+          href="/admin/orders"
+        >
           Back to orders
         </Link>
       </div>
@@ -61,55 +77,54 @@ export default async function AdminOrderDetailPage({
     .filter(Boolean)
     .join(", ");
 
+  const whatsappMessage = [
+    `Hello ${order.customerName}, this is Art Passion about your order ${order.orderNumber}.`,
+    `Status: ${order.status}.`,
+    `Total: ${formatPrice(order.total)}.`,
+  ].join("\n");
   const whatsappHref = buildWhatsAppLink({
     number: order.customerPhone,
-    message: [
-      `Hello ${order.customerName}, this is Art Passion about your order ${order.orderNumber}.`,
-      `Status: ${order.status}.`,
-      `Total: ${formatPrice(order.total)}.`,
-    ].join("\n"),
+    message: whatsappMessage,
   });
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <Link
-            className="text-muted-foreground text-sm underline-offset-4 hover-fine:hover:underline"
-            href="/admin/orders"
-          >
-            ← Orders
-          </Link>
-          <h1 className="font-heading mt-1 text-2xl font-bold sm:text-3xl">
-            {order.orderNumber}
-          </h1>
-          <p className="text-muted-foreground mt-1 text-sm">
-            Placed {formatKarachiDateTime(order.createdAt)} (Asia/Karachi)
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <OrderStatusBadge status={order.status} />
-          <Link
-            className={buttonVariants({ variant: "outline", size: "sm" })}
-            href={`/admin/orders/${order.orderNumber}/print`}
-            target="_blank"
-          >
-            Print packing slip
-          </Link>
-        </div>
-      </div>
+      <AdminPageHeader
+        title={order.orderNumber}
+        description={`Placed ${formatKarachiDateTime(order.createdAt)} (Asia/Karachi)`}
+        actions={
+          <>
+            <OrderStatusBadge status={order.status} />
+            <Link
+              className={buttonVariants({ variant: "outline", size: "sm" })}
+              href={`/admin/orders/${order.orderNumber}/print`}
+              target="_blank"
+            >
+              Print packing slip
+            </Link>
+          </>
+        }
+      />
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="space-y-6">
-          <section aria-labelledby="items-heading" className="border-silver bg-card rounded-xl border p-5">
-            <h2 className="font-heading text-lg font-semibold" id="items-heading">
+          <section
+            aria-labelledby="items-heading"
+            className="border-silver bg-card rounded-xl border p-5"
+          >
+            <h2
+              className="font-heading text-lg font-semibold"
+              id="items-heading"
+            >
               Items
             </h2>
             <ul className="border-silver mt-3 divide-y border-y">
               {order.items.map((item) => (
                 <li className="flex justify-between gap-4 py-3" key={item.id}>
                   <span className="min-w-0">
-                    <span className="block font-medium">{item.productTitle}</span>
+                    <span className="block font-medium">
+                      {item.productTitle}
+                    </span>
                     <span className="text-muted-foreground text-sm">
                       {item.variantLabel} · Qty {item.quantity}
                     </span>
@@ -138,8 +153,14 @@ export default async function AdminOrderDetailPage({
             </dl>
           </section>
 
-          <section aria-labelledby="history-heading" className="border-silver bg-card rounded-xl border p-5">
-            <h2 className="font-heading text-lg font-semibold" id="history-heading">
+          <section
+            aria-labelledby="history-heading"
+            className="border-silver bg-card rounded-xl border p-5"
+          >
+            <h2
+              className="font-heading text-lg font-semibold"
+              id="history-heading"
+            >
               History
             </h2>
             {(order.paidAt ||
@@ -224,14 +245,21 @@ export default async function AdminOrderDetailPage({
               <p className="mt-1 text-sm leading-6">{address}</p>
             </div>
             {whatsappHref && (
-              <a
-                className="bg-primary text-primary-foreground lift-sm press hover-fine:hover:bg-primary-hover focus-visible:outline-ring mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-md px-4 py-2 text-center font-semibold focus-visible:outline-2 focus-visible:outline-offset-2"
-                href={whatsappHref}
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                Message customer on WhatsApp
-              </a>
+              <div className="mt-4 space-y-2">
+                <a
+                  className="bg-primary text-primary-foreground lift-sm press hover-fine:hover:bg-primary-hover focus-visible:outline-ring inline-flex min-h-11 w-full items-center justify-center rounded-md px-4 py-2 text-center font-semibold focus-visible:outline-2 focus-visible:outline-offset-2"
+                  href={whatsappHref}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  Message customer on WhatsApp
+                </a>
+                <CopyButton text={whatsappMessage} label="Copy message" />
+                <p className="text-muted-foreground text-xs">
+                  Copying only prepares the text — nothing is sent until you
+                  send it yourself.
+                </p>
+              </div>
             )}
           </section>
 
@@ -246,7 +274,10 @@ export default async function AdminOrderDetailPage({
                     : order.paymentMethod
                 }
               />
-              <DetailRow label="Reference" value={order.paymentReference ?? "—"} />
+              <DetailRow
+                label="Reference"
+                value={order.paymentReference ?? "—"}
+              />
             </dl>
             {order.paymentReportedAt && (
               <div className="border-silver bg-secondary/40 mt-3 rounded-lg border p-3">

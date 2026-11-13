@@ -1,21 +1,26 @@
 import "server-only";
 
-import { Prisma } from "@/generated/prisma/client";
-import type { OrderStatus } from "@/generated/prisma/client";
+import { OrderStatus, Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db";
-import {
-  getKarachiDayStart,
-  getKarachiMonthStart,
-} from "@/lib/admin-datetime";
+import { getKarachiDayStart, getKarachiMonthStart } from "@/lib/admin-datetime";
 
 const PAID_LIKE_STATUSES: OrderStatus[] = ["PAID", "SHIPPED", "DELIVERED"];
 
 export const ADMIN_ORDERS_PAGE_SIZE = 20;
 
+/** Search terms are capped so one request cannot scan unbounded text. */
+export const ADMIN_ORDER_SEARCH_MAX_LENGTH = 64;
+
+const DAY_MS = 86_400_000;
+
+export type AdminOrderDateRange = "7d" | "30d" | "all";
+
 export type AdminOrderListFilters = {
   status?: OrderStatus | "ALL";
   search?: string;
   page?: number;
+  dateRange?: AdminOrderDateRange;
+  paymentReported?: boolean;
 };
 
 export type AdminOrderListRow = {
@@ -29,16 +34,20 @@ export type AdminOrderListRow = {
   paymentReportedAt: Date | null;
 };
 
+export type AdminOrderStatusCounts = Record<OrderStatus | "ALL", number>;
+
 export type AdminOrderListResult = {
   orders: AdminOrderListRow[];
   total: number;
   page: number;
   pageSize: number;
   totalPages: number;
+  counts: AdminOrderStatusCounts;
 };
 
 function buildListWhere(
   filters: AdminOrderListFilters,
+  now: Date,
 ): Prisma.OrderWhereInput {
   const where: Prisma.OrderWhereInput = {};
 
@@ -46,7 +55,9 @@ function buildListWhere(
     where.status = filters.status;
   }
 
-  const search = filters.search?.trim();
+  // Prisma parameterises all values (no raw SQL), so `contains` is safe from
+  // injection; trimming and the length cap keep the query bounded.
+  const search = filters.search?.trim().slice(0, ADMIN_ORDER_SEARCH_MAX_LENGTH);
   if (search) {
     where.OR = [
       { orderNumber: { contains: search, mode: "insensitive" } },
@@ -55,17 +66,29 @@ function buildListWhere(
     ];
   }
 
+  if (filters.dateRange === "7d" || filters.dateRange === "30d") {
+    const days = filters.dateRange === "7d" ? 6 : 29;
+    where.createdAt = {
+      gte: new Date(getKarachiDayStart(now).getTime() - days * DAY_MS),
+    };
+  }
+
+  if (filters.paymentReported) {
+    where.paymentReportedAt = { not: null };
+  }
+
   return where;
 }
 
 export async function listAdminOrders(
   filters: AdminOrderListFilters = {},
+  now: Date = new Date(),
 ): Promise<AdminOrderListResult> {
   const pageSize = ADMIN_ORDERS_PAGE_SIZE;
   const page = Math.max(1, filters.page ?? 1);
-  const where = buildListWhere(filters);
+  const where = buildListWhere(filters, now);
 
-  const [total, orders] = await Promise.all([
+  const [total, orders, statusGroups] = await Promise.all([
     prisma.order.count({ where }),
     prisma.order.findMany({
       where,
@@ -83,7 +106,22 @@ export async function listAdminOrders(
         paymentReportedAt: true,
       },
     }),
+    // Tab counts honour search/date/payment filters but not the status tab.
+    prisma.order.groupBy({
+      by: ["status"],
+      where: buildListWhere({ ...filters, status: "ALL" }, now),
+      _count: { _all: true },
+    }),
   ]);
+
+  const counts = Object.fromEntries(
+    Object.values(OrderStatus).map((status) => [status, 0]),
+  ) as AdminOrderStatusCounts;
+  counts.ALL = 0;
+  for (const group of statusGroups) {
+    counts[group.status] = group._count._all;
+    counts.ALL += group._count._all;
+  }
 
   return {
     orders,
@@ -91,6 +129,7 @@ export async function listAdminOrders(
     page,
     pageSize,
     totalPages: Math.max(1, Math.ceil(total / pageSize)),
+    counts,
   };
 }
 

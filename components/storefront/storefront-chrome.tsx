@@ -22,7 +22,7 @@ export function StorefrontChrome({ children }: { children: ReactNode }) {
         Skip to content
       </a>
       <SiteHeader />
-      <main className="flex-1 pb-[88px]" id="main-content">
+      <main className="flex-1 pb-[88px]" id="main-content" tabIndex={-1}>
         {children}
       </main>
       <SiteFooter />

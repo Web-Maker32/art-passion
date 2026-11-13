@@ -1,24 +1,49 @@
 import Link from "next/link";
+import type {
+  AdminProductStockFilter,
+  CategoryOption,
+} from "@/lib/queries/admin-products";
 import { productStatusChoices } from "@/components/admin/product-status-badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 
 const controlClass =
-  "h-9 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm text-foreground transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30";
+  "h-11 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm text-foreground transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30";
 
 export function ProductsFilterBar({
   status,
   search,
+  categoryId,
+  stock,
+  categories,
 }: {
   status: string;
   search: string;
+  categoryId: string;
+  stock: AdminProductStockFilter;
+  categories: CategoryOption[];
 }) {
   return (
     <form
       action="/admin/products"
-      className="flex flex-col gap-3 sm:flex-row sm:items-end"
+      className="grid gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_repeat(3,minmax(0,11rem))_auto]"
       method="get"
     >
-      <div className="flex flex-col gap-1.5 sm:w-48">
+      <div className="flex flex-col gap-1.5">
+        <label className="text-sm font-medium" htmlFor="products-search">
+          Search
+        </label>
+        <input
+          className={controlClass}
+          defaultValue={search}
+          id="products-search"
+          maxLength={64}
+          name="search"
+          placeholder="Product name or SKU"
+          type="search"
+        />
+      </div>
+
+      <div className="flex flex-col gap-1.5">
         <label className="text-sm font-medium" htmlFor="products-status">
           Status
         </label>
@@ -37,35 +62,54 @@ export function ProductsFilterBar({
         </select>
       </div>
 
-      <div className="flex flex-1 flex-col gap-1.5">
-        <label className="text-sm font-medium" htmlFor="products-search">
-          Search
+      <div className="flex flex-col gap-1.5">
+        <label className="text-sm font-medium" htmlFor="products-category">
+          Category
         </label>
-        <input
+        <select
           className={controlClass}
-          defaultValue={search}
-          id="products-search"
-          name="search"
-          placeholder="Product title"
-          type="search"
-        />
+          defaultValue={categoryId}
+          id="products-category"
+          name="category"
+        >
+          <option value="">All categories</option>
+          {categories.map((category) => (
+            <option key={category.id} value={category.id}>
+              {category.name}
+            </option>
+          ))}
+        </select>
       </div>
 
-      <div className="flex gap-2">
-        <Button className="h-9" type="submit">
+      <div className="flex flex-col gap-1.5">
+        <label className="text-sm font-medium" htmlFor="products-stock">
+          Stock
+        </label>
+        <select
+          className={controlClass}
+          defaultValue={stock}
+          id="products-stock"
+          name="stock"
+        >
+          <option value="all">Any stock</option>
+          <option value="in">In stock</option>
+          <option value="low">Low stock (1–2)</option>
+          <option value="out">Out of stock</option>
+        </select>
+      </div>
+
+      <div className="flex items-end gap-2">
+        <Button className="min-h-11" type="submit">
           Apply
         </Button>
         <Link
-          className={buttonVariants({ variant: "outline", className: "h-9" })}
+          className={buttonVariants({
+            variant: "outline",
+            className: "min-h-11",
+          })}
           href="/admin/products"
         >
           Reset
-        </Link>
-        <Link
-          className={buttonVariants({ className: "h-9" })}
-          href="/admin/products/new"
-        >
-          New product
         </Link>
       </div>
     </form>

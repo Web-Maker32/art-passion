@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useTransition, type ChangeEvent } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+  type ChangeEvent,
+} from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
@@ -145,7 +152,10 @@ export function AdminProductForm({
   } = form;
 
   const variants = useFieldArray({ control, name: "variants" });
-  const orderedIds = useMemo(() => new Set(orderedVariantIds), [orderedVariantIds]);
+  const orderedIds = useMemo(
+    () => new Set(orderedVariantIds),
+    [orderedVariantIds],
+  );
   const watchedVariants = watch("variants");
 
   const madeToOrder = watch("madeToOrder");
@@ -215,7 +225,9 @@ export function AdminProductForm({
     });
   }
 
-  function runLifecycleAction(action: "archive" | "restore" | "delete" | "duplicate") {
+  function runLifecycleAction(
+    action: "archive" | "restore" | "delete" | "duplicate",
+  ) {
     if (!product) return;
     startTransition(async () => {
       let result: AdminProductActionResult;
@@ -325,7 +337,9 @@ export function AdminProductForm({
               {...register("categoryId")}
               aria-invalid={Boolean(errors.categoryId)}
             >
-              {categories.length === 0 && <option value="">No categories</option>}
+              {categories.length === 0 && (
+                <option value="">No categories</option>
+              )}
               {categories.map((category) => (
                 <option key={category.id} value={category.id}>
                   {category.name}
@@ -371,7 +385,8 @@ export function AdminProductForm({
 
           <div className="space-y-1.5">
             <Label htmlFor="product-materials">
-              Materials <span className="text-muted-foreground">(comma separated)</span>
+              Materials{" "}
+              <span className="text-muted-foreground">(comma separated)</span>
             </Label>
             <Input
               id="product-materials"
@@ -383,7 +398,8 @@ export function AdminProductForm({
 
           <div className="space-y-1.5">
             <Label htmlFor="product-tags">
-              Tags <span className="text-muted-foreground">(comma separated)</span>
+              Tags{" "}
+              <span className="text-muted-foreground">(comma separated)</span>
             </Label>
             <Input
               id="product-tags"
@@ -433,7 +449,9 @@ export function AdminProductForm({
       {/* Product page details */}
       <section className="border-silver bg-card space-y-4 rounded-xl border p-4 sm:p-6">
         <div>
-          <h2 className="font-heading text-lg font-semibold">Product page details</h2>
+          <h2 className="font-heading text-lg font-semibold">
+            Product page details
+          </h2>
           <p className="text-muted-foreground text-sm">
             These appear below the price on the storefront product page.
           </p>
@@ -488,7 +506,8 @@ export function AdminProductForm({
 
         <div className="space-y-1.5">
           <Label htmlFor="product-safety">
-            Safety note <span className="text-muted-foreground">(optional)</span>
+            Safety note{" "}
+            <span className="text-muted-foreground">(optional)</span>
           </Label>
           <Textarea
             id="product-safety"
@@ -535,13 +554,18 @@ export function AdminProductForm({
         <ul className="space-y-3">
           {variants.fields.map((field, index) => {
             const dbVariantId = watchedVariants?.[index]?.variantId;
-            const isOrdered = Boolean(dbVariantId && orderedIds.has(dbVariantId));
+            const isOrdered = Boolean(
+              dbVariantId && orderedIds.has(dbVariantId),
+            );
             return (
               <li
                 className="border-silver space-y-3 rounded-lg border p-3"
                 key={field.id}
               >
-                <input type="hidden" {...register(`variants.${index}.variantId` as const)} />
+                <input
+                  type="hidden"
+                  {...register(`variants.${index}.variantId` as const)}
+                />
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div className="space-y-1.5">
                     <Label htmlFor={`variant-label-${index}`}>Label</Label>
@@ -549,9 +573,7 @@ export function AdminProductForm({
                       id={`variant-label-${index}`}
                       placeholder="e.g. Small / Red"
                       {...register(`variants.${index}.label` as const)}
-                      aria-invalid={Boolean(
-                        errors.variants?.[index]?.label,
-                      )}
+                      aria-invalid={Boolean(errors.variants?.[index]?.label)}
                     />
                     <FieldError
                       message={errors.variants?.[index]?.label?.message}
@@ -559,7 +581,8 @@ export function AdminProductForm({
                   </div>
                   <div className="space-y-1.5">
                     <Label htmlFor={`variant-sku-${index}`}>
-                      SKU <span className="text-muted-foreground">(optional)</span>
+                      SKU{" "}
+                      <span className="text-muted-foreground">(optional)</span>
                     </Label>
                     <Input
                       id={`variant-sku-${index}`}
@@ -567,7 +590,9 @@ export function AdminProductForm({
                       {...register(`variants.${index}.sku` as const)}
                       aria-invalid={Boolean(errors.variants?.[index]?.sku)}
                     />
-                    <FieldError message={errors.variants?.[index]?.sku?.message} />
+                    <FieldError
+                      message={errors.variants?.[index]?.sku?.message}
+                    />
                   </div>
                   <div className="space-y-1.5">
                     <Label htmlFor={`variant-price-${index}`}>Price (Rs)</Label>
@@ -645,8 +670,21 @@ export function AdminProductForm({
         </section>
       )}
 
-      {/* Actions */}
-      <div className="flex flex-wrap items-center gap-2">
+      <p className="text-muted-foreground text-xs">
+        Or go back to the{" "}
+        <Link className="underline underline-offset-4" href="/admin/products">
+          product list
+        </Link>
+        .
+      </p>
+
+      {/* Sticky save bar: stays reachable while scrolling the long form. */}
+      <div className="border-silver bg-card sticky bottom-4 z-10 flex flex-wrap items-center gap-2 rounded-xl border p-3 shadow-lg">
+        {isDirty && (
+          <span className="text-muted-foreground mr-auto text-xs">
+            Unsaved changes
+          </span>
+        )}
         <Button disabled={busy} type="submit">
           {busy ? "Saving…" : product ? "Save changes" : "Create product"}
         </Button>
@@ -661,7 +699,7 @@ export function AdminProductForm({
 
         {product && (
           <>
-            <span className="mx-1 hidden h-6 w-px bg-border sm:inline-block" />
+            <span className="bg-border mx-1 hidden h-6 w-px sm:inline-block" />
             {isArchived ? (
               <Button
                 disabled={busy}
@@ -698,7 +736,7 @@ export function AdminProductForm({
               Delete
             </Button>
             {!canDelete && (
-              <p className="text-muted-foreground text-xs">
+              <p className="text-muted-foreground w-full text-xs">
                 This product appears in past orders — it can only be archived,
                 not deleted.
               </p>
@@ -706,14 +744,6 @@ export function AdminProductForm({
           </>
         )}
       </div>
-
-      <p className="text-muted-foreground text-xs">
-        Or go back to the{" "}
-        <Link className="underline underline-offset-4" href="/admin/products">
-          product list
-        </Link>
-        .
-      </p>
 
       {/* Confirm dialogs */}
       <Dialog
@@ -733,7 +763,9 @@ export function AdminProductForm({
                 </DialogDescription>
               </DialogHeader>
               <DialogFooter>
-                <DialogClose render={<Button disabled={busy} variant="outline" />}>
+                <DialogClose
+                  render={<Button disabled={busy} variant="outline" />}
+                >
                   Keep product
                 </DialogClose>
                 <Button

@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { resolveAdminUserId } from "@/lib/admin-auth";
 import { AdminLoginForm } from "@/components/admin/admin-login-form";
+import { AdminThemeToggle } from "@/components/admin/admin-theme-toggle";
+import { Logo } from "@/components/logo";
 
 export const metadata: Metadata = {
   title: "Admin sign in",
@@ -18,18 +20,22 @@ export default async function AdminLoginPage() {
   }
 
   return (
-    <div className="flex min-h-[70vh] items-center justify-center px-4 py-12">
-      <div className="border-silver bg-card w-full max-w-sm rounded-xl border p-6 sm:p-8">
-        <h1 className="font-heading text-center text-2xl font-bold">
-          Admin sign in
-        </h1>
-        <p className="text-muted-foreground mt-1 text-center text-sm">
-          Art Passion order management
-        </p>
-        <div className="mt-6">
+    <main className="bg-background flex min-h-dvh items-center justify-center px-4 py-12">
+      <div className="border-silver bg-card shadow-card relative w-full max-w-md rounded-2xl border p-6 sm:p-8">
+        <AdminThemeToggle className="absolute top-4 right-4" />
+        <div className="flex flex-col items-center text-center">
+          <Logo size={64} priority variant="badge" />
+          <h1 className="font-heading mt-4 text-2xl font-bold">
+            Admin sign in
+          </h1>
+          <p className="text-muted-foreground mt-1 text-sm">
+            Art Passion order management
+          </p>
+        </div>
+        <div className="mt-8">
           <AdminLoginForm />
         </div>
       </div>
-    </div>
+    </main>
   );
 }

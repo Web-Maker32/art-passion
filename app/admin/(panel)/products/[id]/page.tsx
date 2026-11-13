@@ -8,6 +8,7 @@ import {
 } from "@/lib/queries/admin-products";
 import { buttonVariants } from "@/components/ui/button";
 import { AdminProductForm } from "@/components/admin/admin-product-form";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 
 export const metadata: Metadata = {
   title: "Edit product",
@@ -34,10 +35,10 @@ export default async function AdminEditProductPage({
   if (!product) {
     return (
       <div className="space-y-4">
-        <h1 className="font-heading text-2xl font-bold">Product not found</h1>
-        <p className="text-muted-foreground text-sm">
-          No product matches this id.
-        </p>
+        <AdminPageHeader
+          title="Product not found"
+          description="No product matches this id."
+        />
         <Link
           className={buttonVariants({ variant: "outline" })}
           href="/admin/products"
@@ -55,12 +56,7 @@ export default async function AdminEditProductPage({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-heading text-2xl font-bold sm:text-3xl">
-          Edit product
-        </h1>
-        <p className="text-muted-foreground mt-1 text-sm">{product.title}</p>
-      </div>
+      <AdminPageHeader title="Edit product" description={product.title} />
 
       <AdminProductForm
         canDelete={canDelete}

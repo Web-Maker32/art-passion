@@ -139,6 +139,11 @@ export default async function OrderConfirmationPage({
           </div>
         </div>
 
+        <p className="text-muted-foreground mt-5 text-sm">
+          Save your order number and track it any time.{' '}
+          <Link className="text-foreground inline-flex min-h-11 items-center rounded-md underline underline-offset-4" href="/track-order">Track order</Link>
+        </p>
+
         <div className="border-silver bg-card mt-8 rounded-2xl border px-4 py-6 shadow-soft sm:px-8">
           <OrderStatusTracker status={order.status} />
         </div>

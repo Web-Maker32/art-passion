@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { requireAdmin } from "@/lib/admin-auth";
 import { listCategoriesForAdmin } from "@/lib/queries/admin-products";
 import { AdminProductForm } from "@/components/admin/admin-product-form";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 
 export const metadata: Metadata = {
   title: "New product",
@@ -18,14 +19,10 @@ export default async function AdminNewProductPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-heading text-2xl font-bold sm:text-3xl">
-          New product
-        </h1>
-        <p className="text-muted-foreground mt-1 text-sm">
-          Create a product, then add at least one variant to publish it.
-        </p>
-      </div>
+      <AdminPageHeader
+        title="New product"
+        description="Create a product, then add at least one variant to publish it."
+      />
 
       <AdminProductForm
         canDelete={false}

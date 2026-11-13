@@ -6,7 +6,7 @@ import { updateAdminVariantStock } from "@/actions/admin-products";
 import { Button } from "@/components/ui/button";
 
 const stockInputClass =
-  "h-8 w-20 rounded-lg border border-input bg-transparent px-2 text-sm text-foreground transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30";
+  "h-11 w-20 rounded-lg border border-input bg-transparent px-2 text-sm text-foreground transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30";
 
 /**
  * Inline per-variant stock editor used on the admin product list. Keeps a
@@ -70,7 +70,7 @@ export function VariantQuickStock({
         <Button
           disabled={isPending}
           onClick={commit}
-          size="xs"
+          size="sm"
           type="button"
           variant="outline"
         >

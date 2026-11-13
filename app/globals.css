@@ -557,10 +557,9 @@
   }
 }
 
-/* Floating WhatsApp button: no size growth, a small hover lift with a soft
-   gold glow, a tilting icon, a sliding desktop label and a slow idle pulse.
-   Touch devices get press feedback only; reduced motion keeps colour and
-   shadow changes without any movement. */
+/* Floating WhatsApp pill: one opaque surface, a fixed right edge, and an
+   expanding desktop label. Touch devices keep the icon-only tap target;
+   reduced motion reveals the label instantly without movement. */
 @utility whatsapp-float {
   transition:
     transform var(--motion-duration) ease-out,
@@ -611,23 +610,22 @@
 }
 
 @utility whatsapp-float-label {
+  max-width: 0;
   opacity: 0;
-  transform: translateX(8px);
   transition:
-    opacity var(--motion-duration) ease-out,
-    transform var(--motion-duration) ease-out;
+    max-width var(--motion-duration) ease-out,
+    opacity var(--motion-duration) ease-out;
 
-  @media (hover: hover) and (pointer: fine) {
+  @media (min-width: 48rem) and (hover: hover) and (pointer: fine) {
     :where(.group):hover &,
     :where(.group):focus-visible & {
+      max-width: 8rem;
       opacity: 1;
-      transform: translateX(0);
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    transform: none;
-    transition-property: opacity;
+    transition: none;
   }
 }
 

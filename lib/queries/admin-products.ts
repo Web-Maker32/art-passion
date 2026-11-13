@@ -6,10 +6,22 @@ import type { ProductStatus } from "@/generated/prisma/client";
 
 export const ADMIN_PRODUCTS_PAGE_SIZE = 12;
 
+/** Variants at or below this stock count are "low stock" (made-to-order excluded). */
+export const ADMIN_LOW_STOCK_THRESHOLD = 2;
+
+/** Search terms are capped so one request cannot scan unbounded text. */
+export const ADMIN_PRODUCT_SEARCH_MAX_LENGTH = 64;
+
+export type AdminProductStockFilter = "all" | "in" | "low" | "out";
+
+export type CategoryOption = { id: string; name: string; slug: string };
+
 export type AdminProductListFilters = {
   status?: ProductStatus | "ALL";
   search?: string;
   page?: number;
+  categoryId?: string;
+  stock?: AdminProductStockFilter;
 };
 
 export type AdminProductListRow = {
@@ -39,16 +51,48 @@ export type AdminProductListResult = {
   totalPages: number;
 };
 
-function buildListWhere(filters: AdminProductListFilters): Prisma.ProductWhereInput {
+function buildListWhere(
+  filters: AdminProductListFilters,
+): Prisma.ProductWhereInput {
   const where: Prisma.ProductWhereInput = {};
 
   if (filters.status && filters.status !== "ALL") {
     where.status = filters.status;
   }
 
-  const search = filters.search?.trim();
+  if (filters.categoryId) {
+    where.categoryId = filters.categoryId;
+  }
+
+  // Prisma parameterises all values (no raw SQL); trim + cap keep it bounded.
+  const search = filters.search
+    ?.trim()
+    .slice(0, ADMIN_PRODUCT_SEARCH_MAX_LENGTH);
   if (search) {
-    where.title = { contains: search, mode: "insensitive" };
+    where.OR = [
+      { title: { contains: search, mode: "insensitive" } },
+      {
+        variants: { some: { sku: { contains: search, mode: "insensitive" } } },
+      },
+    ];
+  }
+
+  // Stock filters describe stocked variants, so made-to-order products are
+  // excluded while one is active.
+  if (filters.stock && filters.stock !== "all") {
+    where.madeToOrder = false;
+    if (filters.stock === "in") {
+      where.variants = { some: { stock: { gt: 0 } } };
+    } else if (filters.stock === "low") {
+      where.variants = {
+        some: { stock: { gt: 0, lte: ADMIN_LOW_STOCK_THRESHOLD } },
+      };
+    } else {
+      where.AND = [
+        { variants: { some: {} } },
+        { variants: { every: { stock: 0 } } },
+      ];
+    }
   }
 
   return where;
@@ -81,7 +125,13 @@ export async function listAdminProducts(
         },
         variants: {
           orderBy: { price: "asc" },
-          select: { id: true, label: true, sku: true, price: true, stock: true },
+          select: {
+            id: true,
+            label: true,
+            sku: true,
+            price: true,
+            stock: true,
+          },
         },
       },
     }),
@@ -159,9 +209,7 @@ export async function getAdminProduct(
   });
 }
 
-export async function listCategoriesForAdmin(): Promise<
-  Array<{ id: string; name: string; slug: string }>
-> {
+export async function listCategoriesForAdmin(): Promise<CategoryOption[]> {
   return prisma.category.findMany({
     orderBy: { name: "asc" },
     select: { id: true, name: true, slug: true },
@@ -184,7 +232,7 @@ export type AdminProductDashboardStats = {
  * plus a count of draft products.
  */
 export async function getAdminProductStats(
-  lowStockThreshold = 2,
+  lowStockThreshold = ADMIN_LOW_STOCK_THRESHOLD,
 ): Promise<AdminProductDashboardStats> {
   const [draftCount, lowStockVariants] = await Promise.all([
     prisma.product.count({ where: { status: "DRAFT" } }),

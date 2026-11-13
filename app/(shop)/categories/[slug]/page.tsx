@@ -8,7 +8,12 @@ import { ProductFiltersPanel } from "@/components/storefront/product-filters";
 import { ProductGrid } from "@/components/storefront/product-grid";
 import { SectionHeading } from "@/components/storefront/section-heading";
 import { categoryMetaDescriptions } from "@/lib/catalog";
-import { getCategoryBySlug, getPublishedCategories, getPublishedCategorySlugs, categoryDescriptions } from "@/lib/queries/categories";
+import {
+  getCategoryBySlug,
+  getPublishedCategories,
+  getPublishedCategorySlugs,
+  categoryDescriptions,
+} from "@/lib/queries/categories";
 import { getPublishedProducts } from "@/lib/queries/products";
 import { buildBreadcrumbJsonLd } from "@/lib/seo/json-ld";
 import {
@@ -30,7 +35,10 @@ export async function generateMetadata({
   const [{ slug }, rawSearchParams] = await Promise.all([params, searchParams]);
   const category = await getCategoryBySlug(slug);
   if (!category) {
-    return { title: "Category not found", robots: { index: false, follow: false } };
+    return {
+      title: "Category not found",
+      robots: { index: false, follow: false },
+    };
   }
 
   const products = await getPublishedProducts({ categorySlug: slug });
@@ -111,6 +119,7 @@ export default async function CategoryPage({
         <ProductGrid
           emptyMessage="This collection is still being prepared. Browse the full shop to see everything that is available now."
           emptyTitle="More handmade pieces coming soon"
+          heading={`${category.name} products`}
           products={products}
         />
       </div>
