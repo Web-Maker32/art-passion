@@ -1,17 +1,22 @@
 import type { Metadata } from "next";
 import { io } from "next/cache";
+import { Banknote, CheckCircle2, Clock, Truck } from "lucide-react";
 import { OrderStatus } from "@/generated/prisma/client";
-import type { OrderStatus as OrderStatusType } from "@/generated/prisma/client";
 import { requireAdmin } from "@/lib/admin-auth";
 import {
   ADMIN_ORDER_SEARCH_MAX_LENGTH,
+  getAdminOrdersSummary,
   listAdminOrders,
   type AdminOrderDateRange,
+  type AdminOrderStatusTab,
 } from "@/lib/queries/admin-orders";
+import { formatPrice } from "@/lib/format";
 import { AdminOrdersTable } from "@/components/admin/admin-orders-table";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { OrdersFilterBar } from "@/components/admin/orders-filter-bar";
 import { OrdersPagination } from "@/components/admin/orders-pagination";
+import { StatCard } from "@/components/admin/stat-card";
+import { Chip } from "@/components/admin/chip";
 
 export const metadata: Metadata = {
   title: "Orders",
@@ -30,7 +35,11 @@ type SearchParams = Promise<{
   reported?: string | string[];
 }>;
 
-const validStatuses = new Set<string>([...Object.values(OrderStatus), "ALL"]);
+const validStatuses = new Set<string>([
+  ...Object.values(OrderStatus),
+  "ACTIVE",
+  "ALL",
+]);
 
 function firstString(value: string | string[] | undefined): string {
   if (Array.isArray(value)) return value[0] ?? "";
@@ -46,9 +55,10 @@ export default async function AdminOrdersPage({
   await io();
   const params = await searchParams;
 
-  const rawStatus = firstString(params.status) || "ALL";
-  const status = (validStatuses.has(rawStatus) ? rawStatus : "ALL") as
-    OrderStatusType | "ALL";
+  const rawStatus = firstString(params.status) || "ACTIVE";
+  const status = (
+    validStatuses.has(rawStatus) ? rawStatus : "ACTIVE"
+  ) as AdminOrderStatusTab;
   const search = firstString(params.search)
     .trim()
     .slice(0, ADMIN_ORDER_SEARCH_MAX_LENGTH);
@@ -58,20 +68,59 @@ export default async function AdminOrdersPage({
     rawDate === "7d" || rawDate === "30d" ? rawDate : "all";
   const paymentReported = firstString(params.reported) === "1";
 
-  const result = await listAdminOrders({
-    status,
-    search,
-    page,
-    dateRange,
-    paymentReported,
-  });
+  // The page rows and the summary strip are independent reads — run them in
+  // parallel so neither blocks the other.
+  const [result, summary] = await Promise.all([
+    listAdminOrders({ status, search, page, dateRange, paymentReported }),
+    getAdminOrdersSummary(),
+  ]);
 
   return (
     <div className="space-y-6">
       <AdminPageHeader
         title="Orders"
-        description="Newest first. Filter by status or search by order number, name or phone."
+        description="Active orders first. Filter by status or search by order number, name or phone."
       />
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard
+          icon={Clock}
+          label="Needs action"
+          value={summary.needsAction}
+          tone={summary.needsAction > 0 ? "gold" : "default"}
+          hint={
+            summary.needsActionReported > 0 ? (
+              <Chip tone="gold">
+                {summary.needsActionReported} payment reported
+              </Chip>
+            ) : (
+              "Pending orders awaiting payment."
+            )
+          }
+          href="/admin/orders?status=PENDING"
+        />
+        <StatCard
+          icon={Truck}
+          label="To ship"
+          value={summary.toShip}
+          hint="Paid and processing orders to pack."
+          href="/admin/orders?status=PAID"
+        />
+        <StatCard
+          icon={CheckCircle2}
+          label="Delivered this month"
+          value={summary.deliveredThisMonth}
+          hint="Karachi month, by delivery time."
+          href="/admin/orders?status=DELIVERED"
+        />
+        <StatCard
+          icon={Banknote}
+          label="Revenue this month"
+          value={formatPrice(summary.revenueThisMonth)}
+          hint="excluding pending and cancelled"
+          href="/admin/orders"
+        />
+      </div>
 
       <OrdersFilterBar
         status={status}
@@ -85,6 +134,7 @@ export default async function AdminOrdersPage({
 
       <OrdersPagination
         page={result.page}
+        pageSize={result.pageSize}
         search={search}
         status={status}
         dateRange={dateRange}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition, type FormEvent } from "react";
+import Link from "next/link";
 import { toast } from "sonner";
 import {
   createAdminCategory,
@@ -8,7 +9,17 @@ import {
 } from "@/actions/admin-categories";
 import type { AdminCategoryRow } from "@/lib/admin-category-schema";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { AdminInput } from "@/components/admin/admin-controls";
+import { TableCard } from "@/components/admin/admin-cards";
+import { AdminEmptyState } from "@/components/admin/admin-empty-state";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 /**
  * Admin category manager: create a category and rename existing ones inline.
@@ -73,15 +84,19 @@ export function CategoriesManager({
 
   return (
     <div className="space-y-6">
+      {/* Slim "New category" card */}
       <form
-        className="border-silver bg-card flex flex-col gap-3 rounded-xl border p-4 sm:flex-row sm:items-end"
+        className="bg-card flex flex-col gap-3 rounded-[12px] border p-4 sm:flex-row sm:items-end"
         onSubmit={handleCreate}
       >
         <div className="flex flex-1 flex-col gap-1.5">
-          <label className="text-sm font-medium" htmlFor="new-category-name">
+          <label
+            className="text-[13px] font-medium"
+            htmlFor="new-category-name"
+          >
             New category
           </label>
-          <Input
+          <AdminInput
             disabled={isPending}
             id="new-category-name"
             onChange={(event) => setNewName(event.target.value)}
@@ -89,89 +104,116 @@ export function CategoriesManager({
             value={newName}
           />
         </div>
-        <Button className="min-h-11" disabled={isPending} type="submit">
+        <Button disabled={isPending} type="submit">
           {isPending ? "Adding…" : "Add category"}
         </Button>
       </form>
 
       {categories.length === 0 ? (
-        <p className="border-silver bg-card text-muted-foreground rounded-xl border p-6 text-center text-sm">
-          No categories yet. Add your first one above.
-        </p>
+        <TableCard>
+          <AdminEmptyState
+            title="No categories yet"
+            description="Add your first category using the form above."
+          />
+        </TableCard>
       ) : (
-        <ul className="space-y-3">
-          {categories.map((category) => {
-            const isEditing = editingId === category.id;
-            return (
-              <li
-                className="border-silver bg-card rounded-xl border p-4"
-                key={category.id}
-              >
-                {isEditing ? (
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                    <Input
-                      aria-label={`Rename ${category.name}`}
-                      disabled={isPending}
-                      onChange={(event) => setEditName(event.target.value)}
-                      onKeyDown={(event) => {
-                        if (event.key === "Enter") {
-                          event.preventDefault();
-                          commitRename(category.id);
-                        } else if (event.key === "Escape") {
-                          cancelRename();
-                        }
-                      }}
-                      value={editName}
-                    />
-                    <div className="flex gap-2">
-                      <Button
-                        className="min-h-11"
-                        disabled={isPending}
-                        onClick={() => commitRename(category.id)}
-                        size="sm"
-                        type="button"
+        <TableCard>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead className="hidden sm:table-cell">Slug</TableHead>
+                <TableHead className="text-right">Products</TableHead>
+                <TableHead className="text-right">
+                  <span className="sr-only">Actions</span>
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {categories.map((category) => {
+                const isEditing = editingId === category.id;
+                return (
+                  <TableRow key={category.id}>
+                    <TableCell className="max-w-56">
+                      {isEditing ? (
+                        <AdminInput
+                          aria-label={`Rename ${category.name}`}
+                          disabled={isPending}
+                          onChange={(event) => setEditName(event.target.value)}
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter") {
+                              event.preventDefault();
+                              commitRename(category.id);
+                            } else if (event.key === "Escape") {
+                              cancelRename();
+                            }
+                          }}
+                          value={editName}
+                        />
+                      ) : (
+                        <div className="min-w-0">
+                          <p className="truncate font-semibold">
+                            {category.name}
+                          </p>
+                          <p className="text-muted-foreground truncate font-mono text-xs sm:hidden">
+                            /{category.slug}
+                          </p>
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground hidden font-mono text-xs sm:table-cell">
+                      /{category.slug}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Link
+                        aria-label={`View products in ${category.name}`}
+                        className="text-foreground tabular-nums underline-offset-4 hover-fine:hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)]"
+                        href={`/admin/products?category=${category.id}`}
                       >
-                        {isPending ? "Saving…" : "Save"}
-                      </Button>
-                      <Button
-                        className="min-h-11"
-                        disabled={isPending}
-                        onClick={cancelRename}
-                        size="sm"
-                        type="button"
-                        variant="outline"
-                      >
-                        Cancel
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="truncate font-semibold">{category.name}</p>
-                      <p className="text-muted-foreground text-xs">
-                        /{category.slug} ·{" "}
                         {category.productCount === 1
                           ? "1 product"
                           : `${category.productCount} products`}
-                      </p>
-                    </div>
-                    <Button
-                      className="min-h-11"
-                      disabled={isPending}
-                      onClick={() => startRename(category)}
-                      size="sm"
-                      type="button"
-                      variant="outline"
-                    >
-                      Rename
-                    </Button>
-                  </div>
-                )}
-              </li>
-            );
-          })}
-        </ul>
+                      </Link>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {isEditing ? (
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            disabled={isPending}
+                            onClick={() => commitRename(category.id)}
+                            size="sm"
+                            type="button"
+                          >
+                            {isPending ? "Saving…" : "Save"}
+                          </Button>
+                          <Button
+                            disabled={isPending}
+                            onClick={cancelRename}
+                            size="sm"
+                            type="button"
+                            variant="outline"
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      ) : (
+                        <Button
+                          disabled={isPending}
+                          onClick={() => startRename(category)}
+                          size="sm"
+                          type="button"
+                          variant="ghost"
+                        >
+                          Rename
+                        </Button>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </TableCard>
       )}
     </div>
   );

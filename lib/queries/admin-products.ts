@@ -29,6 +29,7 @@ export type AdminProductListRow = {
   title: string;
   slug: string;
   status: ProductStatus;
+  category: string;
   madeToOrder: boolean;
   minPrice: number | null;
   maxPrice: number | null;
@@ -118,6 +119,7 @@ export async function listAdminProducts(
         slug: true,
         status: true,
         madeToOrder: true,
+        category: { select: { name: true } },
         images: {
           orderBy: { position: "asc" },
           take: 1,
@@ -144,6 +146,7 @@ export async function listAdminProducts(
       title: row.title,
       slug: row.slug,
       status: row.status,
+      category: row.category?.name ?? "",
       madeToOrder: row.madeToOrder,
       minPrice: prices.length > 0 ? Math.min(...prices) : null,
       maxPrice: prices.length > 0 ? Math.max(...prices) : null,

@@ -187,10 +187,10 @@ export function ProductImageManager({
   }
 
   return (
-    <section className="border-silver bg-card space-y-4 rounded-xl border p-4 sm:p-6">
+    <section className="bg-card space-y-4 rounded-[12px] border p-4 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h2 className="font-heading text-lg font-semibold">Images</h2>
+          <h2 className="text-base font-semibold">Images</h2>
           <p className="text-muted-foreground text-sm">
             JPEG, PNG or WebP, up to 4 MB (4,000,000 bytes)
             each, max {MAX_IMAGES_PER_PRODUCT} per product. Alt text is required

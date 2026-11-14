@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { AdminProductStockFilter } from "@/lib/queries/admin-products";
 import { buttonVariants } from "@/components/ui/button";
 
@@ -49,7 +50,7 @@ export function ProductsPagination({
   return (
     <nav
       aria-label="Products pagination"
-      className="flex items-center justify-between gap-3"
+      className="flex flex-wrap items-center justify-between gap-3"
     >
       <p className="text-muted-foreground text-sm">
         Page {page} of {totalPages} · {total} products
@@ -60,6 +61,7 @@ export function ProductsPagination({
             className={buttonVariants({ variant: "outline", size: "sm" })}
             href={buildHref(page - 1, status, search, categoryId, stock)}
           >
+            <ChevronLeft aria-hidden="true" data-icon="inline-start" />
             Previous
           </Link>
         ) : (
@@ -80,6 +82,7 @@ export function ProductsPagination({
             href={buildHref(page + 1, status, search, categoryId, stock)}
           >
             Next
+            <ChevronRight aria-hidden="true" data-icon="inline-end" />
           </Link>
         ) : (
           <span

@@ -37,7 +37,7 @@ export function OrdersChart({ buckets }: { buckets: DashboardDayBucket[] }) {
                     ? "bg-border"
                     : isToday
                       ? "bg-gold hover-fine:hover:bg-gold-light"
-                      : "bg-brand/80 hover-fine:hover:bg-brand"
+                      : "bg-status-shipped hover-fine:hover:bg-status-shipped/80"
                 }`}
                 style={{ height: `${height}%` }}
               />
@@ -57,12 +57,13 @@ export function OrdersChart({ buckets }: { buckets: DashboardDayBucket[] }) {
         ))}
       </div>
       <figcaption className="text-muted-foreground mt-2 text-xs">
-        Today is highlighted in gold. All days use Asia/Karachi.
+        Today is highlighted in gold. Excluding cancelled. All days use
+        Asia/Karachi.
       </figcaption>
       <p className="sr-only">
         {total === 0
-          ? "No orders in the last 14 days."
-          : `${total} ${total === 1 ? "order" : "orders"} in the last 14 days. Busiest day: ${busiest?.label} with ${busiest?.count}.`}
+          ? "No orders in the last 14 days, excluding cancelled and refunded."
+          : `${total} ${total === 1 ? "order" : "orders"} in the last 14 days, excluding cancelled and refunded. Busiest day: ${busiest?.label} with ${busiest?.count}.`}
       </p>
       <ul className="sr-only">
         {buckets.map((bucket) => (

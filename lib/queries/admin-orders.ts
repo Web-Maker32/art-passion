@@ -3,8 +3,18 @@ import "server-only";
 import { OrderStatus, Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db";
 import { getKarachiDayStart, getKarachiMonthStart } from "@/lib/admin-datetime";
+import { REVENUE_STATUSES } from "@/lib/queries/admin-dashboard";
 
 const PAID_LIKE_STATUSES: OrderStatus[] = ["PAID", "SHIPPED", "DELIVERED"];
+
+/** The default "Active" tab: everything except cancelled and refunded. */
+export const ACTIVE_ORDER_STATUSES: OrderStatus[] = [
+  "PENDING",
+  "PAID",
+  "PROCESSING",
+  "SHIPPED",
+  "DELIVERED",
+];
 
 export const ADMIN_ORDERS_PAGE_SIZE = 20;
 
@@ -15,8 +25,10 @@ const DAY_MS = 86_400_000;
 
 export type AdminOrderDateRange = "7d" | "30d" | "all";
 
+export type AdminOrderStatusTab = OrderStatus | "ACTIVE" | "ALL";
+
 export type AdminOrderListFilters = {
-  status?: OrderStatus | "ALL";
+  status?: AdminOrderStatusTab;
   search?: string;
   page?: number;
   dateRange?: AdminOrderDateRange;
@@ -30,11 +42,19 @@ export type AdminOrderListRow = {
   customerName: string;
   customerPhone: string;
   total: number;
+  shipping: number;
   status: OrderStatus;
   paymentReportedAt: Date | null;
+  itemCount: number;
+  /** First three items, each with the product thumbnail when available. */
+  items: Array<{
+    productTitle: string;
+    thumbnail: { url: string; alt: string } | null;
+  }>;
+  extraItemCount: number;
 };
 
-export type AdminOrderStatusCounts = Record<OrderStatus | "ALL", number>;
+export type AdminOrderStatusCounts = Record<AdminOrderStatusTab, number>;
 
 export type AdminOrderListResult = {
   orders: AdminOrderListRow[];
@@ -51,7 +71,9 @@ function buildListWhere(
 ): Prisma.OrderWhereInput {
   const where: Prisma.OrderWhereInput = {};
 
-  if (filters.status && filters.status !== "ALL") {
+  if (filters.status === "ACTIVE") {
+    where.status = { in: ACTIVE_ORDER_STATUSES };
+  } else if (filters.status && filters.status !== "ALL") {
     where.status = filters.status;
   }
 
@@ -80,47 +102,177 @@ function buildListWhere(
   return where;
 }
 
+const LIST_ORDER_BY: Prisma.OrderOrderByWithRelationInput[] = [
+  { createdAt: "desc" },
+  { orderNumber: "desc" },
+];
+
+const listSelect = {
+  id: true,
+  orderNumber: true,
+  createdAt: true,
+  customerName: true,
+  customerPhone: true,
+  total: true,
+  shipping: true,
+  status: true,
+  paymentReportedAt: true,
+  items: {
+    orderBy: { id: "asc" },
+    select: { productTitle: true, variantId: true },
+  },
+} satisfies Prisma.OrderSelect;
+
+type ListOrderRow = Prisma.OrderGetPayload<{ select: typeof listSelect }>;
+
+/** Resolve one product thumbnail per shown item via a single batched read. */
+async function withItemThumbnails(
+  rows: ListOrderRow[],
+): Promise<AdminOrderListRow[]> {
+  const variantIds = [
+    ...new Set(
+      rows
+        .flatMap((row) => row.items.slice(0, 3).map((item) => item.variantId))
+        .filter((id): id is string => Boolean(id)),
+    ),
+  ];
+  const variantRows =
+    variantIds.length > 0
+      ? await prisma.variant.findMany({
+          where: { id: { in: variantIds } },
+          select: {
+            id: true,
+            product: {
+              select: {
+                images: {
+                  orderBy: { position: "asc" },
+                  take: 1,
+                  select: { url: true, alt: true },
+                },
+              },
+            },
+          },
+        })
+      : [];
+  const imageByVariantId = new Map<string, { url: string; alt: string } | null>(
+    variantRows.map((variant) => [variant.id, variant.product.images[0] ?? null]),
+  );
+
+  return rows.map((row) => {
+    const items = row.items.slice(0, 3).map((item) => ({
+      productTitle: item.productTitle,
+      thumbnail: item.variantId
+        ? (imageByVariantId.get(item.variantId) ?? null)
+        : null,
+    }));
+    return {
+      id: row.id,
+      orderNumber: row.orderNumber,
+      createdAt: row.createdAt,
+      customerName: row.customerName,
+      customerPhone: row.customerPhone,
+      total: row.total,
+      shipping: row.shipping,
+      status: row.status,
+      paymentReportedAt: row.paymentReportedAt,
+      itemCount: row.items.length,
+      items,
+      extraItemCount: Math.max(0, row.items.length - items.length),
+    };
+  });
+}
+
 export async function listAdminOrders(
   filters: AdminOrderListFilters = {},
   now: Date = new Date(),
 ): Promise<AdminOrderListResult> {
   const pageSize = ADMIN_ORDERS_PAGE_SIZE;
   const page = Math.max(1, filters.page ?? 1);
-  const where = buildListWhere(filters, now);
+  const status: AdminOrderStatusTab = filters.status ?? "ACTIVE";
+  const where = buildListWhere({ ...filters, status }, now);
+  const skip = (page - 1) * pageSize;
 
-  const [total, orders, statusGroups] = await Promise.all([
+  // In Active and Pending, pending orders with a customer-reported payment
+  // come first; everything else follows by order date, newest first, with the
+  // order number as a stable tiebreak. Two bounded reads keep the ordering in
+  // Prisma (no raw SQL).
+  const prioritizeReported = status === "ACTIVE" || status === "PENDING";
+  const priorityWhere: Prisma.OrderWhereInput = {
+    ...where,
+    status: "PENDING",
+    paymentReportedAt: { not: null },
+  };
+  const restWhere: Prisma.OrderWhereInput = {
+    ...where,
+    NOT: { status: "PENDING", paymentReportedAt: { not: null } },
+  };
+
+  const [total, statusGroups, priorityCount] = await Promise.all([
     prisma.order.count({ where }),
-    prisma.order.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-      skip: (page - 1) * pageSize,
-      take: pageSize,
-      select: {
-        id: true,
-        orderNumber: true,
-        createdAt: true,
-        customerName: true,
-        customerPhone: true,
-        total: true,
-        status: true,
-        paymentReportedAt: true,
-      },
-    }),
     // Tab counts honour search/date/payment filters but not the status tab.
     prisma.order.groupBy({
       by: ["status"],
       where: buildListWhere({ ...filters, status: "ALL" }, now),
       _count: { _all: true },
     }),
+    prioritizeReported
+      ? prisma.order.count({ where: priorityWhere })
+      : Promise.resolve(0),
   ]);
+
+  let rows: ListOrderRow[];
+  if (!prioritizeReported) {
+    rows = await prisma.order.findMany({
+      where,
+      orderBy: LIST_ORDER_BY,
+      skip,
+      take: pageSize,
+      select: listSelect,
+    });
+  } else if (skip < priorityCount) {
+    const priorityTake = Math.min(pageSize, priorityCount - skip);
+    const priorityRows = await prisma.order.findMany({
+      where: priorityWhere,
+      orderBy: LIST_ORDER_BY,
+      skip,
+      take: priorityTake,
+      select: listSelect,
+    });
+    const remaining = pageSize - priorityRows.length;
+    const restRows =
+      remaining > 0
+        ? await prisma.order.findMany({
+            where: restWhere,
+            orderBy: LIST_ORDER_BY,
+            skip: 0,
+            take: remaining,
+            select: listSelect,
+          })
+        : [];
+    rows = [...priorityRows, ...restRows];
+  } else {
+    rows = await prisma.order.findMany({
+      where: restWhere,
+      orderBy: LIST_ORDER_BY,
+      skip: skip - priorityCount,
+      take: pageSize,
+      select: listSelect,
+    });
+  }
+
+  const orders = await withItemThumbnails(rows);
 
   const counts = Object.fromEntries(
     Object.values(OrderStatus).map((status) => [status, 0]),
   ) as AdminOrderStatusCounts;
+  counts.ACTIVE = 0;
   counts.ALL = 0;
   for (const group of statusGroups) {
     counts[group.status] = group._count._all;
     counts.ALL += group._count._all;
+    if (ACTIVE_ORDER_STATUSES.includes(group.status)) {
+      counts.ACTIVE += group._count._all;
+    }
   }
 
   return {
@@ -130,6 +282,52 @@ export async function listAdminOrders(
     pageSize,
     totalPages: Math.max(1, Math.ceil(total / pageSize)),
     counts,
+  };
+}
+
+export type AdminOrdersSummary = {
+  needsAction: number;
+  needsActionReported: number;
+  toShip: number;
+  deliveredThisMonth: number;
+  /** Whole rupees, revenue statuses only, current Karachi month. */
+  revenueThisMonth: number;
+};
+
+/**
+ * Shop-wide summary strip for the orders page. Month boundaries use
+ * Asia/Karachi; "delivered this month" uses the recorded delivery time and
+ * revenue uses the order date, counting only REVENUE_STATUSES.
+ */
+export async function getAdminOrdersSummary(
+  now: Date = new Date(),
+): Promise<AdminOrdersSummary> {
+  const monthStart = getKarachiMonthStart(now);
+  const [needsAction, needsActionReported, toShip, deliveredThisMonth, revenueOrders] =
+    await Promise.all([
+      prisma.order.count({ where: { status: "PENDING" } }),
+      prisma.order.count({
+        where: { status: "PENDING", paymentReportedAt: { not: null } },
+      }),
+      prisma.order.count({ where: { status: { in: ["PAID", "PROCESSING"] } } }),
+      prisma.order.count({
+        where: { status: "DELIVERED", deliveredAt: { gte: monthStart } },
+      }),
+      prisma.order.findMany({
+        where: {
+          createdAt: { gte: monthStart },
+          status: { in: REVENUE_STATUSES },
+        },
+        select: { total: true },
+      }),
+    ]);
+
+  return {
+    needsAction,
+    needsActionReported,
+    toShip,
+    deliveredThisMonth,
+    revenueThisMonth: revenueOrders.reduce((sum, order) => sum + order.total, 0),
   };
 }
 

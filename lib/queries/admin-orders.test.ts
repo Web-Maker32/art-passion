@@ -9,16 +9,22 @@ const { db } = vi.hoisted(() => ({
       findMany: vi.fn(),
       groupBy: vi.fn(),
     },
+    variant: {
+      findMany: vi.fn(),
+    },
   },
 }));
 
 vi.mock("@/lib/db", () => ({ prisma: db }));
 
 import {
+  ACTIVE_ORDER_STATUSES,
   ADMIN_ORDERS_PAGE_SIZE,
   ADMIN_ORDER_SEARCH_MAX_LENGTH,
+  getAdminOrdersSummary,
   listAdminOrders,
 } from "@/lib/queries/admin-orders";
+import { REVENUE_STATUSES } from "@/lib/queries/admin-dashboard";
 
 // 13 Nov 2026, 10:00 in Karachi (UTC+05:00).
 const NOW = new Date("2026-11-13T05:00:00.000Z");
@@ -29,11 +35,13 @@ beforeEach(() => {
   db.order.count.mockResolvedValue(0);
   db.order.findMany.mockResolvedValue([]);
   db.order.groupBy.mockResolvedValue([]);
+  db.variant.findMany.mockResolvedValue([]);
 });
 
 describe("listAdminOrders", () => {
   it("lists newest first with bounded pagination and aggregated tab counts", async () => {
-    db.order.count.mockResolvedValue(45);
+    // Count calls in order: page total, then reported-pending priority count.
+    db.order.count.mockResolvedValueOnce(45).mockResolvedValueOnce(0);
     db.order.groupBy.mockResolvedValue([
       { status: "PENDING", _count: { _all: 2 } },
       { status: "PAID", _count: { _all: 3 } },
@@ -42,12 +50,16 @@ describe("listAdminOrders", () => {
     const result = await listAdminOrders({ page: 3 }, NOW);
 
     const listCall = db.order.findMany.mock.calls[0]?.[0];
-    expect(listCall.orderBy).toEqual({ createdAt: "desc" });
+    expect(listCall.orderBy).toEqual([
+      { createdAt: "desc" },
+      { orderNumber: "desc" },
+    ]);
     expect(listCall.skip).toBe(2 * ADMIN_ORDERS_PAGE_SIZE);
     expect(listCall.take).toBe(ADMIN_ORDERS_PAGE_SIZE);
     expect(result.total).toBe(45);
     expect(result.totalPages).toBe(3);
     expect(result.counts.ALL).toBe(5);
+    expect(result.counts.ACTIVE).toBe(5);
     expect(result.counts.PENDING).toBe(2);
     expect(result.counts.PAID).toBe(3);
     expect(result.counts.SHIPPED).toBe(0);
@@ -125,5 +137,136 @@ describe("listAdminOrders", () => {
     expect(result.total).toBe(0);
     expect(result.totalPages).toBe(1);
     expect(result.counts.ALL).toBe(0);
+  });
+});
+
+describe("Active tab and counts", () => {
+  it("defaults to Active and excludes cancelled and refunded from the list", async () => {
+    await listAdminOrders({}, NOW);
+    const listCall = db.order.findMany.mock.calls[0]?.[0];
+    expect(listCall.where.status).toEqual({ in: ACTIVE_ORDER_STATUSES });
+    expect(ACTIVE_ORDER_STATUSES).not.toContain("CANCELLED");
+    expect(ACTIVE_ORDER_STATUSES).not.toContain("REFUNDED");
+  });
+
+  it("shows every status on the All tab", async () => {
+    await listAdminOrders({ status: "ALL" }, NOW);
+    expect(db.order.findMany.mock.calls[0]?.[0].where.status).toBeUndefined();
+  });
+
+  it("aggregates tab counts so Active excludes cancelled and refunded", async () => {
+    db.order.count.mockResolvedValueOnce(12).mockResolvedValueOnce(0);
+    db.order.groupBy.mockResolvedValue([
+      { status: "PENDING", _count: { _all: 2 } },
+      { status: "PAID", _count: { _all: 3 } },
+      { status: "DELIVERED", _count: { _all: 2 } },
+      { status: "CANCELLED", _count: { _all: 4 } },
+      { status: "REFUNDED", _count: { _all: 1 } },
+    ]);
+    const result = await listAdminOrders({}, NOW);
+    expect(result.counts.ACTIVE).toBe(7);
+    expect(result.counts.ALL).toBe(12);
+    expect(result.counts.CANCELLED).toBe(4);
+    expect(result.counts.REFUNDED).toBe(1);
+    expect(result.counts.DELIVERED).toBe(2);
+  });
+});
+
+describe("ordering and tiebreak", () => {
+  it("sorts by createdAt desc then orderNumber desc", async () => {
+    await listAdminOrders({ status: "PAID" }, NOW);
+    expect(db.order.findMany.mock.calls[0]?.[0].orderBy).toEqual([
+      { createdAt: "desc" },
+      { orderNumber: "desc" },
+    ]);
+  });
+
+  it("puts reported-pending orders first on Active, then the rest", async () => {
+    db.order.count.mockResolvedValueOnce(10).mockResolvedValueOnce(2);
+    db.order.findMany.mockResolvedValue([]);
+    await listAdminOrders({ status: "ACTIVE" }, NOW);
+    const priorityCall = db.order.findMany.mock.calls[0]?.[0];
+    expect(priorityCall.where.status).toBe("PENDING");
+    expect(priorityCall.where.paymentReportedAt).toEqual({ not: null });
+    const restCall = db.order.findMany.mock.calls[1]?.[0];
+    expect(restCall.where.NOT).toEqual({
+      status: "PENDING",
+      paymentReportedAt: { not: null },
+    });
+    expect(priorityCall.orderBy).toEqual([
+      { createdAt: "desc" },
+      { orderNumber: "desc" },
+    ]);
+    expect(restCall.orderBy).toEqual(priorityCall.orderBy);
+  });
+
+  it("does not prioritise on tabs other than Active and Pending", async () => {
+    await listAdminOrders({ status: "SHIPPED" }, NOW);
+    expect(db.order.count).toHaveBeenCalledTimes(1);
+    expect(db.order.findMany).toHaveBeenCalledTimes(1);
+    expect(db.order.findMany.mock.calls[0]?.[0].where.status).toBe("SHIPPED");
+  });
+});
+
+describe("getAdminOrdersSummary", () => {
+  it("sums revenue statuses only and selects just the total", async () => {
+    db.order.count
+      .mockResolvedValueOnce(4)
+      .mockResolvedValueOnce(1)
+      .mockResolvedValueOnce(5)
+      .mockResolvedValueOnce(3);
+    db.order.findMany.mockResolvedValueOnce([{ total: 1000 }, { total: 2500 }]);
+
+    const summary = await getAdminOrdersSummary(NOW);
+    expect(summary).toEqual({
+      needsAction: 4,
+      needsActionReported: 1,
+      toShip: 5,
+      deliveredThisMonth: 3,
+      revenueThisMonth: 3500,
+    });
+    const revenueCall = db.order.findMany.mock.calls[0]?.[0];
+    expect(revenueCall.where.status).toEqual({ in: REVENUE_STATUSES });
+    expect(revenueCall.select).toEqual({ total: true });
+  });
+
+  it("uses the Karachi month start for delivered and revenue windows", async () => {
+    const monthStart = new Date("2026-10-31T19:00:00.000Z"); // 1 Nov 00:00 PKT
+    await getAdminOrdersSummary(NOW);
+    expect(db.order.count.mock.calls[3]?.[0].where).toEqual({
+      status: "DELIVERED",
+      deliveredAt: { gte: monthStart },
+    });
+    expect(db.order.findMany.mock.calls[0]?.[0].where.createdAt).toEqual({
+      gte: monthStart,
+    });
+  });
+
+  it("rolls the month boundary at Karachi midnight, not UTC", async () => {
+    const stillOctober = new Date("2026-10-31T18:59:59.999Z"); // 31 Oct 23:59 PKT
+    const november = new Date("2026-10-31T19:00:00.000Z"); // 1 Nov 00:00 PKT
+    await getAdminOrdersSummary(stillOctober);
+    expect(db.order.findMany.mock.calls[0]?.[0].where.createdAt).toEqual({
+      gte: new Date("2026-09-30T19:00:00.000Z"), // 1 Oct 00:00 PKT
+    });
+
+    vi.clearAllMocks();
+    db.order.count.mockResolvedValue(0);
+    db.order.findMany.mockResolvedValue([]);
+    await getAdminOrdersSummary(november);
+    expect(db.order.findMany.mock.calls[0]?.[0].where.createdAt).toEqual({
+      gte: new Date("2026-10-31T19:00:00.000Z"), // 1 Nov 00:00 PKT
+    });
+  });
+
+  it("returns zeroes for an empty database", async () => {
+    const summary = await getAdminOrdersSummary(NOW);
+    expect(summary).toEqual({
+      needsAction: 0,
+      needsActionReported: 0,
+      toShip: 0,
+      deliveredThisMonth: 0,
+      revenueThisMonth: 0,
+    });
   });
 });

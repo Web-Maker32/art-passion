@@ -1,17 +1,14 @@
 import type { OrderStatus } from "@/generated/prisma/client";
-import { Badge } from "@/components/ui/badge";
+import { StatusPill, type StatusTone } from "@/components/admin/status-pill";
 
-const statusConfig: Record<
-  OrderStatus,
-  { label: string; variant: "default" | "secondary" | "destructive" | "outline" }
-> = {
-  PENDING: { label: "Pending", variant: "outline" },
-  PAID: { label: "Paid", variant: "secondary" },
-  PROCESSING: { label: "Processing", variant: "outline" },
-  SHIPPED: { label: "Shipped", variant: "default" },
-  DELIVERED: { label: "Delivered", variant: "secondary" },
-  CANCELLED: { label: "Cancelled", variant: "destructive" },
-  REFUNDED: { label: "Refunded", variant: "outline" },
+const statusConfig: Record<OrderStatus, { label: string; tone: StatusTone }> = {
+  PENDING: { label: "Pending", tone: "pending" },
+  PAID: { label: "Paid", tone: "paid" },
+  PROCESSING: { label: "Processing", tone: "processing" },
+  SHIPPED: { label: "Shipped", tone: "shipped" },
+  DELIVERED: { label: "Delivered", tone: "delivered" },
+  CANCELLED: { label: "Cancelled", tone: "cancelled" },
+  REFUNDED: { label: "Refunded", tone: "refunded" },
 };
 
 export const orderStatusLabel = (status: OrderStatus): string =>
@@ -21,7 +18,13 @@ export const orderStatusChoices = (
   Object.keys(statusConfig) as OrderStatus[]
 ).map((value) => ({ value, label: statusConfig[value].label }));
 
-export function OrderStatusBadge({ status }: { status: OrderStatus }) {
-  const { label, variant } = statusConfig[status];
-  return <Badge variant={variant}>{label}</Badge>;
+export function OrderStatusBadge({
+  status,
+  className,
+}: {
+  status: OrderStatus;
+  className?: string;
+}) {
+  const { label, tone } = statusConfig[status];
+  return <StatusPill tone={tone} label={label} className={className} />;
 }

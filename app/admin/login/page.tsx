@@ -21,11 +21,11 @@ export default async function AdminLoginPage() {
 
   return (
     <main className="bg-background flex min-h-dvh items-center justify-center px-4 py-12">
-      <div className="border-silver bg-card shadow-card relative w-full max-w-md rounded-2xl border p-6 sm:p-8">
+      <div className="bg-card shadow-card relative w-full max-w-md rounded-[12px] border p-6 sm:p-8">
         <AdminThemeToggle className="absolute top-4 right-4" />
         <div className="flex flex-col items-center text-center">
           <Logo size={64} priority variant="badge" />
-          <h1 className="font-heading mt-4 text-2xl font-bold">
+          <h1 className="mt-4 text-2xl font-semibold">
             Admin sign in
           </h1>
           <p className="text-muted-foreground mt-1 text-sm">

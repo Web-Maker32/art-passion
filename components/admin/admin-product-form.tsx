@@ -29,6 +29,12 @@ import {
 } from "@/lib/admin-product-schema";
 import type { AdminProductEdit } from "@/lib/queries/admin-products";
 import { ProductImageManager } from "@/components/admin/product-image-manager";
+import { SectionCard } from "@/components/admin/admin-cards";
+import {
+  AdminInput,
+  AdminSelect,
+  AdminTextarea,
+} from "@/components/admin/admin-controls";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -40,9 +46,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 
 export type CategoryOption = { id: string; name: string; slug: string };
 
@@ -62,9 +66,6 @@ const statusChoices: Array<{
   { value: "PUBLISHED", label: "Published — visible in the store" },
   { value: "HIDDEN", label: "Archived — hidden from the store" },
 ];
-
-const controlClass =
-  "w-full rounded-lg border border-input bg-transparent px-2.5 py-2 text-sm text-foreground transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30";
 
 export function buildProductFormDefaults(
   product: AdminProductEdit | null,
@@ -268,392 +269,375 @@ export function AdminProductForm({
   const isArchived = product?.status === "HIDDEN";
 
   return (
-    <form className="space-y-8" noValidate onSubmit={handleSubmit(onSubmit)}>
+    <form className="space-y-6" noValidate onSubmit={handleSubmit(onSubmit)}>
       {/* Basics */}
-      <section className="border-silver bg-card space-y-4 rounded-xl border p-4 sm:p-6">
-        <h2 className="font-heading text-lg font-semibold">Product</h2>
-
-        <div className="space-y-1.5">
-          <Label htmlFor="product-title">Title</Label>
-          <Input
-            id="product-title"
-            {...register("title", { onChange: handleTitleChange })}
-            aria-invalid={Boolean(errors.title)}
-          />
-          <FieldError message={errors.title?.message} />
-        </div>
-
-        <div className="space-y-1.5">
-          <Label htmlFor="product-slug">Slug</Label>
-          <Input
-            id="product-slug"
-            {...register("slug", {
-              onChange: () => {
-                slugEditedRef.current = true;
-              },
-            })}
-            aria-invalid={Boolean(errors.slug)}
-            placeholder="felt-rose-kit"
-          />
-          <p className="text-muted-foreground text-xs">
-            Used in the store URL: /products/&lt;slug&gt;. Generated from the
-            title until you edit it.
-          </p>
-          <FieldError message={errors.slug?.message} />
-        </div>
-
-        <div className="space-y-1.5">
-          <Label htmlFor="product-short-description">
-            Short description{" "}
-            <span className="text-muted-foreground">(optional)</span>
-          </Label>
-          <Textarea
-            id="product-short-description"
-            rows={2}
-            placeholder="One or two lines used in search results and product cards."
-            {...register("shortDescription")}
-            aria-invalid={Boolean(errors.shortDescription)}
-          />
-          <FieldError message={errors.shortDescription?.message} />
-        </div>
-
-        <div className="space-y-1.5">
-          <Label htmlFor="product-description">Full description</Label>
-          <Textarea
-            id="product-description"
-            rows={6}
-            {...register("description")}
-            aria-invalid={Boolean(errors.description)}
-          />
-          <FieldError message={errors.description?.message} />
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2">
+      <SectionCard
+        title="Basics"
+        description="The product name, its store URL and how it is organised."
+      >
+        <div className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="product-category">Category</Label>
-            <select
-              className={controlClass}
-              id="product-category"
-              {...register("categoryId")}
-              aria-invalid={Boolean(errors.categoryId)}
-            >
-              {categories.length === 0 && (
-                <option value="">No categories</option>
-              )}
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
-            <FieldError message={errors.categoryId?.message} />
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="product-type">Type</Label>
-            <select
-              className={controlClass}
-              id="product-type"
-              {...register("type")}
-              aria-invalid={Boolean(errors.type)}
-            >
-              {typeChoices.map((choice) => (
-                <option key={choice.value} value={choice.value}>
-                  {choice.label}
-                </option>
-              ))}
-            </select>
-            <FieldError message={errors.type?.message} />
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="product-status">Status</Label>
-            <select
-              className={controlClass}
-              id="product-status"
-              {...register("status")}
-              aria-invalid={Boolean(errors.status)}
-            >
-              {statusChoices.map((choice) => (
-                <option key={choice.value} value={choice.value}>
-                  {choice.label}
-                </option>
-              ))}
-            </select>
-            <FieldError message={errors.status?.message} />
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="product-materials">
-              Materials{" "}
-              <span className="text-muted-foreground">(comma separated)</span>
-            </Label>
-            <Input
-              id="product-materials"
-              onChange={(event) => setMaterialsText(event.target.value)}
-              placeholder="Felt, thread, stuffing"
-              value={materialsText}
+            <Label htmlFor="product-title">Title</Label>
+            <AdminInput
+              id="product-title"
+              {...register("title", { onChange: handleTitleChange })}
+              aria-invalid={Boolean(errors.title)}
             />
+            <FieldError message={errors.title?.message} />
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="product-tags">
-              Tags{" "}
-              <span className="text-muted-foreground">(comma separated)</span>
-            </Label>
-            <Input
-              id="product-tags"
-              onChange={(event) => setTagsText(event.target.value)}
-              placeholder="rose, wedding, gift"
-              value={tagsText}
+            <Label htmlFor="product-slug">Slug</Label>
+            <AdminInput
+              id="product-slug"
+              {...register("slug", {
+                onChange: () => {
+                  slugEditedRef.current = true;
+                },
+              })}
+              aria-invalid={Boolean(errors.slug)}
+              placeholder="felt-rose-kit"
             />
-          </div>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-          <Controller
-            control={control}
-            name="madeToOrder"
-            render={({ field }) => (
-              <label className="flex cursor-pointer items-center gap-2 text-sm font-medium">
-                <Checkbox
-                  checked={field.value}
-                  id="product-made-to-order"
-                  onCheckedChange={(checked) =>
-                    field.onChange(checked === true)
-                  }
-                />
-                Made to order
-              </label>
-            )}
-          />
-
-          <div className="space-y-1.5">
-            <Label htmlFor="product-lead-time">Lead time (days)</Label>
-            <Input
-              className="w-28"
-              id="product-lead-time"
-              min={1}
-              max={365}
-              step={1}
-              type="number"
-              {...register("leadTimeDays", { valueAsNumber: true })}
-              aria-invalid={Boolean(errors.leadTimeDays)}
-              disabled={!madeToOrder}
-            />
-            <FieldError message={errors.leadTimeDays?.message} />
-          </div>
-        </div>
-      </section>
-
-      {/* Product page details */}
-      <section className="border-silver bg-card space-y-4 rounded-xl border p-4 sm:p-6">
-        <div>
-          <h2 className="font-heading text-lg font-semibold">
-            Product page details
-          </h2>
-          <p className="text-muted-foreground text-sm">
-            These appear below the price on the storefront product page.
-          </p>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-1.5">
-            <Label htmlFor="product-size">
-              Size <span className="text-muted-foreground">(optional)</span>
-            </Label>
-            <Input
-              id="product-size"
-              placeholder="e.g. 20 cm × 15 cm"
-              {...register("size")}
-              aria-invalid={Boolean(errors.size)}
-            />
-            <FieldError message={errors.size?.message} />
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="product-age">
-              Recommended age{" "}
-              <span className="text-muted-foreground">(optional)</span>
-            </Label>
-            <Input
-              id="product-age"
-              placeholder="e.g. 3 years and up"
-              {...register("recommendedAge")}
-              aria-invalid={Boolean(errors.recommendedAge)}
-            />
-            <FieldError message={errors.recommendedAge?.message} />
-          </div>
-        </div>
-
-        <div className="space-y-1.5">
-          <Label htmlFor="product-included">
-            What&apos;s included{" "}
-            <span className="text-muted-foreground">(one item per line)</span>
-          </Label>
-          <Textarea
-            id="product-included"
-            onChange={(event) => setWhatsIncludedText(event.target.value)}
-            placeholder={"Felt animals\nCotton storage bag\nCare card"}
-            rows={4}
-            value={whatsIncludedText}
-          />
-          <p className="text-muted-foreground text-xs">
-            Shown as a checklist on the product page. Commas also work as
-            separators.
-          </p>
-        </div>
-
-        <div className="space-y-1.5">
-          <Label htmlFor="product-safety">
-            Safety note{" "}
-            <span className="text-muted-foreground">(optional)</span>
-          </Label>
-          <Textarea
-            id="product-safety"
-            rows={3}
-            placeholder="e.g. Contains small parts. Adult supervision recommended."
-            {...register("safetyNote")}
-            aria-invalid={Boolean(errors.safetyNote)}
-          />
-          <FieldError message={errors.safetyNote?.message} />
-        </div>
-      </section>
-
-      {/* Variants */}
-      <section className="border-silver bg-card space-y-4 rounded-xl border p-4 sm:p-6">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div>
-            <h2 className="font-heading text-lg font-semibold">Variants</h2>
-            <p className="text-muted-foreground text-sm">
-              At least one variant is required to publish. Prices are whole
-              rupees.
+            <p className="text-muted-foreground text-xs">
+              Used in the store URL: /products/&lt;slug&gt;. Generated from the
+              title until you edit it.
             </p>
+            <FieldError message={errors.slug?.message} />
           </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="product-category">Category</Label>
+              <AdminSelect
+                id="product-category"
+                {...register("categoryId")}
+                aria-invalid={Boolean(errors.categoryId)}
+              >
+                {categories.length === 0 && (
+                  <option value="">No categories</option>
+                )}
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </AdminSelect>
+              <FieldError message={errors.categoryId?.message} />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="product-type">Type</Label>
+              <AdminSelect
+                id="product-type"
+                {...register("type")}
+                aria-invalid={Boolean(errors.type)}
+              >
+                {typeChoices.map((choice) => (
+                  <option key={choice.value} value={choice.value}>
+                    {choice.label}
+                  </option>
+                ))}
+              </AdminSelect>
+              <FieldError message={errors.type?.message} />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="product-materials">
+                Materials{" "}
+                <span className="text-muted-foreground">(comma separated)</span>
+              </Label>
+              <AdminInput
+                id="product-materials"
+                onChange={(event) => setMaterialsText(event.target.value)}
+                placeholder="Felt, thread, stuffing"
+                value={materialsText}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="product-tags">
+                Tags{" "}
+                <span className="text-muted-foreground">(comma separated)</span>
+              </Label>
+              <AdminInput
+                id="product-tags"
+                onChange={(event) => setTagsText(event.target.value)}
+                placeholder="rose, wedding, gift"
+                value={tagsText}
+              />
+            </div>
+          </div>
+        </div>
+      </SectionCard>
+
+      {/* Pricing and variants */}
+      <SectionCard
+        title="Pricing and variants"
+        description="At least one variant is required to publish. Prices are whole rupees."
+        actions={
           <Button
             disabled={busy}
             onClick={() =>
               variants.append({ label: "", price: 0, stock: 0, sku: "" })
             }
+            size="sm"
             type="button"
             variant="outline"
           >
             Add variant
           </Button>
+        }
+      >
+        <div className="space-y-4">
+          <div className="flex flex-wrap items-end gap-x-6 gap-y-3">
+            <Controller
+              control={control}
+              name="madeToOrder"
+              render={({ field }) => (
+                <label className="flex cursor-pointer items-center gap-2 text-sm font-medium">
+                  <Checkbox
+                    checked={field.value}
+                    id="product-made-to-order"
+                    onCheckedChange={(checked) =>
+                      field.onChange(checked === true)
+                    }
+                  />
+                  Made to order
+                </label>
+              )}
+            />
+
+            <div className="space-y-1.5">
+              <Label htmlFor="product-lead-time">Lead time (days)</Label>
+              <AdminInput
+                className="w-28"
+                id="product-lead-time"
+                min={1}
+                max={365}
+                step={1}
+                type="number"
+                {...register("leadTimeDays", { valueAsNumber: true })}
+                aria-invalid={Boolean(errors.leadTimeDays)}
+                disabled={!madeToOrder}
+              />
+              <FieldError message={errors.leadTimeDays?.message} />
+            </div>
+          </div>
+
+          {errors.variants?.root?.message && (
+            <FieldError message={errors.variants.root.message} />
+          )}
+
+          {variants.fields.length === 0 && (
+            <p className="text-muted-foreground rounded-[8px] border border-dashed p-4 text-center text-sm">
+              No variants yet. Add one to be able to publish.
+            </p>
+          )}
+
+          <ul className="space-y-3">
+            {variants.fields.map((field, index) => {
+              const dbVariantId = watchedVariants?.[index]?.variantId;
+              const isOrdered = Boolean(
+                dbVariantId && orderedIds.has(dbVariantId),
+              );
+              return (
+                <li
+                  className="space-y-3 rounded-[8px] border p-3"
+                  key={field.id}
+                >
+                  <input
+                    type="hidden"
+                    {...register(`variants.${index}.variantId` as const)}
+                  />
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="space-y-1.5">
+                      <Label htmlFor={`variant-label-${index}`}>Label</Label>
+                      <AdminInput
+                        id={`variant-label-${index}`}
+                        placeholder="e.g. Small / Red"
+                        {...register(`variants.${index}.label` as const)}
+                        aria-invalid={Boolean(errors.variants?.[index]?.label)}
+                      />
+                      <FieldError
+                        message={errors.variants?.[index]?.label?.message}
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor={`variant-sku-${index}`}>
+                        SKU{" "}
+                        <span className="text-muted-foreground">
+                          (optional)
+                        </span>
+                      </Label>
+                      <AdminInput
+                        id={`variant-sku-${index}`}
+                        placeholder="AP-ROSE-S"
+                        {...register(`variants.${index}.sku` as const)}
+                        aria-invalid={Boolean(errors.variants?.[index]?.sku)}
+                      />
+                      <FieldError
+                        message={errors.variants?.[index]?.sku?.message}
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor={`variant-price-${index}`}>
+                        Price (Rs)
+                      </Label>
+                      <AdminInput
+                        id={`variant-price-${index}`}
+                        inputMode="numeric"
+                        min={1}
+                        step={1}
+                        type="number"
+                        {...register(`variants.${index}.price` as const, {
+                          valueAsNumber: true,
+                        })}
+                        aria-invalid={Boolean(errors.variants?.[index]?.price)}
+                      />
+                      <FieldError
+                        message={errors.variants?.[index]?.price?.message}
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor={`variant-stock-${index}`}>Stock</Label>
+                      <AdminInput
+                        id={`variant-stock-${index}`}
+                        inputMode="numeric"
+                        min={0}
+                        step={1}
+                        type="number"
+                        {...register(`variants.${index}.stock` as const, {
+                          valueAsNumber: true,
+                        })}
+                        aria-invalid={Boolean(errors.variants?.[index]?.stock)}
+                        disabled={madeToOrder}
+                      />
+                      <FieldError
+                        message={errors.variants?.[index]?.stock?.message}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    {isOrdered ? (
+                      <p className="text-muted-foreground text-xs">
+                        This variant appears in past orders and cannot be
+                        removed. Set stock to 0 or archive the product instead.
+                      </p>
+                    ) : (
+                      <span />
+                    )}
+                    <Button
+                      disabled={busy || isOrdered}
+                      onClick={() => variants.remove(index)}
+                      size="sm"
+                      type="button"
+                      variant="destructive"
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
         </div>
-        {errors.variants?.root?.message && (
-          <FieldError message={errors.variants.root.message} />
-        )}
+      </SectionCard>
 
-        {variants.fields.length === 0 && (
-          <p className="text-muted-foreground rounded-lg border border-dashed p-4 text-center text-sm">
-            No variants yet. Add one to be able to publish.
-          </p>
-        )}
+      {/* Content */}
+      <SectionCard
+        title="Content"
+        description="Text shown on the storefront product page and in search results."
+      >
+        <div className="space-y-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="product-short-description">
+              Short description{" "}
+              <span className="text-muted-foreground">(optional)</span>
+            </Label>
+            <AdminTextarea
+              id="product-short-description"
+              rows={2}
+              placeholder="One or two lines used in search results and product cards."
+              {...register("shortDescription")}
+              aria-invalid={Boolean(errors.shortDescription)}
+            />
+            <FieldError message={errors.shortDescription?.message} />
+          </div>
 
-        <ul className="space-y-3">
-          {variants.fields.map((field, index) => {
-            const dbVariantId = watchedVariants?.[index]?.variantId;
-            const isOrdered = Boolean(
-              dbVariantId && orderedIds.has(dbVariantId),
-            );
-            return (
-              <li
-                className="border-silver space-y-3 rounded-lg border p-3"
-                key={field.id}
-              >
-                <input
-                  type="hidden"
-                  {...register(`variants.${index}.variantId` as const)}
-                />
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="space-y-1.5">
-                    <Label htmlFor={`variant-label-${index}`}>Label</Label>
-                    <Input
-                      id={`variant-label-${index}`}
-                      placeholder="e.g. Small / Red"
-                      {...register(`variants.${index}.label` as const)}
-                      aria-invalid={Boolean(errors.variants?.[index]?.label)}
-                    />
-                    <FieldError
-                      message={errors.variants?.[index]?.label?.message}
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor={`variant-sku-${index}`}>
-                      SKU{" "}
-                      <span className="text-muted-foreground">(optional)</span>
-                    </Label>
-                    <Input
-                      id={`variant-sku-${index}`}
-                      placeholder="AP-ROSE-S"
-                      {...register(`variants.${index}.sku` as const)}
-                      aria-invalid={Boolean(errors.variants?.[index]?.sku)}
-                    />
-                    <FieldError
-                      message={errors.variants?.[index]?.sku?.message}
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor={`variant-price-${index}`}>Price (Rs)</Label>
-                    <Input
-                      id={`variant-price-${index}`}
-                      inputMode="numeric"
-                      min={1}
-                      step={1}
-                      type="number"
-                      {...register(`variants.${index}.price` as const, {
-                        valueAsNumber: true,
-                      })}
-                      aria-invalid={Boolean(errors.variants?.[index]?.price)}
-                    />
-                    <FieldError
-                      message={errors.variants?.[index]?.price?.message}
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor={`variant-stock-${index}`}>Stock</Label>
-                    <Input
-                      id={`variant-stock-${index}`}
-                      inputMode="numeric"
-                      min={0}
-                      step={1}
-                      type="number"
-                      {...register(`variants.${index}.stock` as const, {
-                        valueAsNumber: true,
-                      })}
-                      aria-invalid={Boolean(errors.variants?.[index]?.stock)}
-                      disabled={madeToOrder}
-                    />
-                    <FieldError
-                      message={errors.variants?.[index]?.stock?.message}
-                    />
-                  </div>
-                </div>
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  {isOrdered ? (
-                    <p className="text-muted-foreground text-xs">
-                      This variant appears in past orders and cannot be removed.
-                      Set stock to 0 or archive the product instead.
-                    </p>
-                  ) : (
-                    <span />
-                  )}
-                  <Button
-                    disabled={busy || isOrdered}
-                    onClick={() => variants.remove(index)}
-                    size="sm"
-                    type="button"
-                    variant="destructive"
-                  >
-                    Remove
-                  </Button>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-      </section>
+          <div className="space-y-1.5">
+            <Label htmlFor="product-description">Full description</Label>
+            <AdminTextarea
+              id="product-description"
+              rows={6}
+              {...register("description")}
+              aria-invalid={Boolean(errors.description)}
+            />
+            <FieldError message={errors.description?.message} />
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="product-size">
+                Size <span className="text-muted-foreground">(optional)</span>
+              </Label>
+              <AdminInput
+                id="product-size"
+                placeholder="e.g. 20 cm × 15 cm"
+                {...register("size")}
+                aria-invalid={Boolean(errors.size)}
+              />
+              <FieldError message={errors.size?.message} />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="product-age">
+                Recommended age{" "}
+                <span className="text-muted-foreground">(optional)</span>
+              </Label>
+              <AdminInput
+                id="product-age"
+                placeholder="e.g. 3 years and up"
+                {...register("recommendedAge")}
+                aria-invalid={Boolean(errors.recommendedAge)}
+              />
+              <FieldError message={errors.recommendedAge?.message} />
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="product-included">
+              What&apos;s included{" "}
+              <span className="text-muted-foreground">(one item per line)</span>
+            </Label>
+            <AdminTextarea
+              id="product-included"
+              onChange={(event) => setWhatsIncludedText(event.target.value)}
+              placeholder={"Felt animals\nCotton storage bag\nCare card"}
+              rows={4}
+              value={whatsIncludedText}
+            />
+            <p className="text-muted-foreground text-xs">
+              Shown as a checklist on the product page. Commas also work as
+              separators.
+            </p>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="product-safety">
+              Safety note{" "}
+              <span className="text-muted-foreground">(optional)</span>
+            </Label>
+            <AdminTextarea
+              id="product-safety"
+              rows={3}
+              placeholder="e.g. Contains small parts. Adult supervision recommended."
+              {...register("safetyNote")}
+              aria-invalid={Boolean(errors.safetyNote)}
+            />
+            <FieldError message={errors.safetyNote?.message} />
+          </div>
+        </div>
+      </SectionCard>
 
       {/* Images */}
       {product ? (
@@ -662,13 +646,34 @@ export function AdminProductForm({
           productId={product.id}
         />
       ) : (
-        <section className="border-silver bg-card space-y-1 rounded-xl border p-4 sm:p-6">
-          <h2 className="font-heading text-lg font-semibold">Images</h2>
+        <SectionCard title="Images">
           <p className="text-muted-foreground text-sm">
             Save the product first, then add and arrange its images.
           </p>
-        </section>
+        </SectionCard>
       )}
+
+      {/* Publishing */}
+      <SectionCard
+        title="Publishing"
+        description="Controls whether the product is visible in the store."
+      >
+        <div className="max-w-sm space-y-1.5">
+          <Label htmlFor="product-status">Status</Label>
+          <AdminSelect
+            id="product-status"
+            {...register("status")}
+            aria-invalid={Boolean(errors.status)}
+          >
+            {statusChoices.map((choice) => (
+              <option key={choice.value} value={choice.value}>
+                {choice.label}
+              </option>
+            ))}
+          </AdminSelect>
+          <FieldError message={errors.status?.message} />
+        </div>
+      </SectionCard>
 
       <p className="text-muted-foreground text-xs">
         Or go back to the{" "}
@@ -678,8 +683,10 @@ export function AdminProductForm({
         .
       </p>
 
-      {/* Sticky save bar: stays reachable while scrolling the long form. */}
-      <div className="border-silver bg-card sticky bottom-4 z-10 flex flex-wrap items-center gap-2 rounded-xl border p-3 shadow-lg">
+      {/* Sticky save bar: stays reachable while scrolling the long form. It is
+          the last element in flow, so on mobile it never permanently covers a
+          field — the last section always scrolls fully above it. */}
+      <div className="bg-card sticky bottom-0 z-10 -mx-4 flex flex-wrap items-center gap-2 border-t p-3 shadow-card sm:bottom-4 sm:mx-0 sm:rounded-[12px] sm:border">
         {isDirty && (
           <span className="text-muted-foreground mr-auto text-xs">
             Unsaved changes

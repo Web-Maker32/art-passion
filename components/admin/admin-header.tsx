@@ -14,10 +14,10 @@ import {
   Sun,
   Moon,
 } from "lucide-react";
+import { cn } from "cn";
 import { adminLogout } from "@/actions/admin-login";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Sheet,
   SheetClose,
@@ -46,13 +46,11 @@ function AdminNavigation({
     <div className="flex h-full min-h-0 flex-col gap-6 p-4">
       <Link
         href="/admin"
-        className="flex min-h-12 items-center gap-3 rounded-lg"
+        className="flex min-h-12 items-center gap-3 rounded-[8px]"
       >
         <Logo size={44} priority={false} variant="badge" />
         <span>
-          <span className="font-heading block text-lg font-semibold">
-            Art Passion
-          </span>
+          <span className="block text-base font-semibold">Art Passion</span>
           <span className="text-muted-foreground text-xs">Owner workspace</span>
         </span>
       </Link>
@@ -66,19 +64,38 @@ function AdminNavigation({
           const linkProps = {
             href,
             "aria-current": active ? ("page" as const) : undefined,
-            className: `flex min-h-12 items-center gap-3 rounded-xl px-3 text-sm font-medium transition-colors motion-reduce:transition-none ${active ? "bg-accent text-accent-foreground" : "text-foreground hover-fine:hover:bg-muted"}`,
+            className: cn(
+              "group/nav relative flex h-11 items-center gap-3 rounded-[8px] px-3 text-sm font-medium transition-colors motion-reduce:transition-none",
+              active
+                ? "bg-gold/10 text-foreground"
+                : "text-muted-foreground hover-fine:hover:bg-muted/60 hover-fine:hover:text-foreground",
+            ),
           };
           const content = (
             <>
-              <Icon aria-hidden="true" className="size-5 shrink-0" />
+              {active && (
+                <span
+                  aria-hidden="true"
+                  className="bg-gold absolute inset-y-2 left-0 w-[3px] rounded-full"
+                />
+              )}
+              <Icon
+                aria-hidden="true"
+                className={cn(
+                  "size-5 shrink-0",
+                  active
+                    ? "text-gold-text dark:text-gold-light"
+                    : "text-muted-foreground group-hover/nav:text-foreground",
+                )}
+              />
               <span className="flex-1">{label}</span>
-              {href === "/admin/orders" && (
-                <Badge
-                  variant="gold"
+              {href === "/admin/orders" && pendingCount > 0 && (
+                <span
                   aria-label={`${pendingCount} pending orders`}
+                  className="bg-gold text-header-teal inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-semibold tabular-nums"
                 >
                   {pendingCount}
-                </Badge>
+                </span>
               )}
             </>
           );
@@ -97,12 +114,12 @@ function AdminNavigation({
           );
         })}
       </nav>
-      <div className="border-border mt-auto space-y-2 border-t pt-4">
+      <div className="border-border mt-auto space-y-1 border-t pt-3">
         <Link
           href="/"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-muted-foreground hover-fine:hover:bg-muted flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm"
+          className="text-muted-foreground hover-fine:hover:bg-muted/60 hover-fine:hover:text-foreground flex h-11 items-center gap-3 rounded-[8px] px-3 text-sm font-medium transition-colors motion-reduce:transition-none"
         >
           <ExternalLink aria-hidden="true" className="size-4" />
           View store
@@ -110,8 +127,8 @@ function AdminNavigation({
         <form action={adminLogout}>
           <Button
             type="submit"
-            variant="outline"
-            className="min-h-11 w-full justify-start"
+            variant="ghost"
+            className="text-muted-foreground hover:text-foreground h-11 w-full justify-start gap-3 rounded-[8px] px-3 text-sm font-medium"
           >
             <LogOut aria-hidden="true" className="size-4" />
             Log out
@@ -135,11 +152,11 @@ export function AdminHeader({ pendingCount }: { pendingCount: number }) {
       : (section?.label ?? "Dashboard");
   return (
     <>
-      <aside className="border-border bg-card fixed inset-y-0 left-0 z-30 hidden w-64 overflow-y-auto border-r lg:block">
+      <aside className="border-border bg-card scrollbar-brand fixed inset-y-0 left-0 z-30 hidden w-64 overflow-y-auto border-r lg:block">
         <AdminNavigation pendingCount={pendingCount} />
       </aside>
-      <header className="border-border bg-card sticky top-0 z-20 flex min-h-20 items-center justify-between gap-3 border-b px-4 sm:px-6">
-        <div className="flex min-w-0 items-center gap-3">
+      <header className="border-border bg-card sticky top-0 z-20 flex min-h-16 items-center justify-between gap-3 border-b px-4 sm:px-6">
+        <div className="flex min-w-0 items-center gap-2">
           <div className="lg:hidden">
             <Sheet>
               <SheetTrigger
@@ -157,43 +174,53 @@ export function AdminHeader({ pendingCount }: { pendingCount: number }) {
                 <SheetHeader>
                   <SheetTitle>Admin navigation</SheetTitle>
                 </SheetHeader>
-                <div className="min-h-0 flex-1 overflow-y-auto">
+                <div className="scrollbar-brand min-h-0 flex-1 overflow-y-auto">
                   <AdminNavigation pendingCount={pendingCount} mobile />
                 </div>
               </SheetContent>
             </Sheet>
           </div>
-          <div className="min-w-0">
-            <p className="font-semibold">{title}</p>
-            <nav
-              aria-label="Breadcrumb"
-              className="text-muted-foreground flex flex-wrap items-center gap-1 text-xs"
+          <nav
+            aria-label="Breadcrumb"
+            className="text-muted-foreground flex min-w-0 flex-wrap items-center gap-1 text-[13px]"
+          >
+            <Link
+              href="/admin"
+              className="hover:text-foreground inline-flex min-h-11 items-center rounded-sm transition-colors"
             >
+              Admin
+            </Link>
+            <span aria-hidden="true">/</span>
+            {section ? (
               <Link
-                href="/admin"
-                className="inline-flex min-h-11 items-center rounded-sm"
+                href={section.href}
+                aria-current={pathname === section.href ? "page" : undefined}
+                className={cn(
+                  "inline-flex min-h-11 items-center rounded-sm transition-colors",
+                  pathname === section.href
+                    ? "text-foreground font-medium"
+                    : "hover:text-foreground",
+                )}
               >
-                Admin
+                {section.label}
               </Link>
-              {section && (
-                <>
-                  <span aria-hidden="true">/</span>
-                  <Link
-                    href={section.href}
-                    className="inline-flex min-h-11 items-center rounded-sm"
-                  >
-                    {section.label}
-                  </Link>
-                </>
-              )}
-              {section && pathname !== section.href && (
-                <>
-                  <span aria-hidden="true">/</span>
-                  <span aria-current="page">{title}</span>
-                </>
-              )}
-            </nav>
-          </div>
+            ) : (
+              <span aria-current="page" className="text-foreground font-medium">
+                Dashboard
+              </span>
+            )}
+            {section && pathname !== section.href && (
+              <>
+                <span aria-hidden="true">/</span>
+                <span
+                  aria-current="page"
+                  className="text-foreground font-medium"
+                >
+                  {title}
+                </span>
+              </>
+            )}
+          </nav>
         </div>
         <Button
           type="button"

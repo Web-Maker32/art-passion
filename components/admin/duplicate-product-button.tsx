@@ -8,14 +8,25 @@ import { Button } from "@/components/ui/button";
 
 /**
  * Copies a product as a new draft (title + " (copy)", variants, no images) and
- * opens the copy for editing. Used on the admin product list.
+ * opens the copy for editing. Used on the admin product list. `className` and
+ * `role` are presentational passthroughs so it can sit inside an overflow
+ * menu; the action and default rendering are unchanged.
  */
-export function DuplicateProductButton({ productId }: { productId: string }) {
+export function DuplicateProductButton({
+  productId,
+  className,
+  role,
+}: {
+  productId: string;
+  className?: string;
+  role?: "menuitem";
+}) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
   return (
     <Button
+      className={className}
       disabled={isPending}
       onClick={() =>
         startTransition(async () => {
@@ -32,6 +43,7 @@ export function DuplicateProductButton({ productId }: { productId: string }) {
           }
         })
       }
+      role={role}
       size="sm"
       type="button"
       variant="outline"

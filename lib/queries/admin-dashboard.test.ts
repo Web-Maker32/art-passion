@@ -34,6 +34,7 @@ vi.mock("@/lib/queries/admin-products", () => ({
 }));
 
 import {
+  EXCLUDED_ORDER_STATUSES,
   REVENUE_STATUSES,
   buildKarachiDayRange,
   buildLaunchChecklist,
@@ -279,7 +280,7 @@ describe("getAdminDashboard", () => {
     expect(dashboard.chart[13]?.count).toBe(1);
     expect(dashboard.latestOrders[0]).toEqual({
       orderNumber: "AP-2026-0001",
-      customerFirstName: "Ayesha",
+      customerName: "Ayesha Khan",
       total: 1500,
       status: "PAID",
       createdAt: NOW,
@@ -321,6 +322,80 @@ describe("getAdminDashboard", () => {
     expect(reportedCall.where).toEqual({
       status: "PENDING",
       paymentReportedAt: { not: null },
+    });
+  });
+});
+
+describe("dashboard exclusion rules", () => {
+  it("excludes cancelled and refunded from day counts, the chart and default latest orders", async () => {
+    await getAdminDashboard(NOW);
+    // count order: pending, pending+reported, awaiting, today, 7 days.
+    expect(db.order.count.mock.calls[3]?.[0].where.status).toEqual({
+      notIn: EXCLUDED_ORDER_STATUSES,
+    });
+    expect(db.order.count.mock.calls[4]?.[0].where.status).toEqual({
+      notIn: EXCLUDED_ORDER_STATUSES,
+    });
+    // findMany order: revenue, chart, latest.
+    expect(db.order.findMany.mock.calls[1]?.[0].where.status).toEqual({
+      notIn: EXCLUDED_ORDER_STATUSES,
+    });
+    expect(db.order.findMany.mock.calls[2]?.[0].where.status).toEqual({
+      notIn: EXCLUDED_ORDER_STATUSES,
+    });
+  });
+
+  it("needs attention uses only pending, paid and processing orders", async () => {
+    await getAdminDashboard(NOW);
+    expect(db.order.count.mock.calls[0]?.[0].where.status).toBe("PENDING");
+    expect(db.order.count.mock.calls[2]?.[0].where.status).toEqual({
+      in: ["PAID", "PROCESSING"],
+    });
+    for (const call of db.order.count.mock.calls.slice(0, 3)) {
+      expect(JSON.stringify(call[0].where)).not.toMatch(/CANCELLED|REFUNDED/);
+    }
+  });
+
+  it("lists cancelled and refunded in latest orders only when asked", async () => {
+    await getAdminDashboard(NOW, { includeCancelled: true });
+    expect(db.order.findMany.mock.calls[2]?.[0].where).toBeUndefined();
+  });
+
+  it("counts delivered orders toward revenue and top products", async () => {
+    expect(REVENUE_STATUSES).toContain("DELIVERED");
+    db.order.findMany
+      .mockResolvedValueOnce([order(NOW, 900, "DELIVERED")])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([]);
+    db.orderItem.findMany.mockResolvedValueOnce([
+      { productTitle: "Felt Set", quantity: 3 },
+    ]);
+    const dashboard = await getAdminDashboard(NOW);
+    expect(dashboard.revenue.today).toBe(900);
+    expect(dashboard.topProducts).toEqual([
+      { productTitle: "Felt Set", units: 3 },
+    ]);
+    expect(db.orderItem.findMany.mock.calls[0]?.[0].where.order.status).toEqual({
+      in: REVENUE_STATUSES,
+    });
+  });
+
+  it("never lets cancelled or refunded orders into revenue or top products", async () => {
+    db.order.findMany
+      .mockResolvedValueOnce([
+        order(NOW, 5000, "CANCELLED"),
+        order(NOW, 7000, "REFUNDED"),
+      ])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([]);
+    const dashboard = await getAdminDashboard(NOW);
+    expect(dashboard.revenue.month).toBe(0);
+    expect(dashboard.revenue.today).toBe(0);
+    expect(db.order.findMany.mock.calls[0]?.[0].where.status).toEqual({
+      in: REVENUE_STATUSES,
+    });
+    expect(db.orderItem.findMany.mock.calls[0]?.[0].where.order.status).toEqual({
+      in: REVENUE_STATUSES,
     });
   });
 });

@@ -1,15 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Printer } from "lucide-react";
 import { requireAdmin } from "@/lib/admin-auth";
 import { getAdminOrder } from "@/lib/queries/admin-orders";
 import { formatKarachiDateTime } from "@/lib/admin-datetime";
 import { formatPrice } from "@/lib/format";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { buttonVariants } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { OrderStatusBadge } from "@/components/admin/order-status-badge";
 import { OrderStatusPanel } from "@/components/admin/order-status-panel";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { SectionCard } from "@/components/admin/admin-cards";
+import { Chip } from "@/components/admin/chip";
 import { CopyButton } from "@/components/ui/copy-button";
 
 export const metadata: Metadata = {
@@ -100,25 +102,18 @@ export default async function AdminOrderDetailPage({
               href={`/admin/orders/${order.orderNumber}/print`}
               target="_blank"
             >
+              <Printer aria-hidden="true" data-icon="inline-start" />
               Print packing slip
             </Link>
+            <CopyButton text={order.orderNumber} label="Copy order number" />
           </>
         }
       />
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
-        <div className="space-y-6">
-          <section
-            aria-labelledby="items-heading"
-            className="border-silver bg-card rounded-xl border p-5"
-          >
-            <h2
-              className="font-heading text-lg font-semibold"
-              id="items-heading"
-            >
-              Items
-            </h2>
-            <ul className="border-silver mt-3 divide-y border-y">
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
+        <div className="min-w-0 space-y-6">
+          <SectionCard title="Items">
+            <ul className="divide-y">
               {order.items.map((item) => (
                 <li className="flex justify-between gap-4 py-3" key={item.id}>
                   <span className="min-w-0">
@@ -134,7 +129,7 @@ export default async function AdminOrderDetailPage({
                       </span>
                     )}
                   </span>
-                  <span className="shrink-0 font-semibold">
+                  <span className="shrink-0 font-semibold tabular-nums">
                     {formatPrice(item.unitPrice * item.quantity)}
                   </span>
                 </li>
@@ -146,28 +141,115 @@ export default async function AdminOrderDetailPage({
                 label="Delivery"
                 value={order.shipping ? formatPrice(order.shipping) : "Free"}
               />
-              <div className="border-silver mt-2 flex justify-between gap-4 border-t pt-3 text-base font-bold">
+              <div className="mt-2 flex justify-between gap-4 border-t pt-3 text-base font-bold">
                 <dt>Total</dt>
-                <dd>{formatPrice(order.total)}</dd>
+                <dd className="tabular-nums">{formatPrice(order.total)}</dd>
               </div>
             </dl>
-          </section>
+          </SectionCard>
 
-          <section
-            aria-labelledby="history-heading"
-            className="border-silver bg-card rounded-xl border p-5"
-          >
-            <h2
-              className="font-heading text-lg font-semibold"
-              id="history-heading"
-            >
-              History
-            </h2>
+          <SectionCard title="Customer and delivery">
+            <dl className="divide-y text-sm">
+              <DetailRow label="Name" value={order.customerName} />
+              <DetailRow label="Phone" value={order.customerPhone} />
+              <DetailRow label="Email" value={order.customerEmail ?? "—"} />
+            </dl>
+            <div className="mt-3">
+              <p className="text-muted-foreground text-[13px]">
+                Delivery address
+              </p>
+              <p className="mt-1 text-sm leading-6">{address}</p>
+            </div>
+            {whatsappHref && (
+              <div className="mt-4 space-y-2">
+                <a
+                  className="bg-primary text-primary-foreground lift-sm press hover-fine:hover:bg-primary-hover focus-visible:outline-ring inline-flex min-h-11 w-full items-center justify-center rounded-md px-4 py-2 text-center font-semibold focus-visible:outline-2 focus-visible:outline-offset-2"
+                  href={whatsappHref}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  Message customer on WhatsApp
+                </a>
+                <CopyButton text={whatsappMessage} label="Copy message" />
+                <p className="text-muted-foreground text-xs">
+                  Copying only prepares the text — nothing is sent until you
+                  send it yourself.
+                </p>
+              </div>
+            )}
+          </SectionCard>
+
+          <SectionCard title="Payment">
+            <dl className="divide-y text-sm">
+              <DetailRow
+                label="Method"
+                value={
+                  order.paymentMethod === "WALLET_TRANSFER"
+                    ? "Easypaisa wallet transfer"
+                    : order.paymentMethod
+                }
+              />
+              <DetailRow
+                label="Reference"
+                value={order.paymentReference ?? "—"}
+              />
+            </dl>
+            {order.paymentReportedAt && (
+              <div className="mt-3 rounded-[8px] border border-gold/30 bg-gold/10 p-3">
+                <Chip tone="gold">Customer reported payment</Chip>
+                <p className="mt-2 text-sm">
+                  <span className="text-muted-foreground">Transaction ID:</span>{" "}
+                  <span className="font-semibold">
+                    {order.paymentReference ?? "—"}
+                  </span>
+                </p>
+                {order.paymentNote && (
+                  <p className="mt-1 text-sm">
+                    <span className="text-muted-foreground">Note:</span>{" "}
+                    {order.paymentNote}
+                  </p>
+                )}
+                <p className="text-muted-foreground mt-1 text-xs">
+                  Reported {formatKarachiDateTime(order.paymentReportedAt)}
+                </p>
+              </div>
+            )}
+          </SectionCard>
+
+          {(order.giftNote || order.orderNotes) && (
+            <SectionCard title="Notes">
+              {order.giftNote && (
+                <div>
+                  <p className="text-muted-foreground text-[13px]">Gift note</p>
+                  <p className="mt-1 text-sm leading-6">{order.giftNote}</p>
+                </div>
+              )}
+              {order.orderNotes && (
+                <div className={order.giftNote ? "mt-3" : undefined}>
+                  <p className="text-muted-foreground text-[13px]">
+                    Order notes
+                  </p>
+                  <p className="mt-1 text-sm leading-6">{order.orderNotes}</p>
+                </div>
+              )}
+            </SectionCard>
+          )}
+        </div>
+
+        <aside className="order-first min-w-0 space-y-6 lg:order-none">
+          <SectionCard title="Status">
+            <OrderStatusPanel
+              orderNumber={order.orderNumber}
+              status={order.status}
+            />
+          </SectionCard>
+
+          <SectionCard title="Timeline">
             {(order.paidAt ||
               order.shippedAt ||
               order.deliveredAt ||
               order.cancelledAt) && (
-              <dl className="mt-2 divide-y text-sm">
+              <dl className="divide-y text-sm">
                 {order.paidAt && (
                   <DetailRow
                     label="Paid"
@@ -201,7 +283,10 @@ export default async function AdminOrderDetailPage({
             ) : (
               <ol className="mt-3 space-y-3">
                 {order.events.map((event) => (
-                  <li className="border-silver border-l-2 pl-4" key={event.id}>
+                  <li
+                    className="border-gold/40 border-l-2 pl-4"
+                    key={event.id}
+                  >
                     <p className="text-sm font-medium">
                       {event.fromStatus && event.toStatus
                         ? `${event.fromStatus} → ${event.toStatus}`
@@ -219,113 +304,14 @@ export default async function AdminOrderDetailPage({
                 ))}
               </ol>
             )}
-          </section>
-        </div>
+          </SectionCard>
 
-        <aside className="space-y-6">
-          <section className="border-silver bg-card rounded-xl border p-5">
-            <h2 className="font-heading text-lg font-semibold">Status</h2>
-            <div className="mt-3">
-              <OrderStatusPanel
-                orderNumber={order.orderNumber}
-                status={order.status}
-              />
-            </div>
-          </section>
-
-          <section className="border-silver bg-card rounded-xl border p-5">
-            <h2 className="font-heading text-lg font-semibold">Customer</h2>
-            <dl className="mt-2 divide-y text-sm">
-              <DetailRow label="Name" value={order.customerName} />
-              <DetailRow label="Phone" value={order.customerPhone} />
-              <DetailRow label="Email" value={order.customerEmail ?? "—"} />
-            </dl>
-            <div className="mt-3">
-              <p className="text-muted-foreground text-sm">Delivery address</p>
-              <p className="mt-1 text-sm leading-6">{address}</p>
-            </div>
-            {whatsappHref && (
-              <div className="mt-4 space-y-2">
-                <a
-                  className="bg-primary text-primary-foreground lift-sm press hover-fine:hover:bg-primary-hover focus-visible:outline-ring inline-flex min-h-11 w-full items-center justify-center rounded-md px-4 py-2 text-center font-semibold focus-visible:outline-2 focus-visible:outline-offset-2"
-                  href={whatsappHref}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  Message customer on WhatsApp
-                </a>
-                <CopyButton text={whatsappMessage} label="Copy message" />
-                <p className="text-muted-foreground text-xs">
-                  Copying only prepares the text — nothing is sent until you
-                  send it yourself.
-                </p>
-              </div>
-            )}
-          </section>
-
-          <section className="border-silver bg-card rounded-xl border p-5">
-            <h2 className="font-heading text-lg font-semibold">Payment</h2>
-            <dl className="mt-2 divide-y text-sm">
-              <DetailRow
-                label="Method"
-                value={
-                  order.paymentMethod === "WALLET_TRANSFER"
-                    ? "Easypaisa wallet transfer"
-                    : order.paymentMethod
-                }
-              />
-              <DetailRow
-                label="Reference"
-                value={order.paymentReference ?? "—"}
-              />
-            </dl>
-            {order.paymentReportedAt && (
-              <div className="border-silver bg-secondary/40 mt-3 rounded-lg border p-3">
-                <Badge variant="secondary">Customer reported payment</Badge>
-                <p className="mt-2 text-sm">
-                  <span className="text-muted-foreground">Transaction ID:</span>{" "}
-                  <span className="font-semibold">
-                    {order.paymentReference ?? "—"}
-                  </span>
-                </p>
-                {order.paymentNote && (
-                  <p className="mt-1 text-sm">
-                    <span className="text-muted-foreground">Note:</span>{" "}
-                    {order.paymentNote}
-                  </p>
-                )}
-                <p className="text-muted-foreground mt-1 text-xs">
-                  Reported {formatKarachiDateTime(order.paymentReportedAt)}
-                </p>
-              </div>
-            )}
-          </section>
-
-          <section className="border-silver bg-card rounded-xl border p-5">
-            <h2 className="font-heading text-lg font-semibold">Shipping</h2>
-            <dl className="mt-2 divide-y text-sm">
+          <SectionCard title="Tracking">
+            <dl className="divide-y text-sm">
               <DetailRow label="Courier" value={order.courierName ?? "—"} />
               <DetailRow label="Tracking" value={order.trackingNumber ?? "—"} />
             </dl>
-          </section>
-
-          {(order.giftNote || order.orderNotes) && (
-            <section className="border-silver bg-card rounded-xl border p-5">
-              <h2 className="font-heading text-lg font-semibold">Notes</h2>
-              {order.giftNote && (
-                <div className="mt-2">
-                  <p className="text-muted-foreground text-sm">Gift note</p>
-                  <p className="mt-1 text-sm leading-6">{order.giftNote}</p>
-                </div>
-              )}
-              {order.orderNotes && (
-                <div className="mt-3">
-                  <p className="text-muted-foreground text-sm">Order notes</p>
-                  <p className="mt-1 text-sm leading-6">{order.orderNotes}</p>
-                </div>
-              )}
-            </section>
-          )}
+          </SectionCard>
         </aside>
       </div>
     </div>

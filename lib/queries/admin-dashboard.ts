@@ -25,6 +25,12 @@ export const REVENUE_STATUSES: OrderStatus[] = [
   "DELIVERED",
 ];
 
+/**
+ * Orders excluded from day counts, the chart and the default latest-orders
+ * list. They never contribute to revenue either (see REVENUE_STATUSES).
+ */
+export const EXCLUDED_ORDER_STATUSES: OrderStatus[] = ["CANCELLED", "REFUNDED"];
+
 const chartLabelFormatter = new Intl.DateTimeFormat("en-GB", {
   timeZone: "Asia/Karachi",
   day: "numeric",
@@ -137,7 +143,7 @@ export function topProductsByUnits(
     .map(([productTitle, count]) => ({ productTitle, units: count }));
 }
 
-/** First name only, so the dashboard never shows full customer names. */
+/** First-name helper for compact contexts; the dashboard shows full names. */
 export function customerFirstName(name: string): string {
   return name.trim().split(/\s+/)[0] ?? "";
 }
@@ -216,7 +222,7 @@ export type AdminDashboard = {
   chart: DashboardDayBucket[];
   latestOrders: Array<{
     orderNumber: string;
-    customerFirstName: string;
+    customerName: string;
     total: number;
     status: OrderStatus;
     createdAt: Date;
@@ -229,10 +235,12 @@ export type AdminDashboard = {
 
 /**
  * Everything the owner dashboard shows, in parallel selected-field reads.
- * No tokens, hashes or full customer contact details are selected.
+ * No tokens, hashes, phone numbers or email addresses are selected. Pass
+ * includeCancelled to also list cancelled/refunded orders in latestOrders.
  */
 export async function getAdminDashboard(
   now: Date = new Date(),
+  options: { includeCancelled?: boolean } = {},
 ): Promise<AdminDashboard> {
   const dayStart = getKarachiDayStart(now);
   const weekStart = new Date(dayStart.getTime() - 6 * DAY_MS);
@@ -269,8 +277,18 @@ export async function getAdminDashboard(
     prisma.variant.count({
       where: { stock: 0, product: { madeToOrder: false } },
     }),
-    prisma.order.count({ where: { createdAt: { gte: dayStart } } }),
-    prisma.order.count({ where: { createdAt: { gte: weekStart } } }),
+    prisma.order.count({
+      where: {
+        createdAt: { gte: dayStart },
+        status: { notIn: EXCLUDED_ORDER_STATUSES },
+      },
+    }),
+    prisma.order.count({
+      where: {
+        createdAt: { gte: weekStart },
+        status: { notIn: EXCLUDED_ORDER_STATUSES },
+      },
+    }),
     prisma.order.findMany({
       where: {
         createdAt: { gte: monthStart },
@@ -279,10 +297,16 @@ export async function getAdminDashboard(
       select: { createdAt: true, total: true, status: true },
     }),
     prisma.order.findMany({
-      where: { createdAt: { gte: chartStart } },
+      where: {
+        createdAt: { gte: chartStart },
+        status: { notIn: EXCLUDED_ORDER_STATUSES },
+      },
       select: { createdAt: true },
     }),
     prisma.order.findMany({
+      where: options.includeCancelled
+        ? undefined
+        : { status: { notIn: EXCLUDED_ORDER_STATUSES } },
       orderBy: { createdAt: "desc" },
       take: 8,
       select: {
@@ -321,13 +345,7 @@ export async function getAdminDashboard(
       chartOrders.map((order) => order.createdAt),
       chartRange,
     ),
-    latestOrders: latestOrders.map((order) => ({
-      orderNumber: order.orderNumber,
-      customerFirstName: customerFirstName(order.customerName),
-      total: order.total,
-      status: order.status,
-      createdAt: order.createdAt,
-    })),
+    latestOrders,
     lowStockVariants: productStats.lowStockVariants,
     draftCount: productStats.draftCount,
     topProducts: topProductsByUnits(soldItems),

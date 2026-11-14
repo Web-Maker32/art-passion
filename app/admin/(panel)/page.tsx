@@ -1,76 +1,63 @@
 import Link from "next/link";
 import { io } from "next/cache";
-import { AlertCircle, CheckCircle2 } from "lucide-react";
+import {
+  AlertCircle,
+  Banknote,
+  CalendarDays,
+  CheckCircle2,
+  Clock,
+  PackageSearch,
+  PackageX,
+  Receipt,
+  ShoppingBag,
+  TrendingUp,
+  Truck,
+} from "lucide-react";
 import { requireAdmin } from "@/lib/admin-auth";
 import { getAdminDashboard } from "@/lib/queries/admin-dashboard";
 import { formatPrice } from "@/lib/format";
 import { formatKarachiDateTime } from "@/lib/admin-datetime";
+import { formatRelativeTime } from "@/lib/admin-display";
 import { buttonVariants } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { OrderStatusBadge } from "@/components/admin/order-status-badge";
 import { OrdersChart } from "@/components/admin/orders-chart";
+import { StatCard } from "@/components/admin/stat-card";
+import { Chip } from "@/components/admin/chip";
+import { SectionCard } from "@/components/admin/admin-cards";
+import { AdminEmptyState } from "@/components/admin/admin-empty-state";
 
 // cacheComponents: requireAdmin() reads the session cookie and the dashboard
 // reads live order data. Render this page at request time.
 export const instant = false;
 
-function StatCard({
-  label,
-  value,
-  hint,
-}: {
-  label: string;
-  value: string;
-  hint?: string;
-}) {
-  return (
-    <div className="border-silver bg-card rounded-xl border p-5">
-      <p className="text-muted-foreground text-sm font-medium">{label}</p>
-      <p className="font-heading mt-2 text-3xl font-bold break-words">
-        {value}
-      </p>
-      {hint && <p className="text-muted-foreground mt-1 text-xs">{hint}</p>}
-    </div>
-  );
+type SearchParams = Promise<{ showCancelled?: string | string[] }>;
+
+function firstString(value: string | string[] | undefined): string {
+  if (Array.isArray(value)) return value[0] ?? "";
+  return value ?? "";
 }
 
-function AttentionTile({
-  label,
-  value,
-  hint,
-  href,
-  urgent = false,
+export default async function AdminDashboardPage({
+  searchParams,
 }: {
-  label: string;
-  value: number;
-  hint: string;
-  href: string;
-  urgent?: boolean;
+  searchParams: SearchParams;
 }) {
-  return (
-    <Link
-      href={href}
-      className={`bg-card lift-sm block rounded-xl border p-5 ${
-        urgent ? "border-gold" : "border-silver"
-      }`}
-    >
-      <p className="text-muted-foreground text-sm font-medium">{label}</p>
-      <p
-        className={`font-heading mt-2 text-3xl font-bold ${
-          urgent && value > 0 ? "text-gold-text dark:text-gold-light" : ""
-        }`}
-      >
-        {value}
-      </p>
-      <p className="text-muted-foreground mt-1 text-xs leading-5">{hint}</p>
-    </Link>
-  );
-}
-
-export default async function AdminDashboardPage() {
   await requireAdmin();
   await io();
-  const dashboard = await getAdminDashboard();
+  const params = await searchParams;
+  const showCancelled = firstString(params.showCancelled) === "1";
+  const dashboard = await getAdminDashboard(new Date(), {
+    includeCancelled: showCancelled,
+  });
   const { attention, revenue } = dashboard;
   const checklistDone = dashboard.checklist.filter((item) => item.done).length;
 
@@ -97,70 +84,86 @@ export default async function AdminDashboardPage() {
       />
 
       <section aria-labelledby="attention-heading" className="space-y-3">
-        <h2
-          id="attention-heading"
-          className="font-heading text-lg font-semibold"
-        >
+        <h2 id="attention-heading" className="text-base font-semibold">
           Needs attention
         </h2>
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <AttentionTile
+          <StatCard
+            icon={Clock}
             label="Pending payment"
             value={attention.pending}
+            tone={attention.pending > 0 ? "gold" : "default"}
             hint={
-              attention.pendingPaymentReported > 0
-                ? `${attention.pendingPaymentReported} with a reported transaction ID — check these first.`
-                : "No payment reports yet on pending orders."
+              attention.pendingPaymentReported > 0 ? (
+                <Chip tone="gold">
+                  {attention.pendingPaymentReported} payment reported
+                </Chip>
+              ) : (
+                "No payment reports yet on pending orders."
+              )
             }
             href="/admin/orders?status=PENDING"
-            urgent={attention.pendingPaymentReported > 0}
           />
-          <AttentionTile
+          <StatCard
+            icon={Truck}
             label="Awaiting shipment"
             value={attention.awaitingShipment}
             hint="PAID or PROCESSING orders to pack and dispatch."
             href="/admin/orders?status=PAID"
           />
-          <AttentionTile
+          <StatCard
+            icon={PackageSearch}
             label="Low stock"
             value={attention.lowStock}
             hint="Variants with 1–2 left (made-to-order excluded)."
-            href="/admin/products"
+            href="/admin/products?stock=low"
           />
-          <AttentionTile
+          <StatCard
+            icon={PackageX}
             label="Out of stock"
             value={attention.outOfStock}
-            hint="Variants at zero — restock or hide them."
-            href="/admin/products"
-            urgent={attention.outOfStock > 0}
+            tone={attention.outOfStock > 0 ? "danger" : "default"}
+            hint="Variants at zero — restock or archive them."
+            href="/admin/products?stock=out"
           />
         </div>
       </section>
 
       <section aria-labelledby="numbers-heading" className="space-y-3">
-        <h2 id="numbers-heading" className="font-heading text-lg font-semibold">
+        <h2 id="numbers-heading" className="text-base font-semibold">
           Orders and revenue
         </h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <StatCard
+            icon={ShoppingBag}
             label="Orders today"
-            value={String(dashboard.ordersToday)}
+            value={dashboard.ordersToday}
+            hint="excluding cancelled"
           />
           <StatCard
+            icon={CalendarDays}
             label="Orders, last 7 days"
-            value={String(dashboard.orders7d)}
+            value={dashboard.orders7d}
+            hint="excluding cancelled"
           />
-          <StatCard label="Revenue today" value={formatPrice(revenue.today)} />
           <StatCard
+            icon={Banknote}
+            label="Revenue today"
+            value={formatPrice(revenue.today)}
+          />
+          <StatCard
+            icon={TrendingUp}
             label="Revenue, last 7 days"
             value={formatPrice(revenue.week)}
           />
           <StatCard
+            icon={Banknote}
             label="Revenue, last 30 days"
             value={formatPrice(revenue.month)}
             hint={`${revenue.monthCount} ${revenue.monthCount === 1 ? "order" : "orders"}`}
           />
           <StatCard
+            icon={Receipt}
             label="Average order, last 30 days"
             value={formatPrice(revenue.aov30d)}
           />
@@ -172,195 +175,273 @@ export default async function AdminDashboardPage() {
         </p>
       </section>
 
-      <section
-        aria-labelledby="chart-heading"
-        className="border-silver bg-card rounded-xl border p-5"
+      <SectionCard
+        title="Orders — last 14 days"
+        description="Excluding cancelled and refunded orders."
       >
-        <h2 id="chart-heading" className="font-heading text-lg font-semibold">
-          Orders — last 14 days
-        </h2>
-        <div className="mt-4">
-          <OrdersChart buckets={dashboard.chart} />
-        </div>
-      </section>
+        <OrdersChart buckets={dashboard.chart} />
+      </SectionCard>
 
-      <section
-        aria-labelledby="latest-orders-heading"
-        className="border-silver bg-card rounded-xl border p-5"
+      <SectionCard
+        title="Latest orders"
+        flush
+        actions={
+          <>
+            <Link
+              className="text-muted-foreground hover:text-foreground inline-flex min-h-11 items-center rounded-sm text-[13px] font-medium underline-offset-4 transition-colors hover:underline sm:min-h-0"
+              href={showCancelled ? "/admin" : "/admin?showCancelled=1"}
+            >
+              {showCancelled ? "Hide cancelled" : "Show cancelled"}
+            </Link>
+            <Link
+              className={buttonVariants({ variant: "outline", size: "sm" })}
+              href="/admin/orders"
+            >
+              View all orders
+            </Link>
+          </>
+        }
       >
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2
-            id="latest-orders-heading"
-            className="font-heading text-lg font-semibold"
-          >
-            Latest orders
-          </h2>
-          <Link
-            className={buttonVariants({ variant: "outline", size: "sm" })}
-            href="/admin/orders"
-          >
-            View all orders
-          </Link>
-        </div>
         {dashboard.latestOrders.length === 0 ? (
-          <p className="text-muted-foreground mt-3 text-sm">
-            No orders yet. They will appear here as soon as customers checkout.
-          </p>
+          <AdminEmptyState
+            icon={ShoppingBag}
+            title="No orders yet"
+            description="They will appear here as soon as customers checkout."
+          />
         ) : (
-          <ul className="divide-border mt-3 divide-y">
-            {dashboard.latestOrders.map((order) => (
-              <li key={order.orderNumber}>
-                <Link
-                  href={`/admin/orders/${order.orderNumber}`}
-                  className="hover-fine:hover:bg-muted flex min-h-12 flex-wrap items-center gap-x-4 gap-y-1 rounded-lg px-3 py-3"
-                >
-                  <span className="font-medium">{order.orderNumber}</span>
-                  <OrderStatusBadge status={order.status} />
-                  <span className="text-muted-foreground text-sm">
-                    {order.customerFirstName || "Customer"}
-                  </span>
-                  <span className="ml-auto font-semibold">
-                    {formatPrice(order.total)}
-                  </span>
-                  <span className="text-muted-foreground w-full text-xs sm:w-auto">
-                    {formatKarachiDateTime(order.createdAt)}
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
+          <>
+            <ul className="divide-y sm:hidden">
+              {dashboard.latestOrders.map((order) => {
+                const dimmed =
+                  order.status === "CANCELLED" || order.status === "REFUNDED";
+                return (
+                  <li
+                    className={dimmed ? "opacity-60" : undefined}
+                    key={order.orderNumber}
+                  >
+                    <Link
+                      className="block px-4 py-3"
+                      href={`/admin/orders/${order.orderNumber}`}
+                    >
+                      <span className="flex items-center justify-between gap-3">
+                        <span className="font-semibold">
+                          {order.orderNumber}
+                        </span>
+                        <OrderStatusBadge status={order.status} />
+                      </span>
+                      <span className="mt-1 flex items-center justify-between gap-3 text-sm">
+                        <span className="text-muted-foreground truncate">
+                          {order.customerName}
+                        </span>
+                        <span className="font-semibold tabular-nums">
+                          {formatPrice(order.total)}
+                        </span>
+                      </span>
+                      <span
+                        className="text-muted-foreground mt-0.5 block text-xs"
+                        title={formatKarachiDateTime(order.createdAt)}
+                      >
+                        {formatRelativeTime(order.createdAt)}
+                        <span className="sr-only">
+                          {" "}
+                          — {formatKarachiDateTime(order.createdAt)}
+                        </span>
+                      </span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+            <div className="hidden sm:block">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Order</TableHead>
+                    <TableHead>Customer</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Total</TableHead>
+                    <TableHead className="text-right">Placed</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {dashboard.latestOrders.map((order) => {
+                    const dimmed =
+                      order.status === "CANCELLED" ||
+                      order.status === "REFUNDED";
+                    return (
+                      <TableRow
+                        className={dimmed ? "opacity-60" : undefined}
+                        key={order.orderNumber}
+                      >
+                        <TableCell>
+                          <Link
+                            className="font-semibold underline-offset-4 hover:underline"
+                            href={`/admin/orders/${order.orderNumber}`}
+                          >
+                            {order.orderNumber}
+                          </Link>
+                        </TableCell>
+                        <TableCell className="max-w-48">
+                          <span
+                            className="block truncate"
+                            title={order.customerName}
+                          >
+                            {order.customerName}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <OrderStatusBadge status={order.status} />
+                        </TableCell>
+                        <TableCell className="text-right font-semibold">
+                          {formatPrice(order.total)}
+                        </TableCell>
+                        <TableCell
+                          className="text-muted-foreground text-right text-xs"
+                          title={formatKarachiDateTime(order.createdAt)}
+                        >
+                          {formatRelativeTime(order.createdAt)}
+                          <span className="sr-only">
+                            {" "}
+                            — {formatKarachiDateTime(order.createdAt)}
+                          </span>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+          </>
         )}
-      </section>
+      </SectionCard>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <section
-          aria-labelledby="low-stock-heading"
-          className="border-silver bg-card rounded-xl border p-5"
+        <SectionCard
+          title="Low stock"
+          description="2 or fewer left (made-to-order excluded)"
+          flush
         >
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2
-              id="low-stock-heading"
-              className="font-heading text-lg font-semibold"
-            >
-              Low stock
-            </h2>
-            <span className="text-muted-foreground text-xs">
-              2 or fewer left (made-to-order excluded)
-            </span>
-          </div>
           {dashboard.lowStockVariants.length === 0 ? (
-            <p className="text-muted-foreground mt-3 text-sm">
-              Nothing is running low. Nice.
-            </p>
+            <AdminEmptyState
+              className="py-8"
+              icon={PackageSearch}
+              title="Nothing is running low"
+              description="Stock levels look healthy. Nice."
+            />
           ) : (
-            <ul className="mt-3 space-y-2">
-              {dashboard.lowStockVariants.map((variant) => (
-                <li
-                  className="flex flex-wrap items-center justify-between gap-2 text-sm"
-                  key={variant.variantId}
-                >
-                  <span className="min-w-0">
-                    <span className="font-medium">{variant.productTitle}</span>
-                    <span className="text-muted-foreground">
-                      {" "}
-                      — {variant.variantLabel}
-                    </span>
-                  </span>
-                  <span className="flex items-center gap-3">
-                    <span
-                      className={
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Product</TableHead>
+                  <TableHead className="text-right">Stock</TableHead>
+                  <TableHead className="text-right">
+                    <span className="sr-only">Actions</span>
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {dashboard.lowStockVariants.map((variant) => (
+                  <TableRow key={variant.variantId}>
+                    <TableCell className="max-w-56">
+                      <span
+                        className="block truncate font-medium"
+                        title={variant.productTitle}
+                      >
+                        {variant.productTitle}
+                      </span>
+                      <span className="text-muted-foreground block truncate text-xs">
+                        {variant.variantLabel}
+                      </span>
+                    </TableCell>
+                    <TableCell
+                      className={`text-right font-semibold ${
                         variant.stock === 0
-                          ? "text-destructive font-semibold"
-                          : "font-semibold"
-                      }
+                          ? "text-status-cancelled"
+                          : "text-status-pending"
+                      }`}
                     >
                       {variant.stock} left
-                    </span>
-                    <Link
-                      className={buttonVariants({
-                        variant: "outline",
-                        size: "sm",
-                      })}
-                      href={`/admin/products/${variant.productId}`}
-                    >
-                      Edit
-                    </Link>
-                  </span>
-                </li>
-              ))}
-            </ul>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Link
+                        className={buttonVariants({
+                          variant: "outline",
+                          size: "xs",
+                        })}
+                        href={`/admin/products/${variant.productId}`}
+                      >
+                        Edit
+                      </Link>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           )}
-        </section>
+        </SectionCard>
 
-        <section
-          aria-labelledby="top-products-heading"
-          className="border-silver bg-card rounded-xl border p-5"
+        <SectionCard
+          title="Top products"
+          description="Units sold, last 30 days · revenue statuses only"
+          flush
         >
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2
-              id="top-products-heading"
-              className="font-heading text-lg font-semibold"
-            >
-              Top products
-            </h2>
-            <span className="text-muted-foreground text-xs">
-              Units sold, last 30 days
-            </span>
-          </div>
           {dashboard.topProducts.length === 0 ? (
-            <p className="text-muted-foreground mt-3 text-sm">
-              No sales in the last 30 days yet.
-            </p>
+            <AdminEmptyState
+              className="py-8"
+              icon={TrendingUp}
+              title="No sales yet"
+              description="No sales in the last 30 days."
+            />
           ) : (
-            <ol className="mt-3 space-y-2">
-              {dashboard.topProducts.map((product, index) => (
-                <li
-                  key={product.productTitle}
-                  className="flex items-center justify-between gap-3 text-sm"
-                >
-                  <span className="flex min-w-0 items-center gap-3">
-                    <span
-                      aria-hidden="true"
-                      className="bg-accent text-accent-foreground flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold"
-                    >
-                      {index + 1}
-                    </span>
-                    <span className="font-medium break-words">
-                      {product.productTitle}
-                    </span>
-                  </span>
-                  <span className="text-muted-foreground shrink-0">
-                    {product.units} {product.units === 1 ? "unit" : "units"}
-                  </span>
-                </li>
-              ))}
-            </ol>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-12">#</TableHead>
+                  <TableHead>Product</TableHead>
+                  <TableHead className="text-right">Units</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {dashboard.topProducts.map((product, index) => (
+                  <TableRow key={product.productTitle}>
+                    <TableCell>
+                      <span
+                        aria-hidden="true"
+                        className="bg-muted text-muted-foreground flex size-6 items-center justify-center rounded-full text-xs font-semibold"
+                      >
+                        {index + 1}
+                      </span>
+                    </TableCell>
+                    <TableCell className="max-w-56">
+                      <span
+                        className="block truncate font-medium"
+                        title={product.productTitle}
+                      >
+                        {product.productTitle}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground text-right">
+                      {product.units} {product.units === 1 ? "unit" : "units"}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           )}
-        </section>
+        </SectionCard>
       </div>
 
-      <section
-        aria-labelledby="checklist-heading"
-        className="border-silver bg-card rounded-xl border p-5"
+      <SectionCard
+        title="Launch checklist"
+        description={`${checklistDone} of ${dashboard.checklist.length} ready`}
       >
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2
-            id="checklist-heading"
-            className="font-heading text-lg font-semibold"
-          >
-            Launch checklist
-          </h2>
-          <span className="text-muted-foreground text-xs">
-            {checklistDone} of {dashboard.checklist.length} ready
-          </span>
-        </div>
-        <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+        <ul className="grid gap-2 sm:grid-cols-2">
           {dashboard.checklist.map((item) => (
             <li key={item.id} className="flex items-start gap-3 text-sm">
               {item.done ? (
                 <CheckCircle2
                   aria-hidden="true"
-                  className="text-success mt-0.5 size-4 shrink-0"
+                  className="text-status-delivered mt-0.5 size-4 shrink-0"
                 />
               ) : (
                 <AlertCircle
@@ -368,11 +449,26 @@ export default async function AdminDashboardPage() {
                   className="text-gold-text dark:text-gold-light mt-0.5 size-4 shrink-0"
                 />
               )}
-              <span>
+              <span className="min-w-0">
                 {item.label}
                 <span className="sr-only">
                   {item.done ? " — done" : " — still to do"}
                 </span>
+                {!item.done &&
+                  (item.id === "samples" ? (
+                    <Link
+                      className="text-gold-text dark:text-gold-light inline-flex min-h-11 items-center font-medium underline-offset-4 hover:underline sm:ml-2 sm:min-h-0"
+                      href="/admin/products?search=Sample%3A"
+                    >
+                      Review samples
+                    </Link>
+                  ) : (
+                    <span className="text-muted-foreground block text-xs sm:ml-2 sm:inline">
+                      {item.id === "content"
+                        ? "Finalise in site content"
+                        : "Set in environment config"}
+                    </span>
+                  ))}
               </span>
             </li>
           ))}
@@ -381,10 +477,16 @@ export default async function AdminDashboardPage() {
           <p className="text-muted-foreground mt-3 text-xs">
             You also have {dashboard.draftCount}{" "}
             {dashboard.draftCount === 1 ? "draft product" : "draft products"}{" "}
-            not yet published.
+            not yet published.{" "}
+            <Link
+              className="font-medium underline-offset-4 hover:underline"
+              href="/admin/products?status=DRAFT"
+            >
+              View drafts
+            </Link>
           </p>
         )}
-      </section>
+      </SectionCard>
     </div>
   );
 }
