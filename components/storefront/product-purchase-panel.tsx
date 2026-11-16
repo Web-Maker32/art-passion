@@ -114,7 +114,7 @@ export function ProductPurchasePanel({
       {selected && (
         <>
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <p className="font-heading text-2xl font-bold text-brand">
+            <p className="font-heading text-2xl font-bold text-foreground dark:text-gold-light tabular-nums">
               {formatPrice(selected.price)}
             </p>
             <p
@@ -124,7 +124,7 @@ export function ProductPurchasePanel({
                   ? "text-gold-text"
                   : selected.stock === 0
                     ? "text-destructive"
-                    : "text-brand"
+                    : "text-brand dark:text-foreground"
               }`}
             >
               {stockStatus}

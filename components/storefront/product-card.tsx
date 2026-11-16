@@ -51,14 +51,14 @@ export function ProductCard({ product }: { product: ProductCardData }) {
             )}
           </div>
           <div className="flex flex-1 flex-col p-4 sm:p-5">
-            <p className="text-gold-text text-xs font-semibold tracking-[0.1em] uppercase">
+            <p className="text-gold-text text-[11px] font-semibold tracking-[0.06em] uppercase">
               {product.category.name}
             </p>
-            <h3 className="font-heading text-card-foreground mt-1.5 line-clamp-2 text-base leading-snug font-semibold sm:text-lg">
+            <h3 className="font-heading text-card-foreground mt-1.5 line-clamp-2 text-base leading-snug font-semibold sm:text-lg" title={product.title}>
               {product.title}
             </h3>
             {lowestPrice !== undefined && (
-              <p className="text-brand mt-auto pt-3 font-semibold">
+              <p className="text-foreground dark:text-gold-light mt-auto pt-3 text-base font-semibold tabular-nums">
                 <span className="text-muted-foreground text-xs font-medium">From </span>
                 {formatPrice(lowestPrice)}
               </p>

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PackageOpen } from "lucide-react";
+import { cn } from "cn";
 import type { ProductCardData } from "@/lib/queries/products";
 import { ProductCard } from "@/components/storefront/product-card";
 
@@ -8,12 +9,15 @@ export function ProductGrid({
   heading,
   emptyTitle = "Nothing to show just yet",
   emptyMessage = "Please check back soon for new handmade finds.",
+  listClassName,
 }: {
   products: ProductCardData[];
   /** Optional screen-reader h2 so listing pages keep a tidy h1 → h2 → h3 outline. */
   heading?: string;
   emptyTitle?: string;
   emptyMessage?: string;
+  /** Extra classes for the list (e.g. bottom padding to clear the WhatsApp float). */
+  listClassName?: string;
 }) {
   if (!products.length) {
     return (
@@ -41,7 +45,7 @@ export function ProductGrid({
   return (
     <>
       {heading && <h2 className="sr-only">{heading}</h2>}
-      <ul className="grid grid-cols-2 gap-3 p-3 sm:gap-5 sm:p-4 lg:grid-cols-3 xl:grid-cols-4">
+      <ul className={cn("grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4", listClassName)}>
         {products.map((product) => (
           <li key={product.id}>
             <ProductCard product={product} />

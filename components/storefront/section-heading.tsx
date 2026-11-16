@@ -63,7 +63,7 @@ export function SectionHeading({
         </div>
         {href && (
           <Link
-            className="group text-foreground hover:text-brand focus-visible:outline-ring inline-flex min-h-11 shrink-0 items-center gap-1.5 self-start rounded-sm px-2 font-semibold underline-offset-4 transition-colors duration-interaction hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 min-[640px]:self-auto"
+            className="group text-foreground hover:border-gold/60 hover:bg-brand/10 hover:text-brand-deep focus-visible:outline-ring active:bg-brand/15 dark:hover:border-gold/60 dark:hover:bg-foreground/10 dark:hover:text-gold-light dark:active:bg-foreground/15 inline-flex min-h-11 shrink-0 items-center gap-1.5 self-start rounded-md border border-transparent px-2.5 font-semibold transition-colors duration-interaction focus-visible:outline-2 focus-visible:outline-offset-2 min-[640px]:self-auto"
             href={href}
           >
             {linkLabel}

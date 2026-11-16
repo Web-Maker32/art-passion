@@ -76,6 +76,7 @@ export default async function SearchPage({
               emptyMessage="Try a different word, or browse all of our handmade pieces."
               emptyTitle="We could not find a match"
               heading="Search results"
+              listClassName="pb-24 sm:pb-28"
               products={products}
             />
           ) : (

@@ -45,7 +45,7 @@ export function SiteHeaderPresentation({
           scrolled ? "shadow-lg shadow-black/25" : "shadow-soft"
         }`}
       >
-        <Container className="flex min-h-16 items-center justify-between gap-2 py-2 sm:min-h-[76px] sm:gap-4">
+        <Container className="flex h-16 items-center justify-between gap-2 sm:h-[72px] sm:gap-4">
           <Link
             aria-label={`${siteConfig.storeName} home`}
             className="focus-visible:outline-gold-light flex min-w-0 shrink-0 items-center gap-2.5 rounded-md p-1.5 focus-visible:outline-2 focus-visible:outline-offset-2 sm:gap-3"

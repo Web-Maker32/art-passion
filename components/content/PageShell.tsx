@@ -9,16 +9,20 @@ export function PageShell({
   title,
   intro,
   lastUpdated,
+  wide = false,
   children,
 }: {
   eyebrow?: string;
   title: string;
   intro?: string;
   lastUpdated?: string;
+  wide?: boolean;
   children: ReactNode;
 }) {
   return (
-    <article className="mx-auto w-full max-w-3xl px-4 py-12 sm:px-6 lg:py-16">
+    <article
+      className={`mx-auto w-full ${wide ? "max-w-5xl" : "max-w-3xl"} px-4 py-12 sm:px-6 lg:py-16`}
+    >
       <p className="text-gold-text text-sm font-semibold tracking-wide uppercase">
         {eyebrow}
       </p>

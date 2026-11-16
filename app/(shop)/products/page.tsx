@@ -68,15 +68,16 @@ export default async function ProductsPage({
         categories={categories}
         className="mb-6"
       />
-      <ProductFiltersPanel categories={categories} filters={filters} />
-      <p className="text-muted-foreground my-5 text-sm" aria-live="polite">
-        {products.length} {products.length === 1 ? "piece" : "pieces"} to
-        explore
-      </p>
+      <ProductFiltersPanel
+        categories={categories}
+        filters={filters}
+        resultCount={products.length}
+      />
       <ProductGrid
         emptyMessage="Try adjusting your filters, or explore all of our handmade pieces."
         emptyTitle="No products match those filters"
         heading="Products"
+        listClassName="pb-24 sm:pb-28"
         products={pagedProducts}
       />
       {totalPages > 1 && (

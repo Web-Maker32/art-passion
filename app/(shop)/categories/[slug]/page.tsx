@@ -120,6 +120,7 @@ export default async function CategoryPage({
           emptyMessage="This collection is still being prepared. Browse the full shop to see everything that is available now."
           emptyTitle="More handmade pieces coming soon"
           heading={`${category.name} products`}
+          listClassName="pb-24 sm:pb-28"
           products={products}
         />
       </div>

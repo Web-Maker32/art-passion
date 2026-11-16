@@ -3,6 +3,10 @@
 @import "shadcn/tailwind.css";
 
 @source inline("duration-interaction ease-interaction shadow-card shadow-card-hover shadow-soft lift lift-sm press image-zoom cart-count-pop skeleton-shimmer scroll-reveal-pending scroll-reveal-enter bg-cta-band stitch-border glow-gold float-slow float-slower twinkle scrollbar-brand");
+/* Storefront link/button interaction states kept visible on every surface. */
+@source inline("hover:bg-brand/10 hover:text-brand-deep hover:border-gold/60 active:bg-brand/15 hover:bg-foreground/10 dark:hover:bg-foreground/10 dark:hover:text-gold-light dark:hover:border-gold/60 dark:active:bg-foreground/15 scroll-mt-20 sm:scroll-mt-[88px]");
+/* Mobile shop: price readability, filter switch, compact sort, list bottom padding. */
+@source inline("text-[11px] tracking-[0.06em] tabular-nums dark:text-gold-light bg-muted-foreground/30 peer-checked:bg-brand peer-checked:translate-x-5 peer-focus-visible:outline-ring max-w-[10rem] pb-24 sm:pb-28");
 
 @custom-variant dark (&:is(.dark *));
 @custom-variant hover-fine (@media (hover: hover) and (pointer: fine));
@@ -883,6 +887,12 @@ select[aria-invalid="true"],
   }
   html {
     @apply font-sans;
+  }
+  /* Anchor jumps (skip link, /#categories) glide only when motion is allowed. */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
   }
   /* Fraunces SOFT axis rounds the serifs for a friendly, handmade feel. */
   .font-heading,

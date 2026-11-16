@@ -1,8 +1,19 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import type { FormEvent } from "react";
+import { useState, type FormEvent } from "react";
+import { SlidersHorizontal, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { formatPrice } from "@/lib/format";
 import type { ProductFilters } from "@/lib/product-filters";
 import type { StoreCategory } from "@/lib/queries/categories";
 
@@ -14,18 +25,81 @@ const productTypes = [
   ["SUPPLY", "Supplies"],
 ] as const;
 
+const selectClass =
+  "h-11 w-full rounded-lg border border-input bg-background px-3 text-foreground transition-colors duration-interaction ease-interaction focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";
+
+/** Number input with an inline "Rs" prefix, 44px tall, focus ring on the field. */
+function PriceField({
+  label,
+  name,
+  defaultValue,
+  placeholder,
+}: {
+  label: string;
+  name: "minPrice" | "maxPrice";
+  defaultValue: number | string;
+  placeholder: string;
+}) {
+  return (
+    <label className="grid gap-1.5 text-sm font-medium">
+      {label}
+      <span className="flex h-11 items-center rounded-lg border border-input bg-background focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ring">
+        <span aria-hidden="true" className="text-muted-foreground pl-3 text-sm">
+          Rs
+        </span>
+        <input
+          className="h-full w-full min-w-0 bg-transparent px-2 text-foreground outline-none"
+          defaultValue={defaultValue}
+          inputMode="numeric"
+          min="0"
+          name={name}
+          placeholder={placeholder}
+          type="number"
+        />
+      </span>
+    </label>
+  );
+}
+
+/** Switch-styled checkbox: keeps name="inStock" so the query string is unchanged. */
+function InStockSwitch({ defaultChecked }: { defaultChecked: boolean }) {
+  return (
+    <label className="relative flex min-h-11 cursor-pointer items-center gap-3 text-sm font-medium whitespace-nowrap">
+      <input
+        className="peer sr-only"
+        defaultChecked={defaultChecked}
+        name="inStock"
+        type="checkbox"
+      />
+      <span
+        aria-hidden="true"
+        className="bg-muted-foreground/30 peer-checked:bg-brand peer-focus-visible:outline-ring h-6 w-11 shrink-0 rounded-full transition-colors duration-interaction peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2"
+      />
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute top-1/2 left-1 size-4 -translate-y-1/2 rounded-full bg-white shadow transition-transform duration-interaction peer-checked:translate-x-5"
+      />
+      In stock only
+    </label>
+  );
+}
+
 export function ProductFiltersPanel({
   categories,
   filters,
   lockedCategory,
+  resultCount,
 }: {
   categories: StoreCategory[];
   filters: ProductFilters;
   lockedCategory?: string;
+  /** When provided, shown next to Sort on mobile and under the form on desktop. */
+  resultCount?: number;
 }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [open, setOpen] = useState(false);
 
   function applyFilters(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -50,92 +124,293 @@ export function ProductFiltersPanel({
 
     nextParams.delete("page");
     const query = nextParams.toString();
+    setOpen(false);
     router.push(query ? `${pathname}?${query}` : pathname, { scroll: false });
   }
 
+  // Compact toolbar sort: applies on change, preserving every other param.
+  function applySort(value: string) {
+    const nextParams = new URLSearchParams(searchParams.toString());
+    if (value) nextParams.set("sort", value);
+    else nextParams.delete("sort");
+    nextParams.delete("page");
+    const query = nextParams.toString();
+    router.push(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  }
+
+  function removeFilter(key: string) {
+    const nextParams = new URLSearchParams(searchParams.toString());
+    nextParams.delete(key);
+    nextParams.delete("page");
+    const query = nextParams.toString();
+    router.push(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  }
+
+  function clearAll() {
+    const nextParams = new URLSearchParams(searchParams.toString());
+    for (const key of ["category", "type", "minPrice", "maxPrice", "inStock"]) {
+      nextParams.delete(key);
+    }
+    nextParams.delete("page");
+    const query = nextParams.toString();
+    setOpen(false);
+    router.push(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  }
+
+  const activeFilters: { key: string; label: string }[] = [];
+  if (!lockedCategory && filters.category) {
+    const match = categories.find((c) => c.slug === filters.category);
+    activeFilters.push({
+      key: "category",
+      label: match?.name ?? filters.category,
+    });
+  }
+  if (filters.type) {
+    const match = productTypes.find(([value]) => value === filters.type);
+    activeFilters.push({ key: "type", label: match?.[1] ?? filters.type });
+  }
+  if (filters.minPrice !== undefined) {
+    activeFilters.push({
+      key: "minPrice",
+      label: `From ${formatPrice(filters.minPrice)}`,
+    });
+  }
+  if (filters.maxPrice !== undefined) {
+    activeFilters.push({
+      key: "maxPrice",
+      label: `Up to ${formatPrice(filters.maxPrice)}`,
+    });
+  }
+  if (filters.inStock) {
+    activeFilters.push({ key: "inStock", label: "In stock" });
+  }
+  const activeCount = activeFilters.length;
+
+  const sortOptions = (
+    <>
+      <option value="newest">Newest</option>
+      <option value="price-asc">Price: low to high</option>
+      <option value="price-desc">Price: high to low</option>
+    </>
+  );
+
+  const resultLabel =
+    resultCount === undefined
+      ? null
+      : `${resultCount} ${resultCount === 1 ? "piece" : "pieces"} to explore`;
+
   return (
-    <form
-      className="grid gap-4 rounded-2xl border border-silver bg-card p-4 shadow-soft sm:grid-cols-2 sm:p-5 lg:grid-cols-3 xl:grid-cols-6"
-      onSubmit={applyFilters}
-    >
-      {!lockedCategory && (
+    <div>
+      {/* Desktop (md+) filter form */}
+      <form
+        className="hidden gap-4 rounded-2xl border border-silver bg-card p-4 shadow-soft sm:p-5 md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6"
+        onSubmit={applyFilters}
+      >
+        {!lockedCategory && (
+          <label className="grid gap-1.5 text-sm font-medium">
+            Category
+            <select
+              className={selectClass}
+              defaultValue={filters.category ?? ""}
+              name="category"
+            >
+              <option value="">All categories</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.slug}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
         <label className="grid gap-1.5 text-sm font-medium">
-          Category
+          Product type
           <select
-            className="h-11 rounded-lg border border-input bg-background px-3 text-foreground transition-colors duration-interaction ease-interaction"
-            defaultValue={filters.category ?? ""}
-            name="category"
+            className={selectClass}
+            defaultValue={filters.type ?? ""}
+            name="type"
           >
-            <option value="">All categories</option>
-            {categories.map((category) => (
-              <option key={category.id} value={category.slug}>
-                {category.name}
+            <option value="">All types</option>
+            {productTypes.map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
               </option>
             ))}
           </select>
         </label>
-      )}
-      <label className="grid gap-1.5 text-sm font-medium">
-        Product type
-        <select
-          className="h-11 rounded-lg border border-input bg-background px-3 text-foreground transition-colors duration-interaction ease-interaction"
-          defaultValue={filters.type ?? ""}
-          name="type"
-        >
-          <option value="">All types</option>
-          {productTypes.map(([value, label]) => (
-            <option key={value} value={value}>
-              {label}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label className="grid gap-1.5 text-sm font-medium">
-        Min price (PKR)
-        <input
-          className="h-11 rounded-lg border border-input bg-background px-3 text-foreground transition-colors duration-interaction ease-interaction"
+        <PriceField
           defaultValue={filters.minPrice ?? ""}
-          min="0"
+          label="Min price"
           name="minPrice"
-          type="number"
+          placeholder="Min"
         />
-      </label>
-      <label className="grid gap-1.5 text-sm font-medium">
-        Max price (PKR)
-        <input
-          className="h-11 rounded-lg border border-input bg-background px-3 text-foreground transition-colors duration-interaction ease-interaction"
+        <PriceField
           defaultValue={filters.maxPrice ?? ""}
-          min="0"
+          label="Max price"
           name="maxPrice"
-          type="number"
+          placeholder="Max"
         />
-      </label>
-      <label className="grid gap-1.5 text-sm font-medium">
-        Sort by
-        <select
-          className="h-11 rounded-lg border border-input bg-background px-3 text-foreground transition-colors duration-interaction ease-interaction"
-          defaultValue={filters.sort}
-          name="sort"
-        >
-          <option value="newest">Newest</option>
-          <option value="price-asc">Price: low to high</option>
-          <option value="price-desc">Price: high to low</option>
-        </select>
-      </label>
-      <div className="flex items-center gap-4 sm:col-span-2 lg:col-span-1 xl:flex-col xl:items-stretch xl:justify-end">
-        <label className="flex min-h-11 items-center gap-2.5 text-sm font-medium">
-          <input
-            className="size-5 accent-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-            defaultChecked={filters.inStock}
-            name="inStock"
-            type="checkbox"
-          />
-          In stock only
+        <label className="grid gap-1.5 text-sm font-medium">
+          Sort by
+          <select
+            className={selectClass}
+            defaultValue={filters.sort}
+            name="sort"
+          >
+            {sortOptions}
+          </select>
         </label>
-        <Button className="w-full xl:w-auto" type="submit">
-          Apply filters
-        </Button>
-      </div>
-    </form>
+        <div className="flex flex-col justify-end gap-3 md:col-span-2 lg:col-span-1">
+          <InStockSwitch defaultChecked={filters.inStock} />
+          <Button className="w-full" type="submit">
+            Apply filters
+          </Button>
+        </div>
+      </form>
+
+      {/* Desktop result count */}
+      {resultLabel && (
+        <p
+          aria-live="polite"
+          className="text-muted-foreground my-5 hidden text-sm md:block"
+        >
+          {resultLabel}
+        </p>
+      )}
+
+      {/* Mobile (below md) toolbar + drawer */}
+      <Sheet onOpenChange={setOpen} open={open}>
+        <div className="md:hidden">
+          <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+            {resultLabel && (
+              <p aria-live="polite" className="text-muted-foreground text-sm">
+                {resultLabel}
+              </p>
+            )}
+            <div className="ml-auto flex items-center gap-2">
+              <select
+                aria-label="Sort by"
+                className="h-11 max-w-[10rem] rounded-lg border border-input bg-background px-2.5 text-sm text-foreground transition-colors duration-interaction ease-interaction focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                defaultValue={filters.sort}
+                key={filters.sort}
+                onChange={(event) => applySort(event.target.value)}
+              >
+                {sortOptions}
+              </select>
+              <SheetTrigger
+                className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-input bg-background px-3 text-sm font-medium text-foreground transition-colors duration-interaction ease-interaction focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                render={<button type="button" />}
+              >
+                <SlidersHorizontal aria-hidden="true" className="size-4" />
+                Filters
+                {activeCount > 0 && (
+                  <span className="bg-brand text-brand-foreground inline-flex size-5 items-center justify-center rounded-full text-xs font-semibold">
+                    {activeCount}
+                  </span>
+                )}
+              </SheetTrigger>
+            </div>
+          </div>
+          {activeCount > 0 && (
+            <ul className="mt-3 flex flex-wrap gap-2">
+              {activeFilters.map((filter) => (
+                <li key={filter.key}>
+                  <button
+                    className="inline-flex min-h-11 items-center gap-2 rounded-full border border-silver bg-card px-3 text-sm font-medium text-foreground transition-colors duration-interaction ease-interaction hover-fine:hover:border-brand-gold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                    onClick={() => removeFilter(filter.key)}
+                    type="button"
+                  >
+                    {filter.label}
+                    <X aria-hidden="true" className="size-4" />
+                    <span className="sr-only">Remove {filter.label} filter</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        <SheetContent
+          aria-label="Filters"
+          className="bg-background flex w-full flex-col sm:max-w-md"
+          side="right"
+        >
+          <SheetHeader className="border-b border-border pr-12">
+            <SheetTitle className="font-brand-display text-xl">
+              Filters
+            </SheetTitle>
+            <SheetDescription>
+              Adjust price, type and availability.
+            </SheetDescription>
+          </SheetHeader>
+          <form className="flex min-h-0 flex-1 flex-col" onSubmit={applyFilters}>
+            <div className="scrollbar-brand min-h-0 flex-1 space-y-5 overflow-y-auto px-4 py-4">
+              {!lockedCategory && (
+                <label className="grid gap-1.5 text-sm font-medium">
+                  Category
+                  <select
+                    className={selectClass}
+                    defaultValue={filters.category ?? ""}
+                    name="category"
+                  >
+                    <option value="">All categories</option>
+                    {categories.map((category) => (
+                      <option key={category.id} value={category.slug}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
+              <label className="grid gap-1.5 text-sm font-medium">
+                Product type
+                <select
+                  className={selectClass}
+                  defaultValue={filters.type ?? ""}
+                  name="type"
+                >
+                  <option value="">All types</option>
+                  {productTypes.map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                <PriceField
+                  defaultValue={filters.minPrice ?? ""}
+                  label="Min price"
+                  name="minPrice"
+                  placeholder="Min"
+                />
+                <PriceField
+                  defaultValue={filters.maxPrice ?? ""}
+                  label="Max price"
+                  name="maxPrice"
+                  placeholder="Max"
+                />
+              </div>
+              <InStockSwitch defaultChecked={filters.inStock} />
+              {/* Preserve the toolbar sort when applying the drawer filters. */}
+              <input defaultValue={filters.sort} name="sort" type="hidden" />
+            </div>
+            <SheetFooter className="border-t border-border">
+              <Button className="w-full" type="submit">
+                Apply filters
+              </Button>
+              <Button
+                className="w-full"
+                onClick={clearAll}
+                type="button"
+                variant="ghost"
+              >
+                Clear all
+              </Button>
+            </SheetFooter>
+          </form>
+        </SheetContent>
+      </Sheet>
+    </div>
   );
 }

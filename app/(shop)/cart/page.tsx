@@ -101,7 +101,7 @@ export default async function CartPage() {
                       <p className="text-muted-foreground text-sm">
                         {formatPrice(item.unitPrice)} each
                       </p>
-                      <p className="font-heading text-brand text-lg font-bold">
+                      <p className="font-heading text-foreground dark:text-gold-light text-lg font-bold tabular-nums">
                         {formatPrice(item.lineTotal)}
                       </p>
                     </div>

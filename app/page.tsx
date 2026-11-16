@@ -184,7 +184,11 @@ export default async function Home() {
         </section>
 
         {/* Categories */}
-        <Section aria-labelledby="categories-heading" id="categories">
+        <Section
+          aria-labelledby="categories-heading"
+          className="scroll-mt-20 sm:scroll-mt-[88px]"
+          id="categories"
+        >
           <Container>
             <SectionHeading
               description="A little something for every kind of maker and dreamer."

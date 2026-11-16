@@ -52,7 +52,7 @@ export function CategoryChips({
                   chipBase,
                   active
                     ? "border-brand bg-brand text-brand-foreground shadow-soft"
-                    : "border-silver bg-card text-foreground hover-fine:hover:border-brand-gold hover-fine:hover:text-brand",
+                    : "border-silver bg-card text-foreground hover-fine:hover:border-brand-gold hover-fine:hover:text-brand dark:hover-fine:hover:text-brand-foreground",
                 )}
                 href={`/categories/${category.slug}`}
               >

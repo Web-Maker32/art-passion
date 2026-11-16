@@ -218,11 +218,11 @@ function FooterLinkList({
   );
 }
 
-function InstagramIcon() {
+export function InstagramIcon({ className = "size-5" }: { className?: string }) {
   return (
     <svg
       aria-hidden="true"
-      className="size-5"
+      className={className}
       fill="none"
       stroke="currentColor"
       strokeWidth="1.8"
@@ -235,11 +235,11 @@ function InstagramIcon() {
   );
 }
 
-function FacebookIcon() {
+export function FacebookIcon({ className = "size-5" }: { className?: string }) {
   return (
     <svg
       aria-hidden="true"
-      className="size-5"
+      className={className}
       fill="currentColor"
       viewBox="0 0 24 24"
     >

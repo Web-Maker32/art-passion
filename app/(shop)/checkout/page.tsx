@@ -58,7 +58,7 @@ export default async function CheckoutPage() {
             </span>
           </span>
           <span className="flex items-center gap-2">
-            <span className="font-heading text-brand text-lg font-bold">
+            <span className="font-heading text-foreground dark:text-gold-light text-lg font-bold tabular-nums">
               {formatPrice(total)}
             </span>
             <ChevronDown

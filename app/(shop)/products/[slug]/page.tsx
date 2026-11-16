@@ -122,8 +122,11 @@ export default async function ProductPage({
             {product.title}
           </h1>
           {product.variants[0] && (
-            <p className="text-brand mt-3 text-xl font-semibold">
-              From {formatPrice(product.variants[0].price)}
+            <p className="mt-3 text-xl font-semibold">
+              <span className="text-muted-foreground">From </span>
+              <span className="text-foreground dark:text-gold-light tabular-nums">
+                {formatPrice(product.variants[0].price)}
+              </span>
             </p>
           )}
           {product.shortDescription && (

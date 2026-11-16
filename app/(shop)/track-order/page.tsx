@@ -17,6 +17,7 @@ export default async function TrackOrderPage() {
     <PageShell
       title="Track my order"
       intro="Find your latest order status using your order number and the phone number you entered at checkout."
+      wide
     >
       <TrackOrderForm whatsappNumber={siteConfig.whatsappNumber} />
     </PageShell>
