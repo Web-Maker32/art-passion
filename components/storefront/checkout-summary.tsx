@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { isUnoptimizedImageSrc } from "@/lib/image-src";
 import Link from "next/link";
 import { FreeDeliveryProgress } from "@/components/storefront/free-delivery-progress";
 import { Button } from "@/components/ui/button";
@@ -32,6 +33,7 @@ export function CheckoutSummary({
                 fill
                 sizes="56px"
                 src={item.imageUrl || "/placeholder.svg"}
+                unoptimized={isUnoptimizedImageSrc(item.imageUrl || "/placeholder.svg")}
               />
             </div>
             <div className="min-w-0 flex-1">

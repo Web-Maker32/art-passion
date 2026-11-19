@@ -50,6 +50,7 @@ model User {
   passwordHash String
   name         String
   role         Role    @default(CUSTOMER)
+  sessionVersion Int   @default(0)
   cart         Cart?
   orders       Order[]
 }

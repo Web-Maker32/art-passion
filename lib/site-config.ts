@@ -6,6 +6,8 @@
  * Never copy these values into another component or page.
  */
 
+import { formatPrice } from "@/lib/format";
+
 const TODO_PREFIX = "TODO(owner): ";
 
 function ownerTodo(detail: string): string {
@@ -52,7 +54,7 @@ export const siteConfig = {
  * The delivery line shown in the footer, product pages and shipping content.
  * Derived from siteConfig so the amount is never written twice.
  */
-export const deliveryInfoLine = `Flat Rs ${siteConfig.deliveryFee} delivery, free over Rs ${siteConfig.freeDeliveryThreshold}`;
+export const deliveryInfoLine = `Flat ${formatPrice(siteConfig.deliveryFee)} delivery, free delivery on orders of ${formatPrice(siteConfig.freeDeliveryThreshold)} or more`;
 
 export function isOwnerTodo(value: string): boolean {
   return value.startsWith(TODO_PREFIX);

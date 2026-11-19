@@ -21,28 +21,42 @@ export function VariantQuickStock({
   variantLabel: string;
   stock: number;
 }) {
+  const [loadedStock, setLoadedStock] = useState(stock);
   const [value, setValue] = useState(String(stock));
   const [isPending, startTransition] = useTransition();
 
-  const dirty = value.trim() !== "" && Number(value) !== stock;
+  // Re-sync the baseline when the list refreshes with a new stock value.
+  // Adjusting state during render (instead of in an effect) avoids a
+  // cascading extra render pass.
+  const [prevStock, setPrevStock] = useState(stock);
+  if (stock !== prevStock) {
+    setPrevStock(stock);
+    setLoadedStock(stock);
+    setValue(String(stock));
+  }
+
+  const dirty = value.trim() !== "" && Number(value) !== loadedStock;
 
   function commit() {
     const nextStock = Number(value);
     if (!Number.isInteger(nextStock) || nextStock < 0) {
       toast.error("Stock must be a whole number of 0 or more.");
-      setValue(String(stock));
+      setValue(String(loadedStock));
       return;
     }
+    if (nextStock === loadedStock) return;
     startTransition(async () => {
       const result = await updateAdminVariantStock({
         variantId,
         stock: nextStock,
+        loadedStock,
       });
       if (result.success) {
         toast.success(result.message);
+        setLoadedStock(nextStock);
       } else {
         toast.error(result.message);
-        setValue(String(stock));
+        setValue(String(loadedStock));
       }
     });
   }

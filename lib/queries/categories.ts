@@ -1,8 +1,9 @@
 import "server-only";
 
-import { cacheLife } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db";
+import { CATALOG_CACHE_TAG } from "@/lib/catalog-cache";
 
 export { categoryDescriptions } from "@/lib/catalog";
 
@@ -24,6 +25,7 @@ export type StoreCategory = Prisma.CategoryGetPayload<{
 export async function getPublishedCategories(): Promise<StoreCategory[]> {
   "use cache";
   cacheLife("hours");
+  cacheTag(CATALOG_CACHE_TAG);
 
   return prisma.category.findMany({
     where: { products: { some: { status: "PUBLISHED" } } },
@@ -37,6 +39,7 @@ export async function getCategoryBySlug(
 ): Promise<StoreCategory | null> {
   "use cache";
   cacheLife("hours");
+  cacheTag(CATALOG_CACHE_TAG);
 
   // Categories with no published products still resolve so the storefront can
   // show a friendly empty state instead of a 404.

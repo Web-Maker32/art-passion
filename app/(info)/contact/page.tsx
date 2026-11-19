@@ -15,7 +15,7 @@ import { FacebookIcon, InstagramIcon } from "@/components/storefront/site-footer
 import { contactDetails } from "@/lib/content/faq";
 import { contentMetadata } from "@/lib/content/metadata";
 import { isOwnerTodo, siteConfig } from "@/lib/site-config";
-import { buildWhatsAppLink } from "@/lib/whatsapp";
+import { buildWhatsAppLink, formatWhatsAppDisplay } from "@/lib/whatsapp";
 
 export const metadata = contentMetadata({
   title: "Contact us",
@@ -66,7 +66,7 @@ export default function ContactPage() {
       external: true,
       icon: MessageCircle,
       label: "WhatsApp",
-      value: `+${siteConfig.whatsappNumber}`,
+      value: formatWhatsAppDisplay(siteConfig.whatsappNumber) ?? siteConfig.whatsappNumber,
       note: "Fastest way to reach us",
       primary: true,
     });

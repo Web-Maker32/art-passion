@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 
-import { consumeRateLimit, consumeTrackOrderRateLimit, rateLimitIp } from "@/lib/rate-limit";
+import { consumeRateLimit, consumeTrackOrderRateLimit, rateLimitIp, resetRateLimit } from "@/lib/rate-limit";
 
 function headersFor(ip: string): Headers {
   return new Headers({ "x-forwarded-for": `${ip}, 10.0.0.1` });
@@ -60,6 +60,21 @@ describe("consumeRateLimit (in-memory fallback without Upstash env)", () => {
     for (let attempt = 0; attempt < 5; attempt++) {
       expect((await consumeRateLimit("checkout", { requestHeaders: headers })).allowed).toBe(true);
     }
+  });
+
+  it("reset clears the IP and email budgets after a successful sign-in", async () => {
+    const headers = headersFor("203.0.113.50");
+    const email = "reset@example.com";
+    for (let attempt = 0; attempt < 5; attempt++) {
+      await consumeRateLimit("adminLogin", { requestHeaders: headers, email });
+    }
+    expect((await consumeRateLimit("adminLogin", { requestHeaders: headers, email })).allowed).toBe(false);
+
+    await resetRateLimit("adminLogin", { requestHeaders: headers, email });
+
+    expect((await consumeRateLimit("adminLogin", { requestHeaders: headers, email })).allowed).toBe(true);
+    // The email budget is cleared too, even from a different IP.
+    expect((await consumeRateLimit("adminLogin", { requestHeaders: headersFor("203.0.113.51"), email })).allowed).toBe(true);
   });
 });
 

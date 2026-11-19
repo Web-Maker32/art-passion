@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { isUnoptimizedImageSrc } from "@/lib/image-src";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type MouseEvent } from "react";
@@ -115,6 +116,7 @@ function OrderItems({ order }: { order: AdminOrderListRow }) {
               className="object-cover"
               height={28}
               src={url}
+              unoptimized={isUnoptimizedImageSrc(url)}
               width={28}
             />
           </span>

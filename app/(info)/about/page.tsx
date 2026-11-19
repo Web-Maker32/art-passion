@@ -78,6 +78,7 @@ export default function AboutPage() {
               priority
               sizes="(min-width: 1024px) 45vw, 100vw"
               src="/og-image.png"
+              unoptimized
               width={1200}
             />
           </div>

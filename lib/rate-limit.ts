@@ -67,19 +67,9 @@ function memoryLimit(policy: RateLimitPolicy, key: string, peek: boolean, limit:
 }
 
 async function checkKey(policy: RateLimitPolicy, key: string, peek: boolean, limit: number = rateLimitPolicies[policy].limit): Promise<RateLimitResult> {
-  const url = env.UPSTASH_REDIS_REST_URL;
-  const token = env.UPSTASH_REDIS_REST_TOKEN;
-  if (url && token) {
+  const limiter = getRemoteLimiter(policy, limit);
+  if (limiter) {
     try {
-      const limiterKey = `${policy}:${limit}`;
-      let limiter = remote.get(limiterKey);
-      if (!limiter) {
-        const { windowMs } = rateLimitPolicies[policy];
-        limiter = new Ratelimit({ redis: new Redis({ url, token }),
-          limiter: Ratelimit.fixedWindow(limit, `${windowMs} ms`),
-          prefix: `art-passion:rate:${policy}`, analytics: false, timeout: 1500, ephemeralCache: false });
-        remote.set(limiterKey, limiter);
-      }
       if (peek) {
         const remaining = await limiter.getRemaining(key);
         return result(remaining.remaining, remaining.reset, "upstash");
@@ -93,6 +83,22 @@ async function checkKey(policy: RateLimitPolicy, key: string, peek: boolean, lim
     }
   } else fallbackWarning();
   return memoryLimit(policy, key, peek, limit);
+}
+
+function getRemoteLimiter(policy: RateLimitPolicy, limit: number): Ratelimit | null {
+  const url = env.UPSTASH_REDIS_REST_URL;
+  const token = env.UPSTASH_REDIS_REST_TOKEN;
+  if (!url || !token) return null;
+  const limiterKey = `${policy}:${limit}`;
+  let limiter = remote.get(limiterKey);
+  if (!limiter) {
+    const { windowMs } = rateLimitPolicies[policy];
+    limiter = new Ratelimit({ redis: new Redis({ url, token }),
+      limiter: Ratelimit.fixedWindow(limit, `${windowMs} ms`),
+      prefix: `art-passion:rate:${policy}`, analytics: false, timeout: 1500, ephemeralCache: false });
+    remote.set(limiterKey, limiter);
+  }
+  return limiter;
 }
 
 /** One tracking policy, with separate IP and order-number budgets. Keys are hashed. */
@@ -121,4 +127,30 @@ export async function consumeRateLimit(
   const blocked = results.filter((entry) => !entry.allowed);
   return (blocked.length ? blocked : results).reduce((a, b) =>
     blocked.length ? (a.retryAfterSeconds >= b.retryAfterSeconds ? a : b) : (a.remaining <= b.remaining ? a : b));
+}
+
+/**
+ * Clear the IP (and email, for admin login) budgets after a successful sign-in
+ * so a legitimate admin is never locked out by earlier failed attempts. Both the
+ * in-memory and Upstash counters are reset; remote failures are best-effort.
+ */
+export async function resetRateLimit(
+  policy: RateLimitPolicy,
+  options: { requestHeaders?: Headers; email?: string } = {},
+): Promise<void> {
+  const requestHeaders = options.requestHeaders ?? await headers();
+  const identities = [`ip:${rateLimitIp(requestHeaders)}`];
+  if (policy === "adminLogin" && options.email) identities.push(`email:${options.email.trim().toLowerCase()}`);
+  const limiter = getRemoteLimiter(policy, rateLimitPolicies[policy].limit);
+  await Promise.all(identities.map(async (identity) => {
+    const key = `${policy}:${createHash("sha256").update(identity).digest("hex")}`;
+    counters.delete(key);
+    if (limiter) {
+      try {
+        await limiter.resetUsedTokens(key);
+      } catch {
+        // Best-effort: a remote reset failure must not block a valid sign-in.
+      }
+    }
+  }));
 }

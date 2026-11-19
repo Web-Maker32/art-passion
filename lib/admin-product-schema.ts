@@ -44,6 +44,19 @@ export const variantInputSchema = z.object({
     .int("Stock must be a whole number.")
     .min(0, "Stock cannot be negative.")
     .max(100_000, "Stock looks too large."),
+  // The stock the editor LOADED for an existing variant. The server only writes
+  // stock when the field differs from this baseline, and then conditionally on
+  // the database still holding the baseline (optimistic concurrency). New
+  // variants omit it. Empty/absent values stay undefined so they never coerce to 0.
+  loadedStock: z.preprocess(
+    (value) => (value === "" || value === undefined || value === null ? undefined : value),
+    z.coerce
+      .number()
+      .int("Stock must be a whole number.")
+      .min(0, "Stock cannot be negative.")
+      .max(100_000, "Stock looks too large.")
+      .optional(),
+  ),
   sku: z
     .string()
     .trim()
@@ -114,6 +127,13 @@ export type ProductFormData = z.output<typeof productFormSchema>;
 export const quickStockSchema = z.object({
   variantId: z.string().min(1).max(128),
   stock: z.coerce
+    .number({ message: "Stock must be a number." })
+    .int("Stock must be a whole number.")
+    .min(0, "Stock cannot be negative.")
+    .max(100_000, "Stock looks too large."),
+  // Baseline the inline editor loaded; the update is conditional on it so a
+  // concurrent order or save cannot be silently overwritten.
+  loadedStock: z.coerce
     .number({ message: "Stock must be a number." })
     .int("Stock must be a whole number.")
     .min(0, "Stock cannot be negative.")

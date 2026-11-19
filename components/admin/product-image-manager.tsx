@@ -2,6 +2,7 @@
 
 import { useRef, useState, useTransition, type ChangeEvent } from "react";
 import Image from "next/image";
+import { isUnoptimizedImageSrc } from "@/lib/image-src";
 import { toast } from "sonner";
 import {
   deleteProductImage,
@@ -285,6 +286,7 @@ export function ProductImageManager({
                     fill
                     sizes="96px"
                     src={image.url}
+                    unoptimized={isUnoptimizedImageSrc(image.url)}
                   />
                 </div>
 

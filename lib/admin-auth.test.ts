@@ -10,6 +10,7 @@ const { cookieStore, mockUser } = vi.hoisted(() => ({
     email: "admin@test.com",
     role: "ADMIN" as string,
     passwordHash: "",
+    sessionVersion: 0,
     deleted: false,
   },
 }));
@@ -46,12 +47,27 @@ vi.mock("@/lib/db", () => ({
               id: mockUser.id,
               passwordHash: mockUser.passwordHash,
               role: mockUser.role,
+              sessionVersion: mockUser.sessionVersion,
             };
           }
           if (where.id && where.id === mockUser.id) {
-            return { id: mockUser.id, role: mockUser.role };
+            return { id: mockUser.id, role: mockUser.role, sessionVersion: mockUser.sessionVersion };
           }
           return null;
+        },
+      ),
+      update: vi.fn(
+        async ({
+          where,
+          data,
+        }: {
+          where: { id: string };
+          data: { sessionVersion?: { increment: number } };
+        }) => {
+          if (where.id === mockUser.id && data.sessionVersion?.increment) {
+            mockUser.sessionVersion += data.sessionVersion.increment;
+          }
+          return { id: mockUser.id };
         },
       ),
     },
@@ -63,6 +79,7 @@ import {
   resolveAdminUserId,
   requireAdmin,
   assertAdmin,
+  bumpAdminSessionVersion,
 } from "@/lib/admin-auth";
 import {
   createAdminSessionCookieValue,
@@ -76,6 +93,7 @@ beforeEach(() => {
   cookieStore.clear();
   mockUser.passwordHash = bcrypt.hashSync(testPassword, 4);
   mockUser.role = "ADMIN";
+  mockUser.sessionVersion = 0;
   mockUser.deleted = false;
 });
 
@@ -85,7 +103,7 @@ describe("verifyAdminCredentials", () => {
       email: "admin@test.com",
       password: testPassword,
     });
-    expect(result).toEqual({ userId: "admin-1" });
+    expect(result).toEqual({ userId: "admin-1", sessionVersion: 0 });
   });
 
   it("returns null for wrong password", async () => {
@@ -118,7 +136,7 @@ describe("resolveAdminUserId", () => {
   it("returns userId with a valid session cookie", async () => {
     cookieStore.set(
       adminSessionCookieName,
-      createAdminSessionCookieValue("admin-1"),
+      createAdminSessionCookieValue("admin-1", 0)
     );
     expect(await resolveAdminUserId()).toBe("admin-1");
   });
@@ -128,7 +146,7 @@ describe("resolveAdminUserId", () => {
   });
 
   it("returns null with a tampered cookie", async () => {
-    const value = createAdminSessionCookieValue("admin-1");
+    const value = createAdminSessionCookieValue("admin-1", 0);
     const tampered = `${value.slice(0, -1)}${value.endsWith("0") ? "1" : "0"}`;
     cookieStore.set(adminSessionCookieName, tampered);
     expect(await resolveAdminUserId()).toBeNull();
@@ -137,7 +155,7 @@ describe("resolveAdminUserId", () => {
   it("returns null when user is deleted", async () => {
     cookieStore.set(
       adminSessionCookieName,
-      createAdminSessionCookieValue("admin-1"),
+      createAdminSessionCookieValue("admin-1", 0)
     );
     mockUser.deleted = true;
     expect(await resolveAdminUserId()).toBeNull();
@@ -146,7 +164,7 @@ describe("resolveAdminUserId", () => {
   it("returns null when user is demoted to CUSTOMER", async () => {
     cookieStore.set(
       adminSessionCookieName,
-      createAdminSessionCookieValue("admin-1"),
+      createAdminSessionCookieValue("admin-1", 0)
     );
     mockUser.role = "CUSTOMER";
     expect(await resolveAdminUserId()).toBeNull();
@@ -156,8 +174,41 @@ describe("resolveAdminUserId", () => {
     const past = Date.now() - adminSessionTtlMs - 1000;
     cookieStore.set(
       adminSessionCookieName,
-      createAdminSessionCookieValue("admin-1", past),
+      createAdminSessionCookieValue("admin-1", 0, past),
     );
+    expect(await resolveAdminUserId()).toBeNull();
+  });
+
+  it("returns null when the cookie version is behind the user version", async () => {
+    cookieStore.set(
+      adminSessionCookieName,
+      createAdminSessionCookieValue("admin-1", 0),
+    );
+    mockUser.sessionVersion = 1;
+    expect(await resolveAdminUserId()).toBeNull();
+  });
+
+  it("resolves again once the cookie carries the current version", async () => {
+    mockUser.sessionVersion = 2;
+    cookieStore.set(
+      adminSessionCookieName,
+      createAdminSessionCookieValue("admin-1", 2),
+    );
+    expect(await resolveAdminUserId()).toBe("admin-1");
+  });
+});
+
+describe("bumpAdminSessionVersion", () => {
+  it("invalidates previously issued cookies", async () => {
+    cookieStore.set(
+      adminSessionCookieName,
+      createAdminSessionCookieValue("admin-1", 0),
+    );
+    expect(await resolveAdminUserId()).toBe("admin-1");
+
+    await bumpAdminSessionVersion("admin-1");
+
+    expect(mockUser.sessionVersion).toBe(1);
     expect(await resolveAdminUserId()).toBeNull();
   });
 });
@@ -175,7 +226,7 @@ describe("requireAdmin", () => {
   it("returns userId when session is valid", async () => {
     cookieStore.set(
       adminSessionCookieName,
-      createAdminSessionCookieValue("admin-1"),
+      createAdminSessionCookieValue("admin-1", 0)
     );
     await expect(requireAdmin()).resolves.toBe("admin-1");
   });
@@ -189,7 +240,7 @@ describe("assertAdmin", () => {
   it("returns authorized true with valid session", async () => {
     cookieStore.set(
       adminSessionCookieName,
-      createAdminSessionCookieValue("admin-1"),
+      createAdminSessionCookieValue("admin-1", 0)
     );
     expect(await assertAdmin()).toEqual({
       authorized: true,
@@ -200,7 +251,7 @@ describe("assertAdmin", () => {
   it("returns authorized false when user is deleted", async () => {
     cookieStore.set(
       adminSessionCookieName,
-      createAdminSessionCookieValue("admin-1"),
+      createAdminSessionCookieValue("admin-1", 0)
     );
     mockUser.deleted = true;
     expect(await assertAdmin()).toEqual({ authorized: false });

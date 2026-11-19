@@ -6,6 +6,7 @@ const { mocks } = vi.hoisted(() => ({
   mocks: {
     rateLimitCalls: 0,
     rateLimitLimited: false,
+    resetCalls: 0,
     verifyResult: null as { userId: string } | null,
     sessionSet: false,
     delayCalled: false,
@@ -23,11 +24,15 @@ vi.mock("@/lib/rate-limit", () => ({
       backend: "memory",
     };
   }),
+  resetRateLimit: vi.fn(async () => {
+    mocks.resetCalls += 1;
+  }),
 }));
 
 vi.mock("@/lib/admin-auth", () => ({
   assertAdmin: vi.fn(async () => ({ authorized: false })),
   verifyAdminCredentials: vi.fn(async () => mocks.verifyResult),
+  bumpAdminSessionVersion: vi.fn(async () => {}),
   delay: vi.fn(async () => {
     mocks.delayCalled = true;
   }),
@@ -54,6 +59,7 @@ const validInput = { email: "admin@test.com", password: "password123" };
 beforeEach(() => {
   mocks.rateLimitCalls = 0;
   mocks.rateLimitLimited = false;
+  mocks.resetCalls = 0;
   mocks.verifyResult = null;
   mocks.sessionSet = false;
   mocks.delayCalled = false;
@@ -71,6 +77,9 @@ describe("adminLogin", () => {
     });
     expect(mocks.sessionSet).toBe(false);
     expect(mocks.delayCalled).toBe(true);
+    // One atomic consume up front; no later debit and no reset on failure.
+    expect(mocks.rateLimitCalls).toBe(1);
+    expect(mocks.resetCalls).toBe(0);
   });
 
   it("sets session and redirects on correct credentials", async () => {
@@ -78,6 +87,8 @@ describe("adminLogin", () => {
 
     await expect(adminLogin(validInput)).rejects.toThrow("REDIRECT:/admin");
     expect(mocks.sessionSet).toBe(true);
+    expect(mocks.rateLimitCalls).toBe(1);
+    expect(mocks.resetCalls).toBe(1);
   });
 
   it("rate limits after threshold and returns the rate-limit message", async () => {

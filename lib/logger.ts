@@ -8,6 +8,7 @@ const events = {
   sitemap_failed: "The sitemap could not be loaded.",
   upload_failed: "An image upload failed.",
   upload_cleanup_failed: "An uploaded image needs manual reconciliation.",
+  product_delete_asset_cleanup_failed: "A deleted product's remote image needs manual reconciliation.",
   revalidation_failed: "Saved changes could not refresh the page cache.",
   health_failed: "The database health check failed.",
   payment_proof_failed: "Saving the customer's payment details failed.",

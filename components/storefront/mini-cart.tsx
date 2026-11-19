@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { isUnoptimizedImageSrc } from "@/lib/image-src";
 import Link from "next/link";
 import { ShoppingBag } from "lucide-react";
 import { cn } from "cn";
@@ -71,6 +72,7 @@ export function MiniCart({
                     fill
                     sizes="64px"
                     src={item.imageUrl || "/placeholder.svg"}
+                    unoptimized={isUnoptimizedImageSrc(item.imageUrl || "/placeholder.svg")}
                   />
                 </div>
                 <div className="min-w-0 flex-1">
@@ -79,6 +81,11 @@ export function MiniCart({
                   </p>
                   <p className="text-muted-foreground mt-1 text-xs">
                     {item.variantLabel} · Qty {item.quantity}
+                    {item.madeToOrder && (
+                      <span className="text-gold-text dark:text-gold-light font-medium">
+                        {" "}· Made to order
+                      </span>
+                    )}
                   </p>
                   {item.message && (
                     <p className="text-gold-text dark:text-gold-light mt-1 text-xs font-medium">

@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { isUnoptimizedImageSrc } from "@/lib/image-src";
 import { useRef, useState, type TouchEvent } from "react";
 import {
   Dialog,
@@ -71,6 +72,7 @@ export function ProductGallery({
             preload
             sizes="(max-width: 1024px) 100vw, 50vw"
             src={selected.url}
+            unoptimized={isUnoptimizedImageSrc(selected.url)}
           />
           {images.length > 1 && (
             <span
@@ -90,6 +92,7 @@ export function ProductGallery({
               fill
               sizes="96vw"
               src={selected.url}
+              unoptimized={isUnoptimizedImageSrc(selected.url)}
             />
           </div>
         </DialogContent>
@@ -118,6 +121,7 @@ export function ProductGallery({
                 fill
                 sizes="80px"
                 src={image.url}
+                unoptimized={isUnoptimizedImageSrc(image.url)}
               />
             </button>
           ))}

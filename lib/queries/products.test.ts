@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ProductCardData } from "@/lib/queries/products";
 
 vi.mock("server-only", () => ({}));
-vi.mock("next/cache", () => ({ cacheLife: vi.fn() }));
+vi.mock("next/cache", () => ({ cacheLife: vi.fn(), cacheTag: vi.fn() }));
 
 const { findMany } = vi.hoisted(() => ({ findMany: vi.fn() }));
 vi.mock("@/lib/db", () => ({ prisma: { product: { findMany } } }));
@@ -86,9 +86,39 @@ describe("getPublishedProducts", () => {
           status: "PUBLISHED",
           category: { slug: "felt-sets" },
           type: "FELT_SET",
-          variants: {
-            some: { stock: { gt: 0 }, price: { gte: 1000, lte: 4000 } },
-          },
+          // In-stock includes made-to-order products; the price range still
+          // applies to a variant on both branches.
+          OR: [
+            {
+              madeToOrder: true,
+              variants: { some: { price: { gte: 1000, lte: 4000 } } },
+            },
+            {
+              variants: {
+                some: { stock: { gt: 0 }, price: { gte: 1000, lte: 4000 } },
+              },
+            },
+          ],
+        },
+      }),
+    );
+  });
+
+  it("includes made-to-order products in the in-stock filter without a price range", async () => {
+    findMany.mockResolvedValue([]);
+
+    await getPublishedProducts({
+      filters: parseProductFilters({ inStock: "true" }),
+    });
+
+    expect(findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          status: "PUBLISHED",
+          OR: [
+            { madeToOrder: true },
+            { variants: { some: { stock: { gt: 0 } } } },
+          ],
         },
       }),
     );

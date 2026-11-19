@@ -7,6 +7,11 @@ import { toast } from "sonner";
 import { addToCart } from "@/actions/cart";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/format";
+import {
+  isVariantAvailable,
+  maxQuantityForVariant,
+  variantStockLabel,
+} from "@/lib/availability";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 
 type PurchaseVariant = {
@@ -36,13 +41,15 @@ export function ProductPurchasePanel({
   const [quantity, setQuantity] = useState(1);
   const [isPending, startTransition] = useTransition();
   const selected = variants.find((variant) => variant.id === selectedId);
-  const maxQuantity = selected ? Math.min(selected.stock, 20) : 0;
-  const stockStatus =
-    !selected || selected.stock === 0
-      ? "Out of stock"
-      : selected.stock <= 5
-        ? "Low stock"
-        : "In stock";
+  const maxQuantity = selected
+    ? maxQuantityForVariant({ madeToOrder, stock: selected.stock })
+    : 0;
+  const stockStatus = selected
+    ? variantStockLabel({ madeToOrder, stock: selected.stock })
+    : "Out of stock";
+  const selectedAvailable = selected
+    ? isVariantAvailable({ madeToOrder, stock: selected.stock })
+    : false;
   const message = [
     `Hello Art Passion! I have a question about ${productTitle}.`,
     selected ? `Variant: ${selected.label}.` : "",
@@ -64,7 +71,10 @@ export function ProductPurchasePanel({
           <div className="grid gap-2">
             {variants.map((variant) => {
               const selectedVariant = selectedId === variant.id;
-              const unavailable = variant.stock <= 0 && !madeToOrder;
+              const unavailable = !isVariantAvailable({
+                madeToOrder,
+                stock: variant.stock,
+              });
 
               return (
                 <label
@@ -120,9 +130,9 @@ export function ProductPurchasePanel({
             <p
               aria-live="polite"
               className={`text-sm font-semibold ${
-                selected.stock <= 5 && selected.stock > 0
+                stockStatus === "Low stock"
                   ? "text-gold-text"
-                  : selected.stock === 0
+                  : stockStatus === "Out of stock"
                     ? "text-destructive"
                     : "text-brand dark:text-foreground"
               }`}
@@ -166,7 +176,7 @@ export function ProductPurchasePanel({
           <Button
             aria-busy={isPending}
             className="w-full"
-            disabled={isPending || selected.stock <= 0}
+            disabled={isPending || !selectedAvailable}
             onClick={() => {
               startTransition(async () => {
                 const result = await addToCart({

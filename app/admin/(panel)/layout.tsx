@@ -15,7 +15,7 @@ export default async function AdminPanelLayout({
     where: { status: "PENDING" },
   });
   return (
-    <div className="min-h-screen min-w-0 lg:pl-64">
+    <div className="admin-shell min-h-screen min-w-0 lg:pl-64">
       <a
         href="#admin-content"
         className="bg-card text-foreground sr-only rounded-md px-4 py-3 focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50"

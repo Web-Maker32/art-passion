@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db";
 import { addQuantityWithinLimits, buildCartView } from "@/lib/cart-domain";
+import { isVariantAvailable, maxQuantityForVariant } from "@/lib/availability";
 import { emptyCartView } from "@/lib/cart-types";
 import type { CartActionResult, CartView } from "@/lib/cart-types";
 
@@ -136,13 +137,17 @@ export async function addItem(
         id: true,
         price: true,
         stock: true,
-        product: { select: { status: true } },
+        product: { select: { status: true, madeToOrder: true } },
       },
     });
     if (!variant || variant.product.status !== "PUBLISHED") {
       return { ok: false, message: "This product is no longer available." };
     }
-    if (variant.stock <= 0) {
+    const availability = {
+      madeToOrder: variant.product.madeToOrder,
+      stock: variant.stock,
+    };
+    if (!isVariantAvailable(availability)) {
       return { ok: false, message: "This variant is out of stock." };
     }
 
@@ -164,6 +169,7 @@ export async function addItem(
       previous?.quantity ?? 0,
       requestedQuantity,
       variant.stock,
+      variant.product.madeToOrder,
     );
     if (quantity < 1) {
       return { ok: false, message: `Only ${variant.stock} in stock.` };
@@ -232,7 +238,7 @@ export async function updateItem(
           select: {
             price: true,
             stock: true,
-            product: { select: { status: true } },
+            product: { select: { status: true, madeToOrder: true } },
           },
         },
       },
@@ -246,12 +252,21 @@ export async function updateItem(
 
     if (
       item.variant.product.status !== "PUBLISHED" ||
-      item.variant.stock <= 0
+      !isVariantAvailable({
+        madeToOrder: item.variant.product.madeToOrder,
+        stock: item.variant.stock,
+      })
     ) {
       return { ok: false, message: "This item is no longer available." };
     }
 
-    const quantity = Math.min(requestedQuantity, item.variant.stock);
+    const quantity = Math.min(
+      requestedQuantity,
+      maxQuantityForVariant({
+        madeToOrder: item.variant.product.madeToOrder,
+        stock: item.variant.stock,
+      }),
+    );
     await transaction.cartItem.update({
       where: { id: item.id },
       data: { quantity, unitPrice: item.variant.price },

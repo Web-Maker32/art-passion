@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { assertAdmin } from "@/lib/admin-auth";
+import { invalidateCatalogCache } from "@/lib/catalog-cache";
 import {
   productFormSchema,
   productIdSchema,
@@ -12,16 +13,20 @@ import {
   duplicateProduct,
   saveProduct,
   setProductArchived,
+  stockConflictMessage,
   updateVariantStock,
   type AdminProductDeleteResult,
   type AdminProductMutationResult,
 } from "@/lib/admin-products";
+import type { AdminProductEdit } from "@/lib/queries/admin-products";
 
 export type AdminProductActionResult =
   | {
       success: true;
       message: string;
       productId?: string;
+      /** Persisted product (variants with ids and current stock) for form reset. */
+      product?: AdminProductEdit;
     }
   | {
       success: false;
@@ -40,6 +45,8 @@ function revalidateProductPaths(productId?: string): void {
   if (productId) {
     revalidatePath(`/admin/products/${productId}`);
   }
+  // Refresh the public storefront catalog caches and sitemap too.
+  invalidateCatalogCache();
 }
 
 function mapZodIssues(error: {
@@ -72,6 +79,7 @@ function mutationToResult(
         success: true,
         message: result.message,
         productId: result.productId,
+        product: result.product,
       };
     case "not_found":
       return { success: false, message: "That product could not be found." };
@@ -91,6 +99,7 @@ function mutationToResult(
       };
     case "publish_blocked":
     case "variant_ordered":
+    case "stock_conflict":
       return { success: false, message: result.message };
   }
 }
@@ -218,9 +227,13 @@ export async function updateAdminVariantStock(
   const result = await updateVariantStock(
     parsed.data.variantId,
     parsed.data.stock,
+    parsed.data.loadedStock,
   );
   if (result.status === "not_found") {
     return { success: false, message: "That variant could not be found." };
+  }
+  if (result.status === "conflict") {
+    return { success: false, message: stockConflictMessage };
   }
 
   revalidateProductPaths();

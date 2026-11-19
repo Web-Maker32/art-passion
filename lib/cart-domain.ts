@@ -1,4 +1,8 @@
 import type { CartLine, CartView } from "@/lib/cart-types";
+import {
+  isVariantAvailable,
+  maxQuantityForVariant,
+} from "@/lib/availability";
 
 export type CartItemRecord = {
   id: string;
@@ -13,6 +17,7 @@ export type CartItemRecord = {
       title: string;
       slug: string;
       status: "DRAFT" | "PUBLISHED" | "HIDDEN";
+      madeToOrder?: boolean;
       images: Array<{ url: string; alt: string }>;
     };
   };
@@ -22,8 +27,12 @@ export function addQuantityWithinLimits(
   currentQuantity: number,
   requestedQuantity: number,
   stock: number,
+  madeToOrder = false,
 ): { quantity: number; clamped: boolean } {
-  const quantity = Math.min(currentQuantity + requestedQuantity, stock, 20);
+  const quantity = Math.min(
+    currentQuantity + requestedQuantity,
+    maxQuantityForVariant({ madeToOrder, stock }),
+  );
   return {
     quantity,
     clamped: quantity !== currentQuantity + requestedQuantity,
@@ -36,15 +45,17 @@ export function buildCartView(
 ): CartView {
   const items: CartLine[] = records.map((record) => {
     const { product } = record.variant;
-    const unavailable =
-      product.status !== "PUBLISHED" ||
-      record.variant.stock <= 0 ||
-      record.quantity > record.variant.stock;
+    const madeToOrder = product.madeToOrder ?? false;
+    const availability = { madeToOrder, stock: record.variant.stock };
+    const published = product.status === "PUBLISHED";
+    const available = isVariantAvailable(availability);
+    const exceedsStock = !madeToOrder && record.quantity > record.variant.stock;
+    const unavailable = !published || !available || exceedsStock;
 
     let message: string | null = null;
-    if (product.status !== "PUBLISHED" || record.variant.stock <= 0) {
+    if (!published || !available) {
       message = "No longer available";
-    } else if (record.quantity > record.variant.stock) {
+    } else if (exceedsStock) {
       message = `Only ${record.variant.stock} in stock. Reduce the quantity to continue.`;
     } else if (record.unitPrice !== record.variant.price) {
       message = "Price updated";
@@ -61,9 +72,11 @@ export function buildCartView(
       quantity: record.quantity,
       unitPrice: record.variant.price,
       stock: record.variant.stock,
+      madeToOrder,
+      maxQuantity: maxQuantityForVariant(availability),
       lineTotal: record.variant.price * record.quantity,
       available: !unavailable,
-      editable: product.status === "PUBLISHED" && record.variant.stock > 0,
+      editable: published && available,
       message,
     };
   });

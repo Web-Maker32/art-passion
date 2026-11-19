@@ -23,6 +23,7 @@ export function Logo({
       height={size}
       preload={priority}
       src={logoSources[variant]}
+      unoptimized
       width={Math.round((size * 1318) / 1394)}
     />
   );

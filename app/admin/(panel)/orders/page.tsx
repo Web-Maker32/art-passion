@@ -38,6 +38,7 @@ type SearchParams = Promise<{
 const validStatuses = new Set<string>([
   ...Object.values(OrderStatus),
   "ACTIVE",
+  "TO_SHIP",
   "ALL",
 ]);
 
@@ -104,7 +105,7 @@ export default async function AdminOrdersPage({
           label="To ship"
           value={summary.toShip}
           hint="Paid and processing orders to pack."
-          href="/admin/orders?status=PAID"
+          href="/admin/orders?status=TO_SHIP"
         />
         <StatCard
           icon={CheckCircle2}

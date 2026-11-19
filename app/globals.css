@@ -225,7 +225,9 @@
   --destructive: oklch(0.52 0.245 27.325);
   --border: var(--silver);
   --input: var(--silver-strong);
-  --ring: var(--gold);
+  /* Focus rings must reach >=3:1 against the cream background and white cards;
+     the lighter --gold only manages ~2.26:1, so use the darker gold-text. */
+  --ring: var(--gold-text);
   --chart-1: var(--brand);
   --chart-2: var(--gold);
   --chart-3: var(--blush);
@@ -239,7 +241,7 @@
   --sidebar-accent: var(--gold-light);
   --sidebar-accent-foreground: oklch(0.284 0.038 189.8);
   --sidebar-border: var(--silver);
-  --sidebar-ring: var(--gold);
+  --sidebar-ring: var(--gold-text);
 }
 
 .dark {
@@ -313,6 +315,23 @@
   --sidebar-accent-foreground: #0a2523;
   --sidebar-border: var(--silver);
   --sidebar-ring: var(--gold-light);
+}
+
+/* Admin stays dense on desktop; on touch devices every control grows to a 44px
+   hit area. Checkboxes and radios keep their native size; text fields only gain
+   height so full-width inputs are not distorted. */
+@media (pointer: coarse) {
+  .admin-shell :where(a, button, [role="button"], select, summary) {
+    min-height: 2.75rem;
+    min-width: 2.75rem;
+  }
+  .admin-shell
+    :where(
+      input:not([type="checkbox"]):not([type="radio"]),
+      textarea
+    ) {
+    min-height: 2.75rem;
+  }
 }
 
 @utility bg-brand-header {

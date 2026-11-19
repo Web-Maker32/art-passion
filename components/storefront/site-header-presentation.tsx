@@ -76,7 +76,7 @@ export function SiteHeaderPresentation({
               return (
                 <Link
                   aria-current={active ? "page" : undefined}
-                  className={`focus-visible:outline-gold-light after:bg-gold-light motion-safe:after:duration-interaction motion-safe:after:ease-interaction relative rounded-sm py-2 text-sm font-medium transition-colors after:absolute after:inset-x-0 after:-bottom-0.5 after:h-0.5 after:origin-left after:scale-x-0 after:rounded-full hover:after:scale-x-100 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:after:scale-x-100 motion-safe:after:transition-transform motion-reduce:after:transition-none ${
+                  className={`focus-visible:outline-gold-light after:bg-gold-light motion-safe:after:duration-interaction motion-safe:after:ease-interaction relative inline-flex min-h-11 items-center rounded-sm py-2 text-sm font-medium transition-colors after:absolute after:inset-x-0 after:-bottom-0.5 after:h-0.5 after:origin-left after:scale-x-0 after:rounded-full hover:after:scale-x-100 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:after:scale-x-100 motion-safe:after:transition-transform motion-reduce:after:transition-none ${
                     active
                       ? "text-gold-light after:scale-x-100"
                       : "text-brand-foreground hover:text-gold-light"

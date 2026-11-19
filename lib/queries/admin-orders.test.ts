@@ -23,6 +23,7 @@ import {
   ADMIN_ORDER_SEARCH_MAX_LENGTH,
   getAdminOrdersSummary,
   listAdminOrders,
+  TO_SHIP_STATUSES,
 } from "@/lib/queries/admin-orders";
 import { REVENUE_STATUSES } from "@/lib/queries/admin-dashboard";
 
@@ -169,6 +170,44 @@ describe("Active tab and counts", () => {
     expect(result.counts.CANCELLED).toBe(4);
     expect(result.counts.REFUNDED).toBe(1);
     expect(result.counts.DELIVERED).toBe(2);
+  });
+});
+
+describe("To ship tab", () => {
+  it("combines PAID and PROCESSING into one read-only filter", async () => {
+    db.order.groupBy.mockResolvedValue([
+      { status: "PAID", _count: { _all: 2 } },
+      { status: "PROCESSING", _count: { _all: 1 } },
+      { status: "DELIVERED", _count: { _all: 4 } },
+    ]);
+
+    const result = await listAdminOrders({ status: "TO_SHIP" }, NOW);
+
+    expect(TO_SHIP_STATUSES).toEqual(["PAID", "PROCESSING"]);
+    expect(db.order.findMany.mock.calls[0]?.[0].where.status).toEqual({
+      in: ["PAID", "PROCESSING"],
+    });
+    expect(result.counts.TO_SHIP).toBe(3);
+    expect(result.counts.ACTIVE).toBe(7);
+    expect(result.counts.ALL).toBe(7);
+    // No reported-pending priority reads on the combined tab.
+    expect(db.order.count).toHaveBeenCalledTimes(1);
+    expect(db.order.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps search filters on the list and the tab counts", async () => {
+    await listAdminOrders({ status: "TO_SHIP", search: "AP-2026" }, NOW);
+    const listCall = db.order.findMany.mock.calls[0]?.[0];
+    expect(listCall.where.status).toEqual({ in: TO_SHIP_STATUSES });
+    expect(listCall.where.OR).toBeDefined();
+    const countsCall = db.order.groupBy.mock.calls[0]?.[0];
+    expect(countsCall.where.status).toBeUndefined();
+    expect(countsCall.where.OR).toEqual(listCall.where.OR);
+  });
+
+  it("counts zero to-ship orders on an empty shop", async () => {
+    const result = await listAdminOrders({ status: "TO_SHIP" }, NOW);
+    expect(result.counts.TO_SHIP).toBe(0);
   });
 });
 

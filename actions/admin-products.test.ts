@@ -13,7 +13,7 @@ const { mocks } = vi.hoisted(() => ({
   },
 }));
 
-vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+vi.mock("next/cache", () => ({ revalidatePath: vi.fn(), updateTag: vi.fn() }));
 
 vi.mock("@/lib/admin-auth", () => ({
   assertAdmin: vi.fn(async () =>

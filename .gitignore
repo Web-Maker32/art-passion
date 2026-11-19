@@ -1,3 +1,4 @@
+
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
@@ -46,3 +47,10 @@ next-env.d.ts
 
 /backups/
 *.sql
+# Prisma migrations must ship with the repo despite the backup *.sql rule.
+!prisma/migrations/**/*.sql
+
+# browser audits
+/e2e/artifacts/
+/e2e/.auth/
+/e2e/auth-state.json

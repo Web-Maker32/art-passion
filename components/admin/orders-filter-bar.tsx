@@ -12,6 +12,7 @@ import { ADMIN_ORDER_SEARCH_MAX_LENGTH } from "@/lib/queries/admin-orders";
 
 const tabs: Array<{ value: AdminOrderStatusTab; label: string }> = [
   { value: "ACTIVE", label: "Active" },
+  { value: "TO_SHIP", label: "To ship" },
   ...orderStatusChoices,
   { value: "ALL", label: "All" },
 ];

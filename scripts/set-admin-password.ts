@@ -97,7 +97,8 @@ async function main() {
     const passwordHash = await bcrypt.hash(password, 12);
     await prisma.user.update({
       where: { id: user.id },
-      data: { passwordHash },
+      // Bumping the session version signs out every existing admin session.
+      data: { passwordHash, sessionVersion: { increment: 1 } },
     });
 
     console.info("Admin password updated successfully.");

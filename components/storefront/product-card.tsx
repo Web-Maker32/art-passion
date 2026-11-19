@@ -1,8 +1,12 @@
 import Image from "next/image";
+import { isUnoptimizedImageSrc } from "@/lib/image-src";
 import Link from "next/link";
 import { formatPrice } from "@/lib/format";
+import { isProductOutOfStock } from "@/lib/availability";
 import type { ProductCardData } from "@/lib/queries/products";
 import { ScrollReveal } from "@/components/storefront/scroll-reveal";
+
+export { isProductOutOfStock };
 
 export function ProductCard({ product }: { product: ProductCardData }) {
   const image = product.images[0];
@@ -31,6 +35,7 @@ export function ProductCard({ product }: { product: ProductCardData }) {
               fill
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
               src={imageSrc}
+              unoptimized={isUnoptimizedImageSrc(imageSrc)}
             />
             {secondImageSrc && secondImageSrc !== imageSrc && (
               <Image
@@ -42,6 +47,7 @@ export function ProductCard({ product }: { product: ProductCardData }) {
                 fill
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                 src={secondImageSrc}
+                unoptimized={isUnoptimizedImageSrc(secondImageSrc)}
               />
             )}
             {outOfStock && (
@@ -67,17 +73,6 @@ export function ProductCard({ product }: { product: ProductCardData }) {
         </Link>
       </article>
     </ScrollReveal>
-  );
-}
-
-export function isProductOutOfStock(product: {
-  madeToOrder: boolean;
-  variants: ReadonlyArray<{ stock: number }>;
-}): boolean {
-  return (
-    !product.madeToOrder &&
-    product.variants.length > 0 &&
-    product.variants.every((variant) => variant.stock === 0)
   );
 }
 

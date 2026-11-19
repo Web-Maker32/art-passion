@@ -6,13 +6,14 @@ import { io } from "next/cache";
 import { env } from "@/lib/env";
 
 export const adminSessionCookieName = "ap_admin_session";
-export const adminSessionTtlMs = 1000 * 60 * 60 * 24 * 7;
+export const adminSessionTtlMs = 1000 * 60 * 60 * 24 * 3;
 const adminSessionMaxAgeSeconds = adminSessionTtlMs / 1000;
 
 const signaturePattern = /^[a-f0-9]{64}$/i;
 
 export type AdminSession = {
   userId: string;
+  sessionVersion: number;
   expiresAt: number;
 };
 
@@ -35,13 +36,21 @@ function decodePayload(payload: string): AdminSession | null {
       !parsed ||
       typeof parsed !== "object" ||
       typeof (parsed as AdminSession).userId !== "string" ||
+      typeof (parsed as AdminSession).sessionVersion !== "number" ||
       typeof (parsed as AdminSession).expiresAt !== "number"
     ) {
       return null;
     }
-    const { userId, expiresAt } = parsed as AdminSession;
-    if (!userId || !Number.isFinite(expiresAt)) return null;
-    return { userId, expiresAt };
+    const { userId, sessionVersion, expiresAt } = parsed as AdminSession;
+    if (
+      !userId ||
+      !Number.isInteger(sessionVersion) ||
+      sessionVersion < 0 ||
+      !Number.isFinite(expiresAt)
+    ) {
+      return null;
+    }
+    return { userId, sessionVersion, expiresAt };
   } catch {
     return null;
   }
@@ -54,9 +63,14 @@ function decodePayload(payload: string): AdminSession | null {
  */
 export function createAdminSessionCookieValue(
   userId: string,
+  sessionVersion: number,
   now: number = Date.now(),
 ): string {
-  const payload = encodePayload({ userId, expiresAt: now + adminSessionTtlMs });
+  const payload = encodePayload({
+    userId,
+    sessionVersion,
+    expiresAt: now + adminSessionTtlMs,
+  });
   return `${payload}.${sign(payload)}`;
 }
 
@@ -102,11 +116,14 @@ export async function readAdminSession(): Promise<AdminSession | null> {
   return verifyAdminSessionCookie(value, Date.now());
 }
 
-export async function setAdminSessionCookie(userId: string): Promise<void> {
+export async function setAdminSessionCookie(
+  userId: string,
+  sessionVersion: number,
+): Promise<void> {
   const cookieStore = await cookies();
   cookieStore.set(
     adminSessionCookieName,
-    createAdminSessionCookieValue(userId),
+    createAdminSessionCookieValue(userId, sessionVersion),
     {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",

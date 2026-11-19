@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { assertAdmin } from "@/lib/admin-auth";
+import { invalidateCatalogCache } from "@/lib/catalog-cache";
 import {
   createCategorySchema,
   renameCategorySchema,
@@ -27,6 +28,8 @@ function revalidateCategoryPaths(): void {
   revalidatePath("/admin/products/new");
   // Category names surface in storefront navigation.
   revalidatePath("/");
+  // Category rename/add changes the cached storefront catalog and sitemap.
+  invalidateCatalogCache();
 }
 
 function mutationToResult(

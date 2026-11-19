@@ -9,6 +9,8 @@ export type CartLine = {
   quantity: number;
   unitPrice: number;
   stock: number;
+  madeToOrder: boolean;
+  maxQuantity: number;
   lineTotal: number;
   available: boolean;
   editable: boolean;

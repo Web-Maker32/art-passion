@@ -26,12 +26,12 @@ export async function verifyAdminCredentials({
 }: {
   email: string;
   password: string;
-}): Promise<{ userId: string } | null> {
+}): Promise<{ userId: string; sessionVersion: number } | null> {
   const normalizedEmail = email.trim().toLowerCase();
 
   const user = await prisma.user.findUnique({
     where: { email: normalizedEmail },
-    select: { id: true, passwordHash: true, role: true },
+    select: { id: true, passwordHash: true, role: true, sessionVersion: true },
   });
 
   if (!user) {
@@ -44,12 +44,14 @@ export async function verifyAdminCredentials({
     return null;
   }
 
-  return { userId: user.id };
+  return { userId: user.id, sessionVersion: user.sessionVersion };
 }
 
 /**
  * Confirms the session cookie is valid AND that the user still exists with the
- * ADMIN role. Called on every protected page and server action.
+ * ADMIN role and the same session version. A version bump (logout or password
+ * change) invalidates every previously issued cookie. Called on every protected
+ * page, server action and the image upload route.
  */
 export async function resolveAdminUserId(): Promise<string | null> {
   const session = await readAdminSession();
@@ -57,11 +59,28 @@ export async function resolveAdminUserId(): Promise<string | null> {
 
   const user = await prisma.user.findUnique({
     where: { id: session.userId },
-    select: { id: true, role: true },
+    select: { id: true, role: true, sessionVersion: true },
   });
-  if (!user || user.role !== "ADMIN") return null;
+  if (
+    !user ||
+    user.role !== "ADMIN" ||
+    user.sessionVersion !== session.sessionVersion
+  ) {
+    return null;
+  }
 
   return user.id;
+}
+
+/**
+ * Increments the user's session version so all existing cookies stop resolving.
+ * Used on logout and after a password change.
+ */
+export async function bumpAdminSessionVersion(userId: string): Promise<void> {
+  await prisma.user.update({
+    where: { id: userId },
+    data: { sessionVersion: { increment: 1 } },
+  });
 }
 
 /**

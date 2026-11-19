@@ -136,4 +136,38 @@ describe("cart domain", () => {
     expect(cart.items[0].available).toBe(false);
     expect(cart.items[0].message).toContain("Only 2 in stock");
   });
+
+  it("clamps made-to-order additions to the per-line maximum, not stock", () => {
+    expect(addQuantityWithinLimits(0, 25, 0, true)).toEqual({
+      quantity: 20,
+      clamped: true,
+    });
+    expect(addQuantityWithinLimits(18, 1, 0, true)).toEqual({
+      quantity: 19,
+      clamped: false,
+    });
+  });
+
+  it("keeps made-to-order lines available with zero stock", () => {
+    const cart = buildCartView("cart-1", [
+      cartItem({
+        quantity: 3,
+        variant: {
+          ...cartItem().variant,
+          stock: 0,
+          product: { ...cartItem().variant.product, madeToOrder: true },
+        },
+      }),
+    ]);
+
+    expect(cart.items[0]).toMatchObject({
+      available: true,
+      editable: true,
+      madeToOrder: true,
+      maxQuantity: 20,
+      message: null,
+    });
+    expect(cart.subtotal).toBe(5400);
+    expect(cart.unavailableCount).toBe(0);
+  });
 });

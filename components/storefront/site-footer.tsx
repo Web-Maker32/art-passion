@@ -72,7 +72,7 @@ export function SiteFooter() {
               {whatsapp && (
                 <li>
                   <a
-                    className="text-brand-foreground/85 hover:text-brand-gold focus-visible:outline-gold-light inline-flex min-h-9 items-center gap-2.5 rounded-sm transition-colors duration-interaction focus-visible:outline-2 focus-visible:outline-offset-2"
+                    className="text-brand-foreground/85 hover:text-brand-gold focus-visible:outline-gold-light inline-flex min-h-11 items-center gap-2.5 rounded-sm transition-colors duration-interaction focus-visible:outline-2 focus-visible:outline-offset-2"
                     href={whatsapp}
                     rel="noopener noreferrer"
                     target="_blank"
@@ -85,7 +85,7 @@ export function SiteFooter() {
               {hasEmail && (
                 <li>
                   <a
-                    className="text-brand-foreground/85 hover:text-brand-gold focus-visible:outline-gold-light inline-flex min-h-9 items-center gap-2.5 rounded-sm transition-colors duration-interaction focus-visible:outline-2 focus-visible:outline-offset-2"
+                    className="text-brand-foreground/85 hover:text-brand-gold focus-visible:outline-gold-light inline-flex min-h-11 items-center gap-2.5 rounded-sm transition-colors duration-interaction focus-visible:outline-2 focus-visible:outline-offset-2"
                     href={`mailto:${siteConfig.contactEmail}`}
                   >
                     <Mail aria-hidden="true" className="text-brand-gold size-4" />
@@ -206,7 +206,7 @@ function FooterLinkList({
         {links.map(({ href, label }) => (
           <li key={`${heading}-${href}`}>
             <Link
-              className="text-brand-foreground/80 hover:text-brand-gold focus-visible:outline-gold-light inline-flex min-h-9 items-center rounded-sm text-sm underline-offset-4 transition-colors duration-interaction hover:underline hover:decoration-brand-gold focus-visible:outline-2 focus-visible:outline-offset-2"
+              className="text-brand-foreground/80 hover:text-brand-gold focus-visible:outline-gold-light inline-flex min-h-11 items-center rounded-sm text-sm underline-offset-4 transition-colors duration-interaction hover:underline hover:decoration-brand-gold focus-visible:outline-2 focus-visible:outline-offset-2"
               href={href}
             >
               {label}

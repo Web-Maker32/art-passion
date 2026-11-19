@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { calculateShippingFee } from "@/lib/shipping";
+import { formatPrice } from "@/lib/format";
 import {
   deliveryInfoLine,
   isOwnerTodo,
@@ -24,7 +25,10 @@ describe("siteConfig delivery values", () => {
 
   it("builds the delivery line from the same values", () => {
     expect(deliveryInfoLine).toBe(
-      `Flat Rs ${siteConfig.deliveryFee} delivery, free over Rs ${siteConfig.freeDeliveryThreshold}`,
+      `Flat ${formatPrice(siteConfig.deliveryFee)} delivery, free delivery on orders of ${formatPrice(siteConfig.freeDeliveryThreshold)} or more`,
+    );
+    expect(deliveryInfoLine).toContain(
+      `free delivery on orders of ${formatPrice(siteConfig.freeDeliveryThreshold)} or more`,
     );
     expect(isOwnerTodo(deliveryInfoLine)).toBe(false);
   });

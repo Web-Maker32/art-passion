@@ -18,6 +18,8 @@ describe("buildCartWhatsAppMessage", () => {
           quantity: 2,
           unitPrice: 1250,
           stock: 4,
+          madeToOrder: false,
+          maxQuantity: 4,
           lineTotal: 2500,
           available: true,
           editable: true,

@@ -16,6 +16,9 @@ export const ACTIVE_ORDER_STATUSES: OrderStatus[] = [
   "DELIVERED",
 ];
 
+/** Read-only "To ship" tab: paid and processing orders to pack and dispatch. */
+export const TO_SHIP_STATUSES: OrderStatus[] = ["PAID", "PROCESSING"];
+
 export const ADMIN_ORDERS_PAGE_SIZE = 20;
 
 /** Search terms are capped so one request cannot scan unbounded text. */
@@ -25,7 +28,7 @@ const DAY_MS = 86_400_000;
 
 export type AdminOrderDateRange = "7d" | "30d" | "all";
 
-export type AdminOrderStatusTab = OrderStatus | "ACTIVE" | "ALL";
+export type AdminOrderStatusTab = OrderStatus | "ACTIVE" | "TO_SHIP" | "ALL";
 
 export type AdminOrderListFilters = {
   status?: AdminOrderStatusTab;
@@ -73,6 +76,8 @@ function buildListWhere(
 
   if (filters.status === "ACTIVE") {
     where.status = { in: ACTIVE_ORDER_STATUSES };
+  } else if (filters.status === "TO_SHIP") {
+    where.status = { in: TO_SHIP_STATUSES };
   } else if (filters.status && filters.status !== "ALL") {
     where.status = filters.status;
   }
@@ -266,12 +271,16 @@ export async function listAdminOrders(
     Object.values(OrderStatus).map((status) => [status, 0]),
   ) as AdminOrderStatusCounts;
   counts.ACTIVE = 0;
+  counts.TO_SHIP = 0;
   counts.ALL = 0;
   for (const group of statusGroups) {
     counts[group.status] = group._count._all;
     counts.ALL += group._count._all;
     if (ACTIVE_ORDER_STATUSES.includes(group.status)) {
       counts.ACTIVE += group._count._all;
+    }
+    if (TO_SHIP_STATUSES.includes(group.status)) {
+      counts.TO_SHIP += group._count._all;
     }
   }
 
@@ -309,7 +318,7 @@ export async function getAdminOrdersSummary(
       prisma.order.count({
         where: { status: "PENDING", paymentReportedAt: { not: null } },
       }),
-      prisma.order.count({ where: { status: { in: ["PAID", "PROCESSING"] } } }),
+      prisma.order.count({ where: { status: { in: TO_SHIP_STATUSES } } }),
       prisma.order.count({
         where: { status: "DELIVERED", deliveredAt: { gte: monthStart } },
       }),

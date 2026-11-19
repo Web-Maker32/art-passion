@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { isUnoptimizedImageSrc } from "@/lib/image-src";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronDown, ExternalLink, Image as ImageIcon } from "lucide-react";
@@ -67,6 +68,7 @@ function Thumbnail({ product }: { product: AdminProductListRow }) {
       height={48}
       width={48}
       src={url}
+      unoptimized={isUnoptimizedImageSrc(url)}
     />
   );
 }

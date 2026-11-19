@@ -93,6 +93,8 @@ export function buildProductFormDefaults(
         label: variant.label,
         price: variant.price,
         stock: variant.stock,
+        // Baseline the server uses to detect concurrent stock changes.
+        loadedStock: variant.stock,
         sku: variant.sku ?? "",
       })) ?? [],
   };
@@ -213,7 +215,18 @@ export function AdminProductForm({
       const result = await saveAdminProduct(payload, product?.id);
       if (result.success) {
         toast.success(result.message);
-        reset(undefined, { keepValues: true });
+        if (result.product) {
+          // Reset from the persisted product so newly created variants keep
+          // their database ids and loadedStock baselines for the next save.
+          const persisted = result.product;
+          reset(buildProductFormDefaults(persisted, categories));
+          setMaterialsText((persisted.materials ?? []).join(", "));
+          setTagsText((persisted.tags ?? []).join(", "));
+          setWhatsIncludedText((persisted.whatsIncluded ?? []).join("\n"));
+          slugEditedRef.current = true;
+        } else {
+          reset(undefined, { keepValues: true });
+        }
         if (!product && result.productId) {
           router.push(`/admin/products/${result.productId}`);
         } else {
@@ -448,6 +461,10 @@ export function AdminProductForm({
                   <input
                     type="hidden"
                     {...register(`variants.${index}.variantId` as const)}
+                  />
+                  <input
+                    type="hidden"
+                    {...register(`variants.${index}.loadedStock` as const)}
                   />
                   <div className="grid gap-3 sm:grid-cols-2">
                     <div className="space-y-1.5">

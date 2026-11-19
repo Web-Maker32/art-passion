@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { isUnoptimizedImageSrc } from "@/lib/image-src";
 import Link from "next/link";
 import { MessageCircle, ShoppingBag } from "lucide-react";
 import { CartItemControls, ClearCartButton } from "@/components/storefront/cart-controls";
@@ -80,6 +81,7 @@ export default async function CartPage() {
                     fill
                     sizes="(max-width: 640px) 100vw, 112px"
                     src={item.imageUrl || "/placeholder.svg"}
+                    unoptimized={isUnoptimizedImageSrc(item.imageUrl || "/placeholder.svg")}
                   />
                 </Link>
                 <div className="min-w-0">
@@ -95,6 +97,11 @@ export default async function CartPage() {
                       </h2>
                       <p className="text-muted-foreground mt-1 text-sm">
                         {item.variantLabel}
+                        {item.madeToOrder && (
+                          <span className="text-gold-text dark:text-gold-light font-medium">
+                            {" "}· Made to order
+                          </span>
+                        )}
                       </p>
                     </div>
                     <div className="text-right">
@@ -123,7 +130,7 @@ export default async function CartPage() {
                       available={item.available}
                       editable={item.editable}
                       itemId={item.itemId}
-                      maxQuantity={Math.min(item.stock, 20)}
+                      maxQuantity={item.maxQuantity}
                       productTitle={item.productTitle}
                       quantity={item.quantity}
                       variantLabel={item.variantLabel}

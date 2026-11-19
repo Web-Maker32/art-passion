@@ -109,7 +109,7 @@ export default async function AdminDashboardPage({
             label="Awaiting shipment"
             value={attention.awaitingShipment}
             hint="PAID or PROCESSING orders to pack and dispatch."
-            href="/admin/orders?status=PAID"
+            href="/admin/orders?status=TO_SHIP"
           />
           <StatCard
             icon={PackageSearch}

@@ -32,6 +32,24 @@ export async function generateMetadata({
         "Browse every handmade Art Passion piece: felt play sets, coloring kits, painting kits and gift sets, made by hand in Pakistan and posted to your door.",
       url: "/products",
       type: "website",
+      images: [
+        {
+          url: "/og-image.png",
+          width: 1200,
+          height: 630,
+          alt: "Art Passion - the passion of art",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "Shop handmade | Art Passion",
+      description:
+        "Browse every handmade Art Passion piece: felt play sets, coloring kits, painting kits and gift sets, made by hand in Pakistan and posted to your door.",
+      images: {
+        url: "/og-image.png",
+        alt: "Art Passion - the passion of art",
+      },
     },
   };
 }

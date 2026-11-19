@@ -3,6 +3,8 @@ import {
   buildCartOrderWhatsAppMessage,
   buildOrderPaymentWhatsAppMessage,
   buildWhatsAppLink,
+  formatWhatsAppDisplay,
+  normalizeWhatsAppNumber,
 } from "@/lib/whatsapp";
 import type { CartView } from "@/lib/cart-types";
 
@@ -20,6 +22,8 @@ const cart: CartView = {
       quantity: 2,
       unitPrice: 1250,
       stock: 4,
+      madeToOrder: false,
+      maxQuantity: 4,
       lineTotal: 2500,
       available: true,
       editable: true,
@@ -74,5 +78,46 @@ describe("buildWhatsAppLink", () => {
     expect(
       buildWhatsAppLink({ number: undefined, message: "Hello" }),
     ).toBeNull();
+  });
+
+  it("accepts local 03xx numbers and drops the extra trunk zero in 920…", () => {
+    expect(
+      new URL(buildWhatsAppLink({ number: "03001234567", message: "Hi" })!).pathname,
+    ).toBe("/923001234567");
+    expect(
+      new URL(buildWhatsAppLink({ number: "9203001234567", message: "Hi" })!).pathname,
+    ).toBe("/923001234567");
+    expect(
+      new URL(buildWhatsAppLink({ number: "923001234567", message: "Hi" })!).pathname,
+    ).toBe("/923001234567");
+  });
+});
+
+describe("normalizeWhatsAppNumber", () => {
+  it("strips non-digits and normalizes the common Pakistani forms", () => {
+    expect(normalizeWhatsAppNumber("+92 (300) 123-4567")).toBe("923001234567");
+    expect(normalizeWhatsAppNumber("0300-1234567")).toBe("923001234567");
+    expect(normalizeWhatsAppNumber("9203001234567")).toBe("923001234567");
+    // 12-digit 920… form (trunk zero + 9 subscriber digits) loses the zero too.
+    expect(normalizeWhatsAppNumber("920332905225")).toBe("92332905225");
+    expect(normalizeWhatsAppNumber("923001234567")).toBe("923001234567");
+  });
+
+  it("returns null for empty or digit-free input", () => {
+    expect(normalizeWhatsAppNumber(undefined)).toBeNull();
+    expect(normalizeWhatsAppNumber("")).toBeNull();
+    expect(normalizeWhatsAppNumber("TODO(owner): add number")).toBeNull();
+  });
+});
+
+describe("formatWhatsAppDisplay", () => {
+  it("renders a Pakistani mobile as +92 3XX XXXXXXX", () => {
+    expect(formatWhatsAppDisplay("03001234567")).toBe("+92 300 1234567");
+    expect(formatWhatsAppDisplay("9203001234567")).toBe("+92 300 1234567");
+    expect(formatWhatsAppDisplay("+923001234567")).toBe("+92 300 1234567");
+  });
+
+  it("returns null when no number is configured", () => {
+    expect(formatWhatsAppDisplay(undefined)).toBeNull();
   });
 });

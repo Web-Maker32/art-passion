@@ -1,8 +1,9 @@
 import "server-only";
 
-import { cacheLife } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db";
+import { CATALOG_CACHE_TAG } from "@/lib/catalog-cache";
 import type { ProductFilters } from "@/lib/product-filters";
 
 const productCardSelect = {
@@ -64,6 +65,7 @@ export async function getPublishedProducts({
 }: ProductListingOptions = {}): Promise<ProductCardData[]> {
   "use cache";
   cacheLife("hours");
+  cacheTag(CATALOG_CACHE_TAG);
 
   const priceFilter =
     filters?.minPrice !== undefined || filters?.maxPrice !== undefined
@@ -77,12 +79,28 @@ export async function getPublishedProducts({
         }
       : undefined;
 
-  const variantsFilter =
-    (filters?.inStock ?? false) || priceFilter
-      ? {
-          ...(filters?.inStock ? { stock: { gt: 0 } } : {}),
-          ...(priceFilter ? { price: priceFilter } : {}),
-        }
+  const variantPriceFilter = priceFilter ? { price: priceFilter } : undefined;
+
+  // "In stock only" must still surface made-to-order products, which ignore
+  // physical stock. Ready-made products need a variant with stock (and price).
+  const availabilityFilter: Prisma.ProductWhereInput | undefined = filters?.inStock
+    ? {
+        OR: [
+          {
+            madeToOrder: true,
+            ...(variantPriceFilter
+              ? { variants: { some: variantPriceFilter } }
+              : {}),
+          },
+          {
+            variants: {
+              some: { stock: { gt: 0 }, ...(variantPriceFilter ?? {}) },
+            },
+          },
+        ],
+      }
+    : variantPriceFilter
+      ? { variants: { some: variantPriceFilter } }
       : undefined;
 
   const category = categorySlug ?? filters?.category;
@@ -91,7 +109,7 @@ export async function getPublishedProducts({
       status: "PUBLISHED",
       ...(category ? { category: { slug: category } } : {}),
       ...(filters?.type ? { type: filters.type } : {}),
-      ...(variantsFilter ? { variants: { some: variantsFilter } } : {}),
+      ...(availabilityFilter ?? {}),
     },
     orderBy: { createdAt: "desc" },
     select: productCardSelect,
@@ -139,6 +157,7 @@ export async function getRelatedProducts({
 export async function getFeaturedProducts(take = 4): Promise<ProductCardData[]> {
   "use cache";
   cacheLife("hours");
+  cacheTag(CATALOG_CACHE_TAG);
 
   return prisma.product.findMany({
     where: { status: "PUBLISHED" },
@@ -153,6 +172,7 @@ export async function getProductBySlug(
 ): Promise<ProductDetailData | null> {
   "use cache";
   cacheLife("hours");
+  cacheTag(CATALOG_CACHE_TAG);
 
   return prisma.product.findFirst({
     where: { slug, status: "PUBLISHED" },
@@ -172,6 +192,7 @@ export async function searchPublishedProducts(
 ): Promise<ProductCardData[]> {
   "use cache";
   cacheLife("hours");
+  cacheTag(CATALOG_CACHE_TAG);
 
   const query = searchTerm.trim();
   if (!query) return [];
