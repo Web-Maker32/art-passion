@@ -84,6 +84,32 @@ describe("processCheckout owner notification", () => {
     expect(notifyMock).not.toHaveBeenCalled();
   });
 
+  it("shows a clear stock message and keeps the cart when stock runs out", async () => {
+    createOrderMock.mockResolvedValue({ status: "rejected", reason: "stock" });
+
+    const result = await processCheckout(validInput);
+
+    expect(result).toMatchObject({
+      success: false,
+      message: "Stock changed while placing the order. Review your cart and try again.",
+    });
+    expect(clearCartMock).not.toHaveBeenCalled();
+  });
+
+  it("returns the existing order number for a duplicate idempotency key", async () => {
+    findOrderMock.mockResolvedValue({ orderNumber: "AP-2026-0007" });
+
+    const result = await processCheckout(validInput);
+
+    expect(result).toMatchObject({
+      success: false,
+      orderNumber: "AP-2026-0007",
+    });
+    expect(createOrderMock).not.toHaveBeenCalled();
+    expect(clearCartMock).not.toHaveBeenCalled();
+    expect(notifyMock).not.toHaveBeenCalled();
+  });
+
   it("does not notify when the form is invalid", async () => {
     const result = await processCheckout({ ...validInput, fullName: "" });
 

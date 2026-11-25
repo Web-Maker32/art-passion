@@ -271,6 +271,36 @@ describe("order creation", () => {
     expect(database.counter).toBe(0);
   });
 
+  it("lets only one buyer take the last item and keeps the loser's cart", async () => {
+    const lastItemCart = createCart({ stock: 1 });
+    lastItemCart.items[0]!.quantity = 1;
+    database.cart = lastItemCart;
+    database.variants = new Map([["variant-1", 1]]);
+
+    const first = await createOrderFromCart(checkoutData, "cart-1");
+    expect(first.status).toBe("created");
+    expect(database.variants.get("variant-1")).toBe(0);
+
+    // A second buyer with their own cart and checkout key wants the same item.
+    // Their cart snapshot still shows stock 1; the real stock is already 0,
+    // so only the atomic decrement can catch the race.
+    const secondCart = createCart({ stock: 1 });
+    secondCart.id = "cart-2";
+    secondCart.items[0]!.quantity = 1;
+    database.cart = secondCart;
+
+    const second = await createOrderFromCart(
+      { ...checkoutData, idempotencyKey: "b7e2f3a4-5c6d-4e8f-9a0b-1c2d3e4f5a6b" },
+      "cart-2",
+    );
+
+    expect(second).toEqual({ status: "rejected", reason: "stock" });
+    expect(database.orderRows).toHaveLength(1);
+    expect(database.variants.get("variant-1")).toBe(0);
+    // The rejected buyer's cart is untouched so they can review it.
+    expect(database.cart?.items).toHaveLength(1);
+  });
+
   it("rejects a hidden product without creating an order", async () => {
     database.cart = createCart({ status: "HIDDEN" });
 
