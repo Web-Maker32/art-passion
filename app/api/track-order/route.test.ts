@@ -104,4 +104,27 @@ describe("read-only tracking POST", () => {
       ]),
     );
   });
+  it("keeps every API route and private page out of search indexes", async () => {
+    const headers = await config.headers!();
+    const apiRule = headers.find((rule) => rule.source === "/api/:path*");
+    expect(apiRule?.headers).toEqual(
+      expect.arrayContaining([
+        { key: "X-Robots-Tag", value: "noindex, nofollow" },
+      ]),
+    );
+    expect(robots().rules).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          disallow: expect.arrayContaining([
+            "/admin",
+            "/api",
+            "/cart",
+            "/checkout",
+            "/order",
+            "/track-order",
+          ]),
+        }),
+      ]),
+    );
+  });
 });

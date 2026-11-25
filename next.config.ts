@@ -63,6 +63,14 @@ const nextConfig: NextConfig = {
         ],
       },
       {
+        // Every API route stays out of search indexes (route handlers cannot
+        // export metadata, so the header is the only lever).
+        source: "/api/:path*",
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+        ],
+      },
+      {
         source: "/api/track-order/:path*",
         headers: [
           { key: "Cache-Control", value: "private, no-store, max-age=0" },
