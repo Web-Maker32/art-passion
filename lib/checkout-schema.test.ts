@@ -36,6 +36,34 @@ describe("checkoutSchema", () => {
     expect(result.success).toBe(false);
   });
 
+  it.each([
+    "0300-1234567",
+    "03001234567",
+    "+92 300 1234567",
+    "0092 300 1234567",
+  ])("stores %s in the single canonical format", (mobileNumber) => {
+    const result = checkoutSchema.safeParse({ ...validInput, mobileNumber });
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.mobileNumber).toBe("+923001234567");
+    }
+  });
+
+  it("shows a clear field error for an invalid phone number", () => {
+    const result = checkoutSchema.safeParse({
+      ...validInput,
+      mobileNumber: "12345",
+    });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0]?.message).toBe(
+        "Enter a valid Pakistani mobile number.",
+      );
+    }
+  });
+
   it("requires the terms checkbox", () => {
     const result = checkoutSchema.safeParse({
       ...validInput,

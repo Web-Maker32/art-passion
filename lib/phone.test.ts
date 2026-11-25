@@ -8,6 +8,9 @@ describe("normalizePakistaniPhone", () => {
     ["+92 300 1234567", "+923001234567"],
     ["+92 (300) 123-4567", "+923001234567"],
     ["92 300 1234567", "+923001234567"],
+    ["0092 300 1234567", "+923001234567"],
+    ["00923001234567", "+923001234567"],
+    ["0092-300-1234567", "+923001234567"],
   ])("normalizes %s", (input, expected) => {
     expect(normalizePakistaniPhone(input)).toBe(expected);
   });
@@ -18,6 +21,8 @@ describe("normalizePakistaniPhone", () => {
     "02001234567",
     "abc03001234567",
     "+92 300 123 456",
+    "0092 300 123456",
+    "0044 300 1234567",
   ])("rejects %s", (input) => {
     expect(normalizePakistaniPhone(input)).toBeNull();
   });

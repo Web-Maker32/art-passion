@@ -259,6 +259,28 @@ describe("order creation", () => {
     expect(order?.items.create[0]?.unitPrice).toBe(1500);
   });
 
+  it("recalculates delivery and total from the live cart after an item was removed", async () => {
+    // The buyer saw two Rs 2,500 items (Rs 5,000, free delivery). One item
+    // was removed before checkout, so the server must charge delivery again
+    // from the live cart — never from anything the client saw or sent.
+    const remaining = createCart({ stock: 5 });
+    remaining.items[0]!.quantity = 1;
+    remaining.items[0]!.unitPrice = 2500;
+    remaining.items[0]!.variant.price = 2500;
+    database.cart = remaining;
+    database.variants = new Map([["variant-1", 5]]);
+
+    const result = await createOrderFromCart(checkoutData, "cart-1");
+
+    expect(result.status).toBe("created");
+    const order = database.orderRows[0];
+    expect(order?.subtotal).toBe(2500);
+    expect(order?.shipping).toBe(350);
+    expect(order?.total).toBe(2850);
+    expect(order?.items.create).toHaveLength(1);
+    expect(database.variants.get("variant-1")).toBe(4);
+  });
+
   it("creates no order and changes no stock when the atomic decrement fails", async () => {
     database.cart = createCart({ stock: 5 });
     database.variants = new Map([["variant-1", 1]]);
