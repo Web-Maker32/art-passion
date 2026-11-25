@@ -87,6 +87,20 @@ describe("order access cookie", () => {
     ).toBe(rawToken);
   });
 
+  it("grants access on refresh with only the cookie and no URL token", () => {
+    const { rawToken, tokenHash } = generateOrderAccessToken();
+    const cookieValue = createOrderAccessCookieValue(orderNumber, rawToken);
+
+    expect(
+      selectOrderAccessToken({
+        orderNumber,
+        storedHash: tokenHash,
+        urlToken: null,
+        cookieValue,
+      }),
+    ).toBe(rawToken);
+  });
+
   it("falls back to a valid cookie when the URL token is wrong", () => {
     const { rawToken, tokenHash } = generateOrderAccessToken();
     const other = generateOrderAccessToken();
