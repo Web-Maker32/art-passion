@@ -2,7 +2,10 @@ import Image from "next/image";
 import { isUnoptimizedImageSrc } from "@/lib/image-src";
 import Link from "next/link";
 import { MessageCircle, ShoppingBag } from "lucide-react";
-import { CartItemControls, ClearCartButton } from "@/components/storefront/cart-controls";
+import {
+  CartItemControls,
+  ClearCartButton,
+} from "@/components/storefront/cart-controls";
 import { Container } from "@/components/storefront/container";
 import { FreeDeliveryProgress } from "@/components/storefront/free-delivery-progress";
 import { Button } from "@/components/ui/button";
@@ -43,7 +46,7 @@ export default async function CartPage() {
       </div>
 
       {cart.items.length === 0 ? (
-        <section className="border-silver bg-card mt-8 rounded-2xl border p-8 text-center shadow-soft sm:p-12">
+        <section className="border-silver bg-card shadow-soft mt-8 rounded-2xl border p-8 text-center sm:p-12">
           <span className="bg-gold/20 text-gold-text dark:text-gold-light mx-auto inline-flex size-14 items-center justify-center rounded-2xl">
             <ShoppingBag aria-hidden="true" className="size-6" />
           </span>
@@ -67,7 +70,7 @@ export default async function CartPage() {
           <ul className="space-y-4">
             {cart.items.map((item) => (
               <li
-                className="border-silver bg-card grid gap-4 rounded-2xl border p-4 shadow-soft transition-colors duration-interaction hover-fine:hover:bg-muted/60 sm:grid-cols-[7rem_minmax(0,1fr)] sm:p-5"
+                className="border-silver bg-card shadow-soft duration-interaction hover-fine:hover:bg-muted/60 grid gap-4 rounded-2xl border p-4 transition-colors sm:grid-cols-[7rem_minmax(0,1fr)] sm:p-5"
                 key={item.itemId}
               >
                 <Link
@@ -81,7 +84,9 @@ export default async function CartPage() {
                     fill
                     sizes="(max-width: 640px) 100vw, 112px"
                     src={item.imageUrl || "/placeholder.svg"}
-                    unoptimized={isUnoptimizedImageSrc(item.imageUrl || "/placeholder.svg")}
+                    unoptimized={isUnoptimizedImageSrc(
+                      item.imageUrl || "/placeholder.svg",
+                    )}
                   />
                 </Link>
                 <div className="min-w-0">
@@ -89,7 +94,7 @@ export default async function CartPage() {
                     <div className="min-w-0">
                       <h2 className="font-heading text-lg font-semibold">
                         <Link
-                          className="focus-visible:outline-ring rounded-sm hover:text-brand hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
+                          className="focus-visible:outline-ring hover:text-brand dark:hover:text-gold-light rounded-sm hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
                           href={`/products/${item.productSlug}`}
                         >
                           {item.productTitle}
@@ -99,7 +104,8 @@ export default async function CartPage() {
                         {item.variantLabel}
                         {item.madeToOrder && (
                           <span className="text-gold-text dark:text-gold-light font-medium">
-                            {" "}· Made to order
+                            {" "}
+                            · Made to order
                           </span>
                         )}
                       </p>
@@ -141,7 +147,7 @@ export default async function CartPage() {
             ))}
           </ul>
 
-          <aside className="border-silver bg-card rounded-2xl border p-5 shadow-soft lg:sticky lg:top-28">
+          <aside className="border-silver bg-card shadow-soft rounded-2xl border p-5 lg:sticky lg:top-28">
             <h2 className="font-heading text-xl font-semibold">
               Order summary
             </h2>
@@ -172,12 +178,14 @@ export default async function CartPage() {
                 Remove or update unavailable items before checkout.
               </p>
             )}
-            {cart.items.some((item) => item.message) && cart.unavailableCount === 0 && (
-              <p className="text-destructive mt-4 text-sm" role="alert">
-                Review updated prices before checkout.
-              </p>
-            )}
-            {cart.unavailableCount > 0 || cart.items.some((item) => item.message) ? (
+            {cart.items.some((item) => item.message) &&
+              cart.unavailableCount === 0 && (
+                <p className="text-destructive mt-4 text-sm" role="alert">
+                  Review updated prices before checkout.
+                </p>
+              )}
+            {cart.unavailableCount > 0 ||
+            cart.items.some((item) => item.message) ? (
               <Button className="mt-5 w-full" disabled size="lg" type="button">
                 Review your cart
               </Button>
@@ -200,7 +208,7 @@ export default async function CartPage() {
               >
                 <MessageCircle
                   aria-hidden="true"
-                  className="size-5 shrink-0 text-brand"
+                  className="text-brand dark:text-gold-light size-5 shrink-0"
                 />
                 Order cart on WhatsApp
               </a>
@@ -210,7 +218,7 @@ export default async function CartPage() {
               </p>
             )}
             <Link
-              className="text-muted-foreground hover:text-brand mt-2 inline-flex min-h-11 w-full items-center justify-center rounded-lg text-sm font-semibold underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+              className="text-muted-foreground hover:text-brand dark:hover:text-gold-light focus-visible:outline-ring mt-2 inline-flex min-h-11 w-full items-center justify-center rounded-lg text-sm font-semibold underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
               href="/products"
             >
               Continue shopping

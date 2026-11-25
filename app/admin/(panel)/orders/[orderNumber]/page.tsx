@@ -32,8 +32,8 @@ function DetailRow({
 }) {
   return (
     <div className="flex justify-between gap-4 py-1.5">
-      <dt className="text-muted-foreground">{label}</dt>
-      <dd className="text-right font-medium">{value}</dd>
+      <dt className="text-muted-foreground shrink-0">{label}</dt>
+      <dd className="min-w-0 text-right font-medium break-words">{value}</dd>
     </div>
   );
 }
@@ -195,7 +195,7 @@ export default async function AdminOrderDetailPage({
               />
             </dl>
             {order.paymentReportedAt && (
-              <div className="mt-3 rounded-[8px] border border-gold/30 bg-gold/10 p-3">
+              <div className="border-gold/30 bg-gold/10 mt-3 rounded-[8px] border p-3">
                 <Chip tone="gold">Customer reported payment</Chip>
                 <p className="mt-2 text-sm">
                   <span className="text-muted-foreground">Transaction ID:</span>{" "}
@@ -283,10 +283,7 @@ export default async function AdminOrderDetailPage({
             ) : (
               <ol className="mt-3 space-y-3">
                 {order.events.map((event) => (
-                  <li
-                    className="border-gold/40 border-l-2 pl-4"
-                    key={event.id}
-                  >
+                  <li className="border-gold/40 border-l-2 pl-4" key={event.id}>
                     <p className="text-sm font-medium">
                       {event.fromStatus && event.toStatus
                         ? `${event.fromStatus} → ${event.toStatus}`

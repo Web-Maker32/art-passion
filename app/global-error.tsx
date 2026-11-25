@@ -1,11 +1,17 @@
 "use client";
 
-/**
- * Last-resort error boundary: replaces the root layout, so it must be fully
- * self-contained — its own html/body, inline styles, no shared CSS, fonts or
- * component imports. Brand colours are inlined (teal #0f4a47, gold #c9a24b).
- */
-export default function GlobalError({ retry }: { error: unknown; retry: () => void }) {
+import * as Sentry from "@sentry/nextjs";
+import Error from "next/error";
+import { useEffect } from "react";
+
+export default function GlobalError(
+  { retry }: { error: unknown; retry: () => void },
+  { error }: { error: Error },
+) {
+  useEffect(() => {
+    Sentry.captureException(error);
+  }, [error]);
+
   return (
     <html lang="en" style={{ colorScheme: "light dark" }}>
       <head>
@@ -59,7 +65,10 @@ export default function GlobalError({ retry }: { error: unknown; retry: () => vo
           color: "var(--ap-fg)",
         }}
       >
-        <main role="alert" style={{ maxWidth: "32rem", width: "100%", textAlign: "center" }}>
+        <main
+          role="alert"
+          style={{ maxWidth: "32rem", width: "100%", textAlign: "center" }}
+        >
           <span
             aria-hidden="true"
             style={{
@@ -73,19 +82,51 @@ export default function GlobalError({ retry }: { error: unknown; retry: () => vo
               color: "var(--ap-gold)",
             }}
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <circle cx="12" cy="12" r="10" />
               <line x1="12" y1="8" x2="12" y2="12" />
               <line x1="12" y1="16" x2="12.01" y2="16" />
             </svg>
           </span>
-          <h1 style={{ margin: "20px 0 0", fontSize: "1.875rem", lineHeight: 1.15, letterSpacing: "-0.02em" }}>
+          <h1
+            style={{
+              margin: "20px 0 0",
+              fontSize: "1.875rem",
+              lineHeight: 1.15,
+              letterSpacing: "-0.02em",
+            }}
+          >
             We couldn&rsquo;t load this page
           </h1>
-          <p style={{ margin: "16px auto 0", maxWidth: "28rem", lineHeight: 1.7, color: "var(--ap-muted)" }}>
-            Please try again. If the problem continues, come back in a few minutes.
+          <p
+            style={{
+              margin: "16px auto 0",
+              maxWidth: "28rem",
+              lineHeight: 1.7,
+              color: "var(--ap-muted)",
+            }}
+          >
+            Please try again. If the problem continues, come back in a few
+            minutes.
           </p>
-          <div style={{ marginTop: 32, display: "flex", flexWrap: "wrap", gap: 12, justifyContent: "center" }}>
+          <div
+            style={{
+              marginTop: 32,
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 12,
+              justifyContent: "center",
+            }}
+          >
             <button
               className="ap-btn"
               onClick={retry}

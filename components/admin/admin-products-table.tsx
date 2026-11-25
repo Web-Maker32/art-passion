@@ -82,7 +82,7 @@ function ProductIdentity({ product }: { product: AdminProductListRow }) {
       <div className="min-w-0">
         <span className="flex min-w-0 items-center gap-2">
           <Link
-            className="focus-visible:outline-ring max-w-56 truncate font-semibold underline-offset-4 hover-fine:hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
+            className="focus-visible:outline-ring hover-fine:hover:underline max-w-44 truncate font-semibold underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2"
             href={editHref(product)}
             title={product.title}
           >
@@ -143,7 +143,7 @@ function VariantExpansion({ product }: { product: AdminProductListRow }) {
           className="size-3.5 transition-transform group-open/variants:rotate-180 motion-reduce:transition-none"
         />
       </summary>
-      <div className="mt-2 min-w-64">
+      <div className="mt-2 w-56">
         <VariantStockList product={product} />
       </div>
     </details>
@@ -154,7 +154,10 @@ function StockLabel({ product }: { product: AdminProductListRow }) {
   const stock = getStockDisplay(product);
   return (
     <span
-      className={cn("text-sm font-medium tabular-nums", stockToneClasses[stock.tone])}
+      className={cn(
+        "text-sm font-medium tabular-nums",
+        stockToneClasses[stock.tone],
+      )}
     >
       {stock.label}
     </span>
@@ -174,7 +177,7 @@ function RowActions({ product }: { product: AdminProductListRow }) {
         <DuplicateProductButton
           className={cn(
             overflowMenuItemClass,
-            "h-auto justify-start border-0 bg-transparent shadow-none hover:bg-muted focus-visible:bg-muted dark:bg-transparent dark:hover:bg-muted",
+            "hover:bg-muted focus-visible:bg-muted dark:hover:bg-muted h-auto justify-start border-0 bg-transparent shadow-none dark:bg-transparent",
           )}
           productId={product.id}
           role="menuitem"
@@ -246,7 +249,8 @@ export function AdminProductsTable({
     <>
       {/* Desktop / tablet table */}
       <TableCard className="hidden md:block">
-        <Table>
+        {/* Compact cells + pinned Actions so Edit stays visible at 1280px. */}
+        <Table className="[&_td]:px-3 [&_th]:px-3">
           <TableHeader>
             <TableRow>
               <TableHead>Product</TableHead>
@@ -255,7 +259,7 @@ export function AdminProductsTable({
               <TableHead className="text-right">Price</TableHead>
               <TableHead className="text-right">Stock</TableHead>
               <TableHead>Variants</TableHead>
-              <TableHead className="text-right">
+              <TableHead className="right-0 z-20 text-right">
                 <span className="sr-only">Actions</span>
               </TableHead>
             </TableRow>
@@ -286,10 +290,10 @@ export function AdminProductsTable({
                 <TableCell className="text-right">
                   <StockLabel product={product} />
                 </TableCell>
-                <TableCell className="max-w-80">
+                <TableCell className="max-w-56">
                   <VariantExpansion product={product} />
                 </TableCell>
-                <TableCell className="text-right">
+                <TableCell className="bg-card group-hover/row:bg-muted group-has-aria-expanded/row:bg-muted sticky right-0 text-right shadow-[-6px_0_8px_-6px_var(--border)]">
                   <RowActions product={product} />
                 </TableCell>
               </TableRow>

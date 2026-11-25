@@ -22,7 +22,10 @@ import {
 } from "@/lib/product-filters";
 
 export async function generateStaticParams() {
-  return getPublishedCategorySlugs();
+  const slugs = await getPublishedCategorySlugs();
+  // Cache Components requires at least one param. With an empty catalogue the
+  // placeholder prerenders the notFound() shell (Next docs: generate-static-params).
+  return slugs.length > 0 ? slugs : [{ slug: "__placeholder__" }];
 }
 
 export async function generateMetadata({

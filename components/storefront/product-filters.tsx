@@ -43,12 +43,12 @@ function PriceField({
   return (
     <label className="grid gap-1.5 text-sm font-medium">
       {label}
-      <span className="flex h-11 items-center rounded-lg border border-input bg-background focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ring">
+      <span className="border-input bg-background focus-within:outline-ring flex h-11 items-center rounded-lg border focus-within:outline-2 focus-within:outline-offset-2">
         <span aria-hidden="true" className="text-muted-foreground pl-3 text-sm">
           Rs
         </span>
         <input
-          className="h-full w-full min-w-0 bg-transparent px-2 text-foreground outline-none"
+          className="text-foreground h-full w-full min-w-0 bg-transparent px-2 outline-none"
           defaultValue={defaultValue}
           inputMode="numeric"
           min="0"
@@ -73,11 +73,11 @@ function InStockSwitch({ defaultChecked }: { defaultChecked: boolean }) {
       />
       <span
         aria-hidden="true"
-        className="bg-muted-foreground/30 peer-checked:bg-brand peer-focus-visible:outline-ring h-6 w-11 shrink-0 rounded-full transition-colors duration-interaction peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2"
+        className="bg-muted-foreground/30 peer-checked:bg-brand peer-focus-visible:outline-ring duration-interaction h-6 w-11 shrink-0 rounded-full transition-colors peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2"
       />
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute top-1/2 left-1 size-4 -translate-y-1/2 rounded-full bg-white shadow transition-transform duration-interaction peer-checked:translate-x-5"
+        className="bg-brand-foreground duration-interaction pointer-events-none absolute top-1/2 left-1 size-4 -translate-y-1/2 rounded-full shadow transition-transform peer-checked:translate-x-5"
       />
       In stock only
     </label>
@@ -203,7 +203,7 @@ export function ProductFiltersPanel({
     <div>
       {/* Desktop (md+) filter form */}
       <form
-        className="hidden gap-4 rounded-2xl border border-silver bg-card p-4 shadow-soft sm:p-5 md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6"
+        className="border-silver bg-card shadow-soft hidden gap-4 rounded-2xl border p-4 sm:p-5 md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6"
         onSubmit={applyFilters}
       >
         {!lockedCategory && (
@@ -290,7 +290,7 @@ export function ProductFiltersPanel({
             <div className="ml-auto flex items-center gap-2">
               <select
                 aria-label="Sort by"
-                className="h-11 max-w-[10rem] rounded-lg border border-input bg-background px-2.5 text-sm text-foreground transition-colors duration-interaction ease-interaction focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                className="border-input bg-background text-foreground duration-interaction ease-interaction focus-visible:outline-ring h-11 max-w-[10rem] rounded-lg border px-2.5 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
                 defaultValue={filters.sort}
                 key={filters.sort}
                 onChange={(event) => applySort(event.target.value)}
@@ -298,7 +298,7 @@ export function ProductFiltersPanel({
                 {sortOptions}
               </select>
               <SheetTrigger
-                className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-input bg-background px-3 text-sm font-medium text-foreground transition-colors duration-interaction ease-interaction focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                className="border-input bg-background text-foreground duration-interaction ease-interaction focus-visible:outline-ring inline-flex min-h-11 items-center gap-2 rounded-lg border px-3 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
                 render={<button type="button" />}
               >
                 <SlidersHorizontal aria-hidden="true" className="size-4" />
@@ -316,13 +316,15 @@ export function ProductFiltersPanel({
               {activeFilters.map((filter) => (
                 <li key={filter.key}>
                   <button
-                    className="inline-flex min-h-11 items-center gap-2 rounded-full border border-silver bg-card px-3 text-sm font-medium text-foreground transition-colors duration-interaction ease-interaction hover-fine:hover:border-brand-gold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                    className="border-silver bg-card text-foreground duration-interaction ease-interaction hover-fine:hover:border-brand-gold focus-visible:outline-ring inline-flex min-h-11 items-center gap-2 rounded-full border px-3 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
                     onClick={() => removeFilter(filter.key)}
                     type="button"
                   >
                     {filter.label}
                     <X aria-hidden="true" className="size-4" />
-                    <span className="sr-only">Remove {filter.label} filter</span>
+                    <span className="sr-only">
+                      Remove {filter.label} filter
+                    </span>
                   </button>
                 </li>
               ))}
@@ -335,7 +337,7 @@ export function ProductFiltersPanel({
           className="bg-background flex w-full flex-col sm:max-w-md"
           side="right"
         >
-          <SheetHeader className="border-b border-border pr-12">
+          <SheetHeader className="border-border border-b pr-12">
             <SheetTitle className="font-brand-display text-xl">
               Filters
             </SheetTitle>
@@ -343,7 +345,10 @@ export function ProductFiltersPanel({
               Adjust price, type and availability.
             </SheetDescription>
           </SheetHeader>
-          <form className="flex min-h-0 flex-1 flex-col" onSubmit={applyFilters}>
+          <form
+            className="flex min-h-0 flex-1 flex-col"
+            onSubmit={applyFilters}
+          >
             <div className="scrollbar-brand min-h-0 flex-1 space-y-5 overflow-y-auto px-4 py-4">
               {!lockedCategory && (
                 <label className="grid gap-1.5 text-sm font-medium">
@@ -395,7 +400,7 @@ export function ProductFiltersPanel({
               {/* Preserve the toolbar sort when applying the drawer filters. */}
               <input defaultValue={filters.sort} name="sort" type="hidden" />
             </div>
-            <SheetFooter className="border-t border-border">
+            <SheetFooter className="border-border border-t">
               <Button className="w-full" type="submit">
                 Apply filters
               </Button>

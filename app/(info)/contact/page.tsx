@@ -11,7 +11,10 @@ import {
   Wallet,
 } from "lucide-react";
 import { PageSection, PageShell } from "@/components/content/PageShell";
-import { FacebookIcon, InstagramIcon } from "@/components/storefront/site-footer";
+import {
+  FacebookIcon,
+  InstagramIcon,
+} from "@/components/storefront/site-footer";
 import { contactDetails } from "@/lib/content/faq";
 import { contentMetadata } from "@/lib/content/metadata";
 import { isOwnerTodo, siteConfig } from "@/lib/site-config";
@@ -44,12 +47,23 @@ const quickLinks = [
   { href: "/faq", label: "FAQ", icon: CircleHelp },
 ] as const;
 
-/** Show a readable address without inventing a handle: strip scheme and www. */
-function displayAddress(url: string): string {
-  return url
-    .replace(/^https?:\/\//, "")
-    .replace(/^www\./, "")
-    .replace(/\/$/, "");
+/** Pull the profile handle out of a social URL; null for share/post links. */
+function profileHandle(url: string): string | null {
+  const path = url.split(/[?#]/)[0].replace(/\/+$/, "");
+  const segment = path.split("/").pop() ?? "";
+  if (
+    !segment ||
+    segment.includes(".") ||
+    segment === "p" ||
+    segment === "reel"
+  ) {
+    return null;
+  }
+  try {
+    return decodeURIComponent(segment);
+  } catch {
+    return segment;
+  }
 }
 
 export default function ContactPage() {
@@ -66,7 +80,9 @@ export default function ContactPage() {
       external: true,
       icon: MessageCircle,
       label: "WhatsApp",
-      value: formatWhatsAppDisplay(siteConfig.whatsappNumber) ?? siteConfig.whatsappNumber,
+      value:
+        formatWhatsAppDisplay(siteConfig.whatsappNumber) ??
+        siteConfig.whatsappNumber,
       note: "Fastest way to reach us",
       primary: true,
     });
@@ -81,12 +97,13 @@ export default function ContactPage() {
     });
   }
   if (!isOwnerTodo(siteConfig.instagramUrl)) {
+    const handle = profileHandle(siteConfig.instagramUrl);
     channels.push({
       href: siteConfig.instagramUrl,
       external: true,
       icon: InstagramIcon,
       label: "Instagram",
-      value: displayAddress(siteConfig.instagramUrl),
+      value: handle ? `@${handle}` : siteConfig.storeName,
       note: "Where new pieces and works in progress are shared.",
     });
   }
@@ -96,7 +113,7 @@ export default function ContactPage() {
       external: true,
       icon: FacebookIcon,
       label: "Facebook",
-      value: displayAddress(siteConfig.facebookUrl),
+      value: siteConfig.storeName,
       note: "Where new pieces and works in progress are shared.",
     });
   }
@@ -111,50 +128,58 @@ export default function ContactPage() {
     >
       {channels.length > 0 && (
         <div className="grid gap-4 sm:grid-cols-2">
-          {channels.map(({ href, external, icon: Icon, label, value, note, primary }) => (
-            <a
-              className={`${cardBase} ${
-                primary
-                  ? "border-brand bg-brand text-brand-foreground hover-fine:hover:bg-brand-hover"
-                  : "border-silver bg-card text-foreground shadow-soft hover-fine:hover:border-brand hover-fine:hover:bg-brand/5"
-              }`}
-              href={href}
-              key={label}
-              {...(external ? { rel: "noopener noreferrer", target: "_blank" } : {})}
-            >
-              <span className="flex w-full items-start justify-between gap-3">
+          {channels.map(
+            ({ href, external, icon: Icon, label, value, note, primary }) => (
+              <a
+                className={`${cardBase} ${
+                  primary
+                    ? "border-brand bg-brand text-brand-foreground hover-fine:hover:bg-brand-hover"
+                    : "border-silver bg-card text-foreground shadow-soft hover-fine:hover:border-brand hover-fine:hover:bg-brand/5"
+                }`}
+                href={href}
+                key={label}
+                {...(external
+                  ? { rel: "noopener noreferrer", target: "_blank" }
+                  : {})}
+              >
+                <span className="flex w-full items-start justify-between gap-3">
+                  <span
+                    aria-hidden="true"
+                    className={`inline-flex size-11 shrink-0 items-center justify-center rounded-xl ${
+                      primary
+                        ? "bg-brand-foreground/15"
+                        : "bg-gold/20 text-gold-text dark:text-gold-light"
+                    }`}
+                  >
+                    <Icon className="size-5" />
+                  </span>
+                  <ArrowUpRight
+                    aria-hidden="true"
+                    className={`duration-interaction ease-interaction size-5 shrink-0 transition-transform motion-safe:group-hover:translate-x-0.5 motion-safe:group-hover:-translate-y-0.5 motion-reduce:transition-none ${
+                      primary
+                        ? "text-brand-foreground/80"
+                        : "text-muted-foreground"
+                    }`}
+                  />
+                </span>
+                <span className="font-heading mt-4 block text-lg font-semibold">
+                  {label}
+                </span>
+                <span className="mt-1 block text-sm font-medium [overflow-wrap:anywhere]">
+                  {value}
+                </span>
                 <span
-                  aria-hidden="true"
-                  className={`inline-flex size-11 shrink-0 items-center justify-center rounded-xl ${
+                  className={`mt-auto block pt-3 text-sm leading-6 ${
                     primary
-                      ? "bg-brand-foreground/15"
-                      : "bg-gold/20 text-gold-text dark:text-gold-light"
+                      ? "text-brand-foreground/85"
+                      : "text-muted-foreground"
                   }`}
                 >
-                  <Icon className="size-5" />
+                  {note}
                 </span>
-                <ArrowUpRight
-                  aria-hidden="true"
-                  className={`size-5 shrink-0 transition-transform duration-interaction ease-interaction motion-safe:group-hover:-translate-y-0.5 motion-safe:group-hover:translate-x-0.5 motion-reduce:transition-none ${
-                    primary ? "text-brand-foreground/80" : "text-muted-foreground"
-                  }`}
-                />
-              </span>
-              <span className="font-heading mt-4 block text-lg font-semibold">
-                {label}
-              </span>
-              <span className="mt-1 block text-sm font-medium [overflow-wrap:anywhere]">
-                {value}
-              </span>
-              <span
-                className={`mt-auto block pt-3 text-sm leading-6 ${
-                  primary ? "text-brand-foreground/85" : "text-muted-foreground"
-                }`}
-              >
-                {note}
-              </span>
-            </a>
-          ))}
+              </a>
+            ),
+          )}
         </div>
       )}
 
@@ -176,7 +201,7 @@ export default function ContactPage() {
               <span className="flex-1 font-medium">{label}</span>
               <ChevronRight
                 aria-hidden="true"
-                className="text-muted-foreground size-4 shrink-0 transition-transform duration-interaction ease-interaction motion-safe:group-hover:translate-x-0.5 motion-reduce:transition-none"
+                className="text-muted-foreground duration-interaction ease-interaction size-4 shrink-0 transition-transform motion-safe:group-hover:translate-x-0.5 motion-reduce:transition-none"
               />
             </Link>
           ))}
@@ -187,8 +212,8 @@ export default function ContactPage() {
         {hasResponseTime && <p>{contactDetails.responseTime}</p>}
         <p>
           Messages are answered by one person, so please allow a little extra
-          time on busy days. If your question is about an existing order, include
-          the order number so it can be found quickly.
+          time on busy days. If your question is about an existing order,
+          include the order number so it can be found quickly.
         </p>
       </PageSection>
 

@@ -28,7 +28,11 @@ import {
   getPublishedProductSlugs,
   getRelatedProducts,
 } from "@/lib/queries/products";
-import { buildBreadcrumbJsonLd, buildProductJsonLd, trimDescription } from "@/lib/seo/json-ld";
+import {
+  buildBreadcrumbJsonLd,
+  buildProductJsonLd,
+  trimDescription,
+} from "@/lib/seo/json-ld";
 import { absoluteUrl } from "@/lib/seo/site-url";
 
 const productTypeLabels: Record<string, string> = {
@@ -40,7 +44,10 @@ const productTypeLabels: Record<string, string> = {
 };
 
 export async function generateStaticParams() {
-  return getPublishedProductSlugs();
+  const slugs = await getPublishedProductSlugs();
+  // Cache Components requires at least one param. With an empty catalogue the
+  // placeholder prerenders the notFound() shell (Next docs: generate-static-params).
+  return slugs.length > 0 ? slugs : [{ slug: "__placeholder__" }];
 }
 
 export async function generateMetadata({
@@ -52,7 +59,10 @@ export async function generateMetadata({
   const product = await getProductBySlug(slug);
   if (!product) {
     // Unpublished or unknown products: the page renders the 404 and is not indexed.
-    return { title: "Product not found", robots: { index: false, follow: false } };
+    return {
+      title: "Product not found",
+      robots: { index: false, follow: false },
+    };
   }
 
   const image = product.images[0];
@@ -94,7 +104,10 @@ export default async function ProductPage({
   const breadcrumbItems = [
     { name: "Home", path: "/" },
     { name: "Shop", path: "/products" },
-    { name: product.category.name, path: `/categories/${product.category.slug}` },
+    {
+      name: product.category.name,
+      path: `/categories/${product.category.slug}`,
+    },
     { name: product.title, path: `/products/${product.slug}` },
   ];
 
@@ -118,7 +131,7 @@ export default async function ProductPage({
               {product.category.name}
             </Badge>
           </div>
-          <h1 className="font-heading text-foreground mt-4 text-h1 font-bold text-balance">
+          <h1 className="font-heading text-foreground text-h1 mt-4 font-bold text-balance">
             {product.title}
           </h1>
           {product.variants[0] && (
@@ -149,14 +162,14 @@ export default async function ProductPage({
 
       <section className="mt-14">
         <SectionHeading eyebrow="The details" title="About this piece" />
-        <p className="text-muted-foreground max-w-3xl whitespace-pre-line leading-7">
+        <p className="text-muted-foreground max-w-3xl leading-7 whitespace-pre-line">
           {product.description}
         </p>
         {product.tags.length > 0 && (
           <ul className="mt-5 flex flex-wrap gap-2">
             {product.tags.map((tag) => (
               <li
-                className="rounded-full border border-silver bg-muted px-3 py-1.5 text-sm text-muted-foreground"
+                className="border-silver bg-muted text-muted-foreground rounded-full border px-3 py-1.5 text-sm"
                 key={tag}
               >
                 {tag}
@@ -172,7 +185,7 @@ export default async function ProductPage({
                   <li className="flex gap-2" key={item}>
                     <Check
                       aria-hidden="true"
-                      className="mt-0.5 size-4 shrink-0 text-brand"
+                      className="text-brand dark:text-gold-light mt-0.5 size-4 shrink-0"
                     />
                     <span>{item}</span>
                   </li>
@@ -195,7 +208,7 @@ export default async function ProductPage({
               <ul className="flex flex-wrap gap-2">
                 {product.materials.map((material) => (
                   <li
-                    className="rounded-full border border-silver bg-background px-3 py-1"
+                    className="border-silver bg-background rounded-full border px-3 py-1"
                     key={material}
                   >
                     {material}
@@ -222,10 +235,12 @@ export default async function ProductPage({
       </section>
 
       {relatedProducts.length > 0 && (
-        <section className="mt-16 border-t border-silver pt-10">
+        <section className="border-silver mt-16 border-t pt-10">
           <SectionHeading
             description={
-              relatedProducts.every((item) => item.category.slug === product.category.slug)
+              relatedProducts.every(
+                (item) => item.category.slug === product.category.slug,
+              )
                 ? `A few more handmade finds from ${product.category.name}.`
                 : "A few more handmade finds from our collection."
             }
@@ -253,7 +268,7 @@ function DetailCard({
   return (
     <div
       className={cn(
-        "rounded-2xl border border-silver bg-card p-5 shadow-soft",
+        "border-silver bg-card shadow-soft rounded-2xl border p-5",
         className,
       )}
     >

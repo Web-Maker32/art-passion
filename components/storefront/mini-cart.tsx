@@ -30,15 +30,14 @@ export function MiniCart({
   deliveryFee: number;
   freeDeliveryThreshold: number;
 }) {
-  const countLabel =
-    cart.itemCount > 99 ? "99+" : String(cart.itemCount);
+  const countLabel = cart.itemCount > 99 ? "99+" : String(cart.itemCount);
   const total = cart.subtotal + deliveryFee;
 
   return (
     <Sheet>
       <SheetTrigger
         aria-label={`Shopping cart, ${cart.itemCount} items`}
-        className="text-brand-foreground hover:text-gold-light focus-visible:outline-gold-light relative inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg p-2 transition-colors duration-interaction hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2"
+        className="text-brand-foreground hover:text-gold-light focus-visible:outline-gold-light duration-interaction hover:bg-brand-foreground/10 relative inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg p-2 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
         render={<button type="button" />}
       >
         <ShoppingBag aria-hidden="true" className="size-5" />
@@ -50,7 +49,7 @@ export function MiniCart({
         aria-label="Shopping cart"
         className="bg-background flex w-full flex-col sm:max-w-md"
       >
-        <SheetHeader className="border-b border-border pr-12">
+        <SheetHeader className="border-border border-b pr-12">
           <SheetTitle className="font-brand-display text-xl">
             Your cart
           </SheetTitle>
@@ -62,7 +61,7 @@ export function MiniCart({
           <ul className="scrollbar-brand min-h-0 flex-1 space-y-4 overflow-y-auto px-4">
             {cart.items.map((item) => (
               <li
-                className="flex gap-3 border-b border-border pb-4 transition-colors duration-interaction hover-fine:hover:bg-muted/60"
+                className="border-border duration-interaction hover-fine:hover:bg-muted/60 flex gap-3 border-b pb-4 transition-colors"
                 key={item.itemId}
               >
                 <div className="bg-muted relative size-16 shrink-0 overflow-hidden rounded-lg">
@@ -72,7 +71,9 @@ export function MiniCart({
                     fill
                     sizes="64px"
                     src={item.imageUrl || "/placeholder.svg"}
-                    unoptimized={isUnoptimizedImageSrc(item.imageUrl || "/placeholder.svg")}
+                    unoptimized={isUnoptimizedImageSrc(
+                      item.imageUrl || "/placeholder.svg",
+                    )}
                   />
                 </div>
                 <div className="min-w-0 flex-1">
@@ -83,7 +84,8 @@ export function MiniCart({
                     {item.variantLabel} · Qty {item.quantity}
                     {item.madeToOrder && (
                       <span className="text-gold-text dark:text-gold-light font-medium">
-                        {" "}· Made to order
+                        {" "}
+                        · Made to order
                       </span>
                     )}
                   </p>
@@ -120,7 +122,7 @@ export function MiniCart({
             </SheetClose>
           </div>
         )}
-        <SheetFooter className="border-t border-border">
+        <SheetFooter className="border-border border-t">
           <FreeDeliveryProgress
             deliveryFee={deliveryFee}
             subtotal={cart.subtotal}
@@ -137,7 +139,7 @@ export function MiniCart({
                 {deliveryFee ? formatPrice(deliveryFee) : "Free"}
               </dd>
             </div>
-            <div className="flex items-center justify-between gap-4 border-t border-border pt-2 text-base font-bold">
+            <div className="border-border flex items-center justify-between gap-4 border-t pt-2 text-base font-bold">
               <dt>Total</dt>
               <dd>{formatPrice(total)}</dd>
             </div>

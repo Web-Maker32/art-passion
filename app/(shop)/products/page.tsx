@@ -150,7 +150,7 @@ function PageLink({
 
   return (
     <Link
-      className="border-silver bg-card duration-interaction hover-fine:hover:border-brand-gold hover-fine:hover:text-brand active:border-brand-gold active:bg-brand-gold/10 focus-visible:outline-ring inline-flex min-h-11 items-center rounded-lg border px-4 font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
+      className="border-silver bg-card duration-interaction hover-fine:hover:border-brand-gold hover-fine:hover:text-brand dark:hover-fine:hover:text-gold-light active:border-brand-gold active:bg-brand-gold/10 focus-visible:outline-ring inline-flex min-h-11 items-center rounded-lg border px-4 font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
       href={`/products?${params.toString()}`}
     >
       {text}

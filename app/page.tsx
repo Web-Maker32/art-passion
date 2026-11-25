@@ -46,7 +46,7 @@ const categoryIcons = {
 const categoryTones = [
   {
     card: "bg-brand text-brand-foreground border-transparent",
-    icon: "bg-white/15 text-gold-light",
+    icon: "bg-brand-foreground/15 text-gold-light",
     desc: "text-brand-foreground/85",
     meta: "text-gold-light",
   },
@@ -97,7 +97,7 @@ const primaryButton =
   "group bg-gold text-header-teal hover:bg-gold-light focus-visible:outline-brand-foreground inline-flex min-h-12 items-center gap-2 rounded-xl px-6 py-3 font-bold lift-sm press focus-visible:outline-2 focus-visible:outline-offset-2";
 
 const creamButton =
-  "inline-flex min-h-12 items-center gap-2 rounded-xl border border-white/40 px-6 py-3 font-semibold text-brand-foreground transition-colors duration-interaction hover:border-gold-light hover:bg-white/10 focus-visible:outline-gold-light focus-visible:outline-2 focus-visible:outline-offset-2";
+  "inline-flex min-h-12 items-center gap-2 rounded-xl border border-brand-foreground/40 px-6 py-3 font-semibold text-brand-foreground transition-colors duration-interaction hover:border-gold-light hover:bg-brand-foreground/10 focus-visible:outline-gold-light focus-visible:outline-2 focus-visible:outline-offset-2";
 
 export default async function Home() {
   const [categories, allProducts] = await Promise.all([
@@ -122,7 +122,10 @@ export default async function Home() {
 
         {/* Hero */}
         <section className="bg-brand-hero relative overflow-hidden">
-          <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0"
+          >
             <span className="bg-gold-light/20 float-slow absolute -top-12 right-[6%] size-44 rounded-full blur-3xl" />
             <span className="bg-blush/15 float-slower absolute bottom-[8%] left-[3%] size-36 rounded-full blur-3xl" />
             <Star className="text-gold-light/70 twinkle absolute top-[18%] left-[12%] size-5" />
@@ -130,8 +133,11 @@ export default async function Home() {
           </div>
           <Container className="relative grid items-center gap-12 py-16 sm:py-20 lg:grid-cols-[1.05fr_0.95fr] lg:py-28">
             <div className="max-w-2xl">
-              <p className="text-brand-foreground inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-4 py-2 text-sm font-semibold backdrop-blur-sm">
-                <Sparkles aria-hidden="true" className="text-gold-light size-4" />
+              <p className="text-brand-foreground border-brand-foreground/30 bg-brand-foreground/10 inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold backdrop-blur-sm">
+                <Sparkles
+                  aria-hidden="true"
+                  className="text-gold-light size-4"
+                />
                 Handmade in Pakistan · Made to be treasured
               </p>
               <h1 className="font-heading text-brand-foreground text-display mt-6 font-bold text-balance">
@@ -148,7 +154,7 @@ export default async function Home() {
                   Shop now
                   <ArrowRight
                     aria-hidden="true"
-                    className="size-4 transition-transform duration-interaction ease-interaction motion-safe:group-hover:translate-x-1 motion-safe:group-focus-visible:translate-x-1"
+                    className="duration-interaction ease-interaction size-4 transition-transform motion-safe:group-hover:translate-x-1 motion-safe:group-focus-visible:translate-x-1"
                   />
                 </Link>
                 <Link className={creamButton} href="/categories/gift-sets">
@@ -209,7 +215,7 @@ export default async function Home() {
                   <li key={category.slug}>
                     <ScrollReveal className="h-full">
                       <Link
-                        className={`group relative z-30 flex h-full min-h-52 flex-col rounded-3xl border p-6 shadow-card motion-safe:lift hover-fine:hover:border-brand-gold focus-visible:border-brand-gold ${tone.card}`}
+                        className={`group shadow-card motion-safe:lift hover-fine:hover:border-brand-gold focus-visible:border-brand-gold relative z-30 flex h-full min-h-52 flex-col rounded-3xl border p-6 ${tone.card}`}
                         href={`/categories/${category.slug}`}
                       >
                         <span
@@ -220,7 +226,9 @@ export default async function Home() {
                         <h3 className="font-heading mt-5 text-2xl font-bold">
                           {category.name}
                         </h3>
-                        <span className={`mt-2 block text-sm leading-relaxed ${tone.desc}`}>
+                        <span
+                          className={`mt-2 block text-sm leading-relaxed ${tone.desc}`}
+                        >
                           {category.description}
                         </span>
                         <span
@@ -231,7 +239,7 @@ export default async function Home() {
                             : "Explore the collection"}
                           <ArrowRight
                             aria-hidden="true"
-                            className="size-4 shrink-0 transition-transform duration-interaction ease-interaction motion-safe:group-hover:translate-x-1 motion-safe:group-focus-visible:translate-x-1"
+                            className="duration-interaction ease-interaction size-4 shrink-0 transition-transform motion-safe:group-hover:translate-x-1 motion-safe:group-focus-visible:translate-x-1"
                           />
                         </span>
                       </Link>
@@ -291,7 +299,7 @@ export default async function Home() {
               {trustPoints.map(({ icon: Icon, title, body }) => (
                 <li key={title}>
                   <ScrollReveal className="h-full">
-                    <div className="h-full rounded-3xl border border-silver bg-card p-6 shadow-card motion-safe:lift-sm">
+                    <div className="border-silver bg-card shadow-card motion-safe:lift-sm h-full rounded-3xl border p-6">
                       <span className="bg-gold/20 text-gold-text dark:text-gold-light inline-flex size-12 items-center justify-center rounded-2xl">
                         <Icon aria-hidden="true" className="size-6" />
                       </span>
@@ -311,7 +319,10 @@ export default async function Home() {
 
         {/* Closing call to action */}
         <section className="bg-cta-band relative overflow-hidden">
-          <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0"
+          >
             <Sparkles className="text-gold-light/60 twinkle absolute top-8 right-[10%] size-6" />
             <Star className="text-gold-light/50 twinkle absolute bottom-8 left-[8%] size-5 [animation-delay:0.8s]" />
           </div>
@@ -333,7 +344,7 @@ export default async function Home() {
                 Shop all
                 <ArrowRight
                   aria-hidden="true"
-                  className="size-4 transition-transform duration-interaction ease-interaction motion-safe:group-hover:translate-x-1 motion-safe:group-focus-visible:translate-x-1"
+                  className="duration-interaction ease-interaction size-4 transition-transform motion-safe:group-hover:translate-x-1 motion-safe:group-focus-visible:translate-x-1"
                 />
               </Link>
               {whatsapp ? (

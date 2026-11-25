@@ -41,8 +41,8 @@ export function SiteHeaderPresentation({
     <>
       <AnnouncementBar />
       <header
-        className={`bg-brand-header border-gold/50 sticky top-0 z-50 border-b transition-shadow duration-interaction ${
-          scrolled ? "shadow-lg shadow-black/25" : "shadow-soft"
+        className={`bg-brand-header border-gold/50 duration-interaction sticky top-0 z-50 border-b transition-shadow ${
+          scrolled ? "shadow-brand-deep/25 shadow-lg" : "shadow-soft"
         }`}
       >
         <Container className="flex h-16 items-center justify-between gap-2 sm:h-[72px] sm:gap-4">
@@ -97,14 +97,14 @@ export function SiteHeaderPresentation({
               onClick={() =>
                 setTheme(resolvedTheme === "dark" ? "light" : "dark")
               }
-              className="text-brand-foreground hover:text-gold-light focus-visible:outline-gold-light inline-flex size-11 items-center justify-center rounded-lg transition-colors duration-interaction hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2"
+              className="text-brand-foreground hover:text-gold-light focus-visible:outline-gold-light duration-interaction hover:bg-brand-foreground/10 inline-flex size-11 items-center justify-center rounded-lg transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
             >
               <Sun aria-hidden="true" className="hidden size-5 dark:block" />
               <Moon aria-hidden="true" className="size-5 dark:hidden" />
             </button>
             <Link
               aria-label="Search products"
-              className="text-brand-foreground hover:text-gold-light focus-visible:outline-gold-light inline-flex size-11 items-center justify-center rounded-lg transition-colors duration-interaction hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2"
+              className="text-brand-foreground hover:text-gold-light focus-visible:outline-gold-light duration-interaction hover:bg-brand-foreground/10 inline-flex size-11 items-center justify-center rounded-lg transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
               href="/search"
             >
               <Search aria-hidden="true" className="size-5" />

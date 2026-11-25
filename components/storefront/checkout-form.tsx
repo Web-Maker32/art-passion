@@ -25,7 +25,10 @@ import {
   type CheckoutFormInput,
 } from "@/lib/checkout-schema";
 
-type FormField = Exclude<keyof CheckoutFormInput, "termsAccepted" | "honeypot" | "idempotencyKey">;
+type FormField = Exclude<
+  keyof CheckoutFormInput,
+  "termsAccepted" | "honeypot" | "idempotencyKey"
+>;
 
 type FieldConfig = {
   name: FormField;
@@ -39,7 +42,12 @@ type FieldConfig = {
 };
 
 const contactFields: FieldConfig[] = [
-  { name: "fullName", label: "Full name", autoComplete: "name", required: true },
+  {
+    name: "fullName",
+    label: "Full name",
+    autoComplete: "name",
+    required: true,
+  },
   {
     name: "mobileNumber",
     label: "Mobile number",
@@ -48,7 +56,14 @@ const contactFields: FieldConfig[] = [
     required: true,
     helper: "We'll confirm your order on this number.",
   },
-  { name: "email", label: "Email address", type: "email", autoComplete: "email", optional: true, wide: true },
+  {
+    name: "email",
+    label: "Email address",
+    type: "email",
+    autoComplete: "email",
+    optional: true,
+    wide: true,
+  },
 ];
 
 const addressFields: FieldConfig[] = [
@@ -60,9 +75,24 @@ const addressFields: FieldConfig[] = [
     helper: "Include house, street and area.",
     wide: true,
   },
-  { name: "city", label: "City", autoComplete: "address-level2", required: true },
-  { name: "province", label: "Province", autoComplete: "address-level1", required: true },
-  { name: "postalCode", label: "Postal code", autoComplete: "postal-code", optional: true },
+  {
+    name: "city",
+    label: "City",
+    autoComplete: "address-level2",
+    required: true,
+  },
+  {
+    name: "province",
+    label: "Province",
+    autoComplete: "address-level1",
+    required: true,
+  },
+  {
+    name: "postalCode",
+    label: "Postal code",
+    autoComplete: "postal-code",
+    optional: true,
+  },
 ];
 
 export function CheckoutForm({
@@ -123,21 +153,33 @@ export function CheckoutForm({
           return;
         }
 
-        for (const [field, message] of Object.entries(result.fieldErrors ?? {})) {
+        for (const [field, message] of Object.entries(
+          result.fieldErrors ?? {},
+        )) {
           setError(field as keyof CheckoutFormInput, { message });
         }
         setError("root", { message: result.message });
         delete formElement.dataset.submitting;
       } catch {
         setError("root", {
-          message: "We could not place your order. Check your connection and try again.",
+          message:
+            "We could not place your order. Check your connection and try again.",
         });
         delete formElement.dataset.submitting;
       }
     });
   });
 
-  function renderField({ name, label, type = "text", autoComplete, required, optional, helper, wide }: FieldConfig) {
+  function renderField({
+    name,
+    label,
+    type = "text",
+    autoComplete,
+    required,
+    optional,
+    helper,
+    wide,
+  }: FieldConfig) {
     const error = errors[name];
     const multiline = name === "deliveryAddress";
     const describedBy =
@@ -147,12 +189,17 @@ export function CheckoutForm({
     return (
       <div className={wide ? "sm:col-span-2" : undefined} key={name}>
         <label className="mb-1.5 block text-sm font-medium" htmlFor={name}>
-          {label}{required ? " *" : optional ? <span className="text-muted-foreground"> (optional)</span> : null}
+          {label}
+          {required ? (
+            " *"
+          ) : optional ? (
+            <span className="text-muted-foreground"> (optional)</span>
+          ) : null}
         </label>
         {multiline ? (
           <textarea
             autoComplete={autoComplete}
-            className="min-h-24 w-full resize-y rounded-lg border border-input bg-transparent px-3 py-2 text-base outline-none transition-colors placeholder:text-muted-foreground dark:bg-input/30"
+            className="border-input placeholder:text-muted-foreground dark:bg-input/30 min-h-24 w-full resize-y rounded-lg border bg-transparent px-3 py-2 text-base transition-colors outline-none"
             id={name}
             maxLength={500}
             {...register(name)}
@@ -173,13 +220,22 @@ export function CheckoutForm({
           />
         )}
         {helper && (
-          <p className="text-muted-foreground mt-1.5 text-xs" id={`${name}-helper`}>
+          <p
+            className="text-muted-foreground mt-1.5 text-xs"
+            id={`${name}-helper`}
+          >
             {helper}
           </p>
         )}
         {error?.message && (
-          <p className="mt-1.5 flex items-start gap-1.5 text-sm text-destructive" id={`${name}-error`}>
-            <CircleAlert aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
+          <p
+            className="text-destructive mt-1.5 flex items-start gap-1.5 text-sm"
+            id={`${name}-error`}
+          >
+            <CircleAlert
+              aria-hidden="true"
+              className="mt-0.5 size-3.5 shrink-0"
+            />
             <span>{error.message}</span>
           </p>
         )}
@@ -225,14 +281,21 @@ export function CheckoutForm({
         </div>
       </FormSection>
 
-      <FormSection icon={NotebookPen} id="notes-heading" title="Notes (optional)">
+      <FormSection
+        icon={NotebookPen}
+        id="notes-heading"
+        title="Notes (optional)"
+      >
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="mb-1.5 block text-sm font-medium" htmlFor="giftNote">
+            <label
+              className="mb-1.5 block text-sm font-medium"
+              htmlFor="giftNote"
+            >
               Gift note
             </label>
             <textarea
-              className="min-h-20 w-full resize-y rounded-lg border border-input bg-transparent px-3 py-2 text-base outline-none transition-colors dark:bg-input/30"
+              className="border-input dark:bg-input/30 min-h-20 w-full resize-y rounded-lg border bg-transparent px-3 py-2 text-base transition-colors outline-none"
               id="giftNote"
               maxLength={200}
               {...register("giftNote")}
@@ -240,27 +303,44 @@ export function CheckoutForm({
               aria-invalid={Boolean(errors.giftNote)}
             />
             {errors.giftNote?.message && (
-              <p className="mt-1.5 flex items-start gap-1.5 text-sm text-destructive" id="giftNote-error">
-                <CircleAlert aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
+              <p
+                className="text-destructive mt-1.5 flex items-start gap-1.5 text-sm"
+                id="giftNote-error"
+              >
+                <CircleAlert
+                  aria-hidden="true"
+                  className="mt-0.5 size-3.5 shrink-0"
+                />
                 <span>{errors.giftNote.message}</span>
               </p>
             )}
           </div>
           <div>
-            <label className="mb-1.5 block text-sm font-medium" htmlFor="orderNotes">
+            <label
+              className="mb-1.5 block text-sm font-medium"
+              htmlFor="orderNotes"
+            >
               Order notes
             </label>
             <textarea
-              className="min-h-20 w-full resize-y rounded-lg border border-input bg-transparent px-3 py-2 text-base outline-none transition-colors dark:bg-input/30"
+              className="border-input dark:bg-input/30 min-h-20 w-full resize-y rounded-lg border bg-transparent px-3 py-2 text-base transition-colors outline-none"
               id="orderNotes"
               maxLength={500}
               {...register("orderNotes")}
-              aria-describedby={errors.orderNotes ? "orderNotes-error" : undefined}
+              aria-describedby={
+                errors.orderNotes ? "orderNotes-error" : undefined
+              }
               aria-invalid={Boolean(errors.orderNotes)}
             />
             {errors.orderNotes?.message && (
-              <p className="mt-1.5 flex items-start gap-1.5 text-sm text-destructive" id="orderNotes-error">
-                <CircleAlert aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
+              <p
+                className="text-destructive mt-1.5 flex items-start gap-1.5 text-sm"
+                id="orderNotes-error"
+              >
+                <CircleAlert
+                  aria-hidden="true"
+                  className="mt-0.5 size-3.5 shrink-0"
+                />
                 <span>{errors.orderNotes.message}</span>
               </p>
             )}
@@ -268,9 +348,16 @@ export function CheckoutForm({
         </div>
       </FormSection>
 
-      <FormSection icon={Wallet} id="payment-heading" title="Easypaisa wallet transfer">
+      <FormSection
+        icon={Wallet}
+        id="payment-heading"
+        title="Easypaisa wallet transfer"
+      >
         <p className="text-muted-foreground text-sm leading-6">
-          Easypaisa wallet transfer is the only online payment method. After placing your order, you will see the account details. Send the payment screenshot on WhatsApp with your order number. Your order stays pending until payment is checked by hand.
+          Easypaisa wallet transfer is the only online payment method. After
+          placing your order, you will see the account details. Send the payment
+          screenshot on WhatsApp with your order number. Your order stays
+          pending until payment is checked by hand.
         </p>
         {whatsappHref ? (
           <a
@@ -279,7 +366,10 @@ export function CheckoutForm({
             rel="noopener noreferrer"
             target="_blank"
           >
-            <MessageCircle aria-hidden="true" className="size-5 shrink-0 text-brand" />
+            <MessageCircle
+              aria-hidden="true"
+              className="text-brand dark:text-gold-light size-5 shrink-0"
+            />
             Prefer cash on delivery? Order on WhatsApp
           </a>
         ) : (
@@ -289,14 +379,16 @@ export function CheckoutForm({
         )}
       </FormSection>
 
-      <div className="border-silver bg-card rounded-2xl border p-5 shadow-soft sm:p-6">
+      <div className="border-silver bg-card shadow-soft rounded-2xl border p-5 sm:p-6">
         <Controller
           control={control}
           name="termsAccepted"
           render={({ field }) => (
             <div className="flex items-start gap-3">
               <Checkbox
-                aria-describedby={errors.termsAccepted ? "terms-error" : undefined}
+                aria-describedby={
+                  errors.termsAccepted ? "terms-error" : undefined
+                }
                 aria-invalid={Boolean(errors.termsAccepted)}
                 checked={field.value}
                 id="termsAccepted"
@@ -306,14 +398,35 @@ export function CheckoutForm({
                 ref={field.ref}
               />
               <label className="text-sm leading-6" htmlFor="termsAccepted">
-                I agree to the <Link className="text-brand underline underline-offset-4" href="/terms">Terms</Link> and <Link className="text-brand underline underline-offset-4" href="/returns">Returns policy</Link>.
+                I agree to the{" "}
+                <Link
+                  className="text-brand dark:text-gold-light underline underline-offset-4"
+                  href="/terms"
+                >
+                  Terms
+                </Link>{" "}
+                and{" "}
+                <Link
+                  className="text-brand dark:text-gold-light underline underline-offset-4"
+                  href="/returns"
+                >
+                  Returns policy
+                </Link>
+                .
               </label>
             </div>
           )}
         />
         {errors.termsAccepted?.message && (
-          <p className="mt-1.5 flex items-start gap-1.5 text-sm text-destructive" id="terms-error" role="alert">
-            <CircleAlert aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
+          <p
+            className="text-destructive mt-1.5 flex items-start gap-1.5 text-sm"
+            id="terms-error"
+            role="alert"
+          >
+            <CircleAlert
+              aria-hidden="true"
+              className="mt-0.5 size-3.5 shrink-0"
+            />
             <span>{errors.termsAccepted.message}</span>
           </p>
         )}
@@ -349,13 +462,16 @@ function FormSection({
   return (
     <section
       aria-labelledby={id}
-      className="border-silver bg-card rounded-2xl border p-5 shadow-soft sm:p-6"
+      className="border-silver bg-card shadow-soft rounded-2xl border p-5 sm:p-6"
     >
       <div className="flex items-center gap-2.5">
         <span className="bg-gold/20 text-gold-text dark:text-gold-light inline-flex size-9 shrink-0 items-center justify-center rounded-xl">
           <Icon aria-hidden="true" className="size-4.5" />
         </span>
-        <h2 className="font-heading text-card-foreground text-lg font-semibold" id={id}>
+        <h2
+          className="font-heading text-card-foreground text-lg font-semibold"
+          id={id}
+        >
           {title}
         </h2>
       </div>

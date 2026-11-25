@@ -30,7 +30,7 @@ export function Breadcrumb({ items }: { items: BreadcrumbItem[] }) {
                 </span>
               ) : (
                 <Link
-                  className="text-muted-foreground hover:text-brand focus-visible:outline-ring inline-flex min-h-8 items-center rounded-sm transition-colors duration-interaction focus-visible:outline-2 focus-visible:outline-offset-2"
+                  className="text-muted-foreground hover:text-brand dark:hover:text-gold-light focus-visible:outline-ring duration-interaction inline-flex min-h-8 items-center rounded-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
                   href={item.path}
                 >
                   {item.name}

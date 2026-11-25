@@ -21,7 +21,11 @@ export function AdminTextarea({
 }: ComponentProps<"textarea">) {
   return (
     <textarea
-      className={cn(adminControlClass, "h-auto min-h-16 py-2 sm:h-auto", className)}
+      className={cn(
+        adminControlClass,
+        "h-auto min-h-16 py-2 sm:h-auto",
+        className,
+      )}
       {...props}
     />
   );
@@ -89,12 +93,14 @@ export function ToggleChip({
           "hover-fine:hover:border-gold peer-checked:border-gold peer-checked:bg-gold/15 peer-checked:text-foreground",
           "peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--focus-ring)]",
           "peer-disabled:cursor-not-allowed peer-disabled:opacity-60",
-          "peer-checked:[&>svg]:opacity-100 motion-reduce:transition-none",
+          // The hidden check collapses its own width plus the flex gap, so an
+          // unchecked chip shows no empty slot before the label.
+          "motion-reduce:transition-none peer-checked:[&>svg]:ml-0 peer-checked:[&>svg]:opacity-100",
         )}
       >
         <Check
           aria-hidden="true"
-          className="text-gold-text size-4 opacity-0 transition-opacity dark:text-gold-light motion-reduce:transition-none"
+          className="text-gold-text duration-interaction dark:text-gold-light -ml-6 size-4 opacity-0 transition-[margin,opacity] motion-reduce:transition-none"
         />
         {label}
       </span>

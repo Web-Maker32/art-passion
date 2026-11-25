@@ -25,7 +25,10 @@ import {
 } from "@/lib/order-access";
 import { manualEasypaisaProvider } from "@/lib/payments/manual";
 import { siteConfig } from "@/lib/site-config";
-import { buildOrderPaymentWhatsAppMessage, buildWhatsAppLink } from "@/lib/whatsapp";
+import {
+  buildOrderPaymentWhatsAppMessage,
+  buildWhatsAppLink,
+} from "@/lib/whatsapp";
 
 export const metadata: Metadata = {
   title: "Order confirmation",
@@ -80,7 +83,7 @@ export default async function OrderConfirmationPage({
   if (!order || !accessToken) {
     return (
       <Container className="py-12 sm:py-16">
-        <section className="border-silver bg-card mx-auto max-w-2xl rounded-2xl border p-6 text-center shadow-soft sm:p-9">
+        <section className="border-silver bg-card shadow-soft mx-auto max-w-2xl rounded-2xl border p-6 text-center sm:p-9">
           <span className="bg-gold/20 text-gold-text dark:text-gold-light mx-auto inline-flex size-14 items-center justify-center rounded-2xl">
             <CircleAlert aria-hidden="true" className="size-6" />
           </span>
@@ -91,7 +94,11 @@ export default async function OrderConfirmationPage({
             We could not verify this order confirmation.
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <Button nativeButton={false} render={<Link href="/" />} variant="outline">
+            <Button
+              nativeButton={false}
+              render={<Link href="/" />}
+              variant="outline"
+            >
               Go home
             </Button>
             <Button nativeButton={false} render={<Link href="/products" />}>
@@ -129,22 +136,33 @@ export default async function OrderConfirmationPage({
             <CircleCheck aria-hidden="true" className="size-6" />
           </span>
           <div>
-            <p className="text-brand text-sm font-semibold">Order received</p>
-            <h1 className="font-heading mt-1 text-h1 font-bold text-balance">
+            <p className="text-brand dark:text-gold-light text-sm font-semibold">
+              Order received
+            </p>
+            <h1 className="font-heading text-h1 mt-1 font-bold text-balance">
               Thank you, {order.customerName}
             </h1>
             <p className="text-muted-foreground mt-2">
-              Order <span className="font-semibold text-foreground">{order.orderNumber}</span> is pending payment confirmation.
+              Order{" "}
+              <span className="text-foreground font-semibold">
+                {order.orderNumber}
+              </span>{" "}
+              is pending payment confirmation.
             </p>
           </div>
         </div>
 
         <p className="text-muted-foreground mt-5 text-sm">
-          Save your order number and track it any time.{' '}
-          <Link className="text-foreground inline-flex min-h-11 items-center rounded-md underline underline-offset-4" href="/track-order">Track order</Link>
+          Save your order number and track it any time.{" "}
+          <Link
+            className="text-foreground inline-flex min-h-11 items-center rounded-md underline underline-offset-4"
+            href="/track-order"
+          >
+            Track order
+          </Link>
         </p>
 
-        <div className="border-silver bg-card mt-8 rounded-2xl border px-4 py-6 shadow-soft sm:px-8">
+        <div className="border-silver bg-card shadow-soft mt-8 rounded-2xl border px-4 py-6 sm:px-8">
           <OrderStatusTracker status={order.status} />
         </div>
 
@@ -152,9 +170,12 @@ export default async function OrderConfirmationPage({
           <div className="min-w-0 space-y-8">
             <section
               aria-labelledby="next-steps-heading"
-              className="border-silver bg-card rounded-2xl border p-5 shadow-soft sm:p-6"
+              className="border-silver bg-card shadow-soft rounded-2xl border p-5 sm:p-6"
             >
-              <h2 className="font-heading text-xl font-semibold" id="next-steps-heading">
+              <h2
+                className="font-heading text-xl font-semibold"
+                id="next-steps-heading"
+              >
                 What happens next
               </h2>
               <ol className="mt-4 space-y-4">
@@ -177,16 +198,21 @@ export default async function OrderConfirmationPage({
 
             <section
               aria-labelledby="order-details-heading"
-              className="border-silver bg-card rounded-2xl border p-5 shadow-soft sm:p-6"
+              className="border-silver bg-card shadow-soft rounded-2xl border p-5 sm:p-6"
             >
-              <h2 className="font-heading text-xl font-semibold" id="order-details-heading">
+              <h2
+                className="font-heading text-xl font-semibold"
+                id="order-details-heading"
+              >
                 Order details
               </h2>
               <ul className="border-silver mt-4 divide-y border-y">
                 {order.items.map((item) => (
                   <li className="flex justify-between gap-4 py-4" key={item.id}>
                     <span className="min-w-0">
-                      <span className="block font-medium">{item.productTitle}</span>
+                      <span className="block font-medium">
+                        {item.productTitle}
+                      </span>
                       <span className="text-muted-foreground text-sm">
                         {item.variantLabel} · Qty {item.quantity}
                       </span>
@@ -205,7 +231,9 @@ export default async function OrderConfirmationPage({
               <dl className="mt-4 space-y-2 text-sm">
                 <div className="flex justify-between gap-4">
                   <dt className="text-muted-foreground">Subtotal</dt>
-                  <dd className="font-semibold">{formatPrice(order.subtotal)}</dd>
+                  <dd className="font-semibold">
+                    {formatPrice(order.subtotal)}
+                  </dd>
                 </div>
                 <div className="flex justify-between gap-4">
                   <dt className="text-muted-foreground">Delivery</dt>
@@ -222,7 +250,10 @@ export default async function OrderConfirmationPage({
               <div className="border-silver mt-5 space-y-5 border-t pt-5">
                 <div>
                   <h3 className="flex items-center gap-2 text-sm font-semibold">
-                    <MapPin aria-hidden="true" className="text-gold-text dark:text-gold-light size-4" />
+                    <MapPin
+                      aria-hidden="true"
+                      className="text-gold-text dark:text-gold-light size-4"
+                    />
                     Delivery address
                   </h3>
                   <p className="text-muted-foreground mt-1.5 text-sm leading-6">
@@ -232,7 +263,10 @@ export default async function OrderConfirmationPage({
                 {order.giftNote && (
                   <div>
                     <h3 className="flex items-center gap-2 text-sm font-semibold">
-                      <NotebookPen aria-hidden="true" className="text-gold-text dark:text-gold-light size-4" />
+                      <NotebookPen
+                        aria-hidden="true"
+                        className="text-gold-text dark:text-gold-light size-4"
+                      />
                       Gift note
                     </h3>
                     <p className="text-muted-foreground mt-1.5 text-sm leading-6 whitespace-pre-line">
@@ -243,7 +277,10 @@ export default async function OrderConfirmationPage({
                 {order.orderNotes && (
                   <div>
                     <h3 className="flex items-center gap-2 text-sm font-semibold">
-                      <NotebookPen aria-hidden="true" className="text-gold-text dark:text-gold-light size-4" />
+                      <NotebookPen
+                        aria-hidden="true"
+                        className="text-gold-text dark:text-gold-light size-4"
+                      />
                       Order notes
                     </h3>
                     <p className="text-muted-foreground mt-1.5 text-sm leading-6 whitespace-pre-line">
@@ -254,7 +291,10 @@ export default async function OrderConfirmationPage({
                 {(order.trackingNumber || order.courierName) && (
                   <div>
                     <h3 className="flex items-center gap-2 text-sm font-semibold">
-                      <Truck aria-hidden="true" className="text-gold-text dark:text-gold-light size-4" />
+                      <Truck
+                        aria-hidden="true"
+                        className="text-gold-text dark:text-gold-light size-4"
+                      />
                       Tracking
                     </h3>
                     <p className="text-muted-foreground mt-1.5 text-sm leading-6">
@@ -268,7 +308,7 @@ export default async function OrderConfirmationPage({
             </section>
           </div>
 
-          <aside className="border-silver bg-card h-fit rounded-2xl border p-5 shadow-soft lg:sticky lg:top-28">
+          <aside className="border-silver bg-card shadow-soft h-fit rounded-2xl border p-5 lg:sticky lg:top-28">
             <div className="flex items-center justify-between gap-3">
               <h2 className="font-heading text-xl font-semibold">Payment</h2>
               <Badge variant={statusBadgeVariants[order.status]}>
@@ -276,7 +316,7 @@ export default async function OrderConfirmationPage({
               </Badge>
             </div>
             <p className="mt-4 font-semibold">Easypaisa wallet transfer</p>
-            <p className="text-muted-foreground mt-2 whitespace-pre-line text-sm leading-6">
+            <p className="text-muted-foreground mt-2 text-sm leading-6 whitespace-pre-line">
               {manualEasypaisaProvider.getInstructions()}
             </p>
             {whatsappHref && (
@@ -286,7 +326,10 @@ export default async function OrderConfirmationPage({
                 rel="noopener noreferrer"
                 target="_blank"
               >
-                <MessageCircle aria-hidden="true" className="size-5 shrink-0 text-brand" />
+                <MessageCircle
+                  aria-hidden="true"
+                  className="text-brand dark:text-gold-light size-5 shrink-0"
+                />
                 Send payment screenshot on WhatsApp
               </a>
             )}

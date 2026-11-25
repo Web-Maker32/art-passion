@@ -8,6 +8,7 @@ import { orderStatusChoices } from "@/components/admin/order-status-badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { AdminSearchInput } from "@/components/admin/admin-search-input";
 import { AdminSelect, ToggleChip } from "@/components/admin/admin-controls";
+import { StatusTabs } from "@/components/admin/status-tabs";
 import { ADMIN_ORDER_SEARCH_MAX_LENGTH } from "@/lib/queries/admin-orders";
 
 const tabs: Array<{ value: AdminOrderStatusTab; label: string }> = [
@@ -47,37 +48,16 @@ export function OrdersFilterBar({
 }) {
   return (
     <div className="space-y-3">
-      <nav
-        aria-label="Filter orders by status"
-        className="scrollbar-brand flex gap-1.5 overflow-x-auto pb-1"
-      >
-        {tabs.map((tab) => {
-          const active = status === tab.value;
-          const count = counts[tab.value] ?? 0;
-          return (
-            <Link
-              key={tab.value}
-              href={tabHref(tab.value, search, dateRange, paymentReported)}
-              aria-current={active ? "true" : undefined}
-              className={`inline-flex h-11 shrink-0 items-center gap-2 rounded-full border px-3.5 text-sm font-medium whitespace-nowrap transition-colors motion-reduce:transition-none sm:h-9 ${
-                active
-                  ? "bg-brand text-brand-foreground border-transparent"
-                  : "border-silver bg-card hover-fine:hover:bg-muted"
-              }`}
-            >
-              {tab.label}
-              <span
-                className={`rounded-full px-2 text-xs tabular-nums ${
-                  active ? "bg-brand-foreground/20" : "bg-foreground/10"
-                } ${count === 0 ? "opacity-50" : ""}`}
-              >
-                {count}
-                <span className="sr-only"> orders</span>
-              </span>
-            </Link>
-          );
-        })}
-      </nav>
+      <StatusTabs
+        ariaLabel="Filter orders by status"
+        tabs={tabs.map((tab) => ({
+          value: tab.value,
+          href: tabHref(tab.value, search, dateRange, paymentReported),
+          label: tab.label,
+          count: counts[tab.value] ?? 0,
+          active: status === tab.value,
+        }))}
+      />
 
       <form
         action="/admin/orders"
@@ -121,7 +101,7 @@ export function OrdersFilterBar({
         <div className="flex gap-2">
           <Button type="submit">Apply</Button>
           <Link
-            className={buttonVariants({ variant: "ghost" })}
+            className={buttonVariants({ variant: "outline" })}
             href="/admin/orders"
           >
             Reset

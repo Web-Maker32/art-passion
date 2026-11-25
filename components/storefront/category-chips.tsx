@@ -34,7 +34,7 @@ export function CategoryChips({
             className={cn(
               chipBase,
               activeSlug
-                ? "border-silver bg-card text-foreground hover-fine:hover:border-brand-gold hover-fine:hover:text-brand"
+                ? "border-silver bg-card text-foreground hover-fine:hover:border-brand-gold hover-fine:hover:text-brand dark:hover-fine:hover:text-gold-light"
                 : "border-brand bg-brand text-brand-foreground shadow-soft",
             )}
             href="/products"

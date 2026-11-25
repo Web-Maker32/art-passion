@@ -12,7 +12,7 @@ import { searchPublishedProducts } from "@/lib/queries/products";
 const suggestedTerms = ["felt", "coloring kit", "painting kit", "gift set"];
 
 const suggestionChip =
-  "focus-visible:outline-ring inline-flex min-h-11 items-center rounded-full border border-silver bg-card px-4 text-sm font-medium transition-colors duration-interaction hover-fine:hover:border-brand-gold hover-fine:hover:text-brand focus-visible:outline-2 focus-visible:outline-offset-2";
+  "focus-visible:outline-ring inline-flex min-h-11 items-center rounded-full border border-silver bg-card px-4 text-sm font-medium transition-colors duration-interaction hover-fine:hover:border-brand-gold hover-fine:hover:text-brand dark:hover-fine:hover:text-gold-light focus-visible:outline-2 focus-visible:outline-offset-2";
 
 export const metadata: Metadata = {
   title: "Search handmade products",

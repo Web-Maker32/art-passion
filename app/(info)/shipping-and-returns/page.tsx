@@ -1,7 +1,9 @@
 import { MessageCircle } from "lucide-react";
+import { Callout } from "@/components/content/callout";
 import { CtaLink } from "@/components/content/cta";
 import { PageSection, PageShell } from "@/components/content/PageShell";
 import { contentMetadata } from "@/lib/content/metadata";
+import { formatPrice } from "@/lib/format";
 import { siteConfig } from "@/lib/site-config";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 
@@ -25,9 +27,10 @@ export default function ShippingAndReturnsPage() {
     >
       <PageSection heading="Delivery charges">
         <p>
-          Delivery is a flat Rs {siteConfig.deliveryFee} per order anywhere in
-          Pakistan. Orders of Rs {siteConfig.freeDeliveryThreshold} or more are
-          delivered free.
+          Delivery is a flat {formatPrice(siteConfig.deliveryFee)} per order
+          anywhere in Pakistan. Orders of{" "}
+          {formatPrice(siteConfig.freeDeliveryThreshold)} or more are delivered
+          free.
         </p>
         <p>
           The delivery charge is added automatically at checkout, and the full
@@ -36,9 +39,13 @@ export default function ShippingAndReturnsPage() {
       </PageSection>
 
       <PageSection heading="Delivery time">
-        <p>
-          {"TODO(owner): add the usual delivery time for your city and for other cities, and whether tracking is shared with the customer."}
-        </p>
+        <Callout dashed>
+          <p>
+            {
+              "TODO(owner): add the usual delivery time for your city and for other cities, and whether tracking is shared with the customer."
+            }
+          </p>
+        </Callout>
         <p>
           Ready-to-ship items are packed as soon as possible. Made-to-order
           pieces show their preparation time on the product page, so the total
@@ -47,8 +54,13 @@ export default function ShippingAndReturnsPage() {
       </PageSection>
 
       <PageSection heading="Track your parcel">
-        <p>Check your order status with your order number and checkout phone number. Courier details appear when they are available.</p>
-        <CtaLink href="/track-order" variant="outline">Track order</CtaLink>
+        <p>
+          Check your order status with your order number and checkout phone
+          number. Courier details appear when they are available.
+        </p>
+        <CtaLink href="/track-order" variant="outline">
+          Track order
+        </CtaLink>
       </PageSection>
 
       <PageSection heading="How orders are packed">
@@ -72,9 +84,13 @@ export default function ShippingAndReturnsPage() {
       </PageSection>
 
       <PageSection heading="Returns and exchanges">
-        <p>
-          {"TODO(owner): add the exact return and exchange window in days, and say whether return delivery is paid by the customer or by the shop."}
-        </p>
+        <Callout dashed>
+          <p>
+            {
+              "TODO(owner): add the exact return and exchange window in days, and say whether return delivery is paid by the customer or by the shop."
+            }
+          </p>
+        </Callout>
         <p>
           Items must be unused and in their original packaging. Custom and
           made-to-order pieces are made especially for you, so please ask about

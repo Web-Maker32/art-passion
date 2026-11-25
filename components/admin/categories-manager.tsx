@@ -167,7 +167,7 @@ export function CategoriesManager({
                     <TableCell className="text-right">
                       <Link
                         aria-label={`View products in ${category.name}`}
-                        className="text-foreground tabular-nums underline-offset-4 hover-fine:hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)]"
+                        className="text-foreground hover-fine:hover:underline tabular-nums underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)]"
                         href={`/admin/products?category=${category.id}`}
                       >
                         {category.productCount === 1
@@ -202,7 +202,7 @@ export function CategoriesManager({
                           onClick={() => startRename(category)}
                           size="sm"
                           type="button"
-                          variant="ghost"
+                          variant="outline"
                         >
                           Rename
                         </Button>

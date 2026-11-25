@@ -4,6 +4,7 @@ import {
   AlertCircle,
   Banknote,
   CalendarDays,
+  Check,
   CheckCircle2,
   Clock,
   PackageSearch,
@@ -187,12 +188,31 @@ export default async function AdminDashboardPage({
         flush
         actions={
           <>
-            <Link
-              className="text-muted-foreground hover:text-foreground inline-flex min-h-11 items-center rounded-sm text-[13px] font-medium underline-offset-4 transition-colors hover:underline sm:min-h-0"
-              href={showCancelled ? "/admin" : "/admin?showCancelled=1"}
-            >
-              {showCancelled ? "Hide cancelled" : "Show cancelled"}
-            </Link>
+            {/* GET form so the toggle works without JS; chip mirrors ToggleChip. */}
+            <form action="/admin" method="get">
+              <input
+                name="showCancelled"
+                type="hidden"
+                value={showCancelled ? "" : "1"}
+              />
+              <button
+                aria-pressed={showCancelled}
+                className={`inline-flex h-11 items-center gap-2 rounded-[8px] border px-3.5 text-sm font-medium whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] motion-reduce:transition-none sm:h-9 ${
+                  showCancelled
+                    ? "border-gold bg-gold/15 text-foreground"
+                    : "border-input text-muted-foreground hover-fine:hover:border-gold"
+                }`}
+                type="submit"
+              >
+                {showCancelled && (
+                  <Check
+                    aria-hidden="true"
+                    className="text-gold-text dark:text-gold-light size-4"
+                  />
+                )}
+                Show cancelled
+              </button>
+            </form>
             <Link
               className={buttonVariants({ variant: "outline", size: "sm" })}
               href="/admin/orders"
@@ -457,13 +477,13 @@ export default async function AdminDashboardPage({
                 {!item.done &&
                   (item.id === "samples" ? (
                     <Link
-                      className="text-gold-text dark:text-gold-light inline-flex min-h-11 items-center font-medium underline-offset-4 hover:underline sm:ml-2 sm:min-h-0"
+                      className="text-gold-text dark:text-gold-light mt-0.5 flex min-h-11 w-fit items-center font-medium underline-offset-4 hover:underline sm:min-h-0"
                       href="/admin/products?search=Sample%3A"
                     >
                       Review samples
                     </Link>
                   ) : (
-                    <span className="text-muted-foreground block text-xs sm:ml-2 sm:inline">
+                    <span className="text-muted-foreground mt-0.5 block text-xs">
                       {item.id === "content"
                         ? "Finalise in site content"
                         : "Set in environment config"}

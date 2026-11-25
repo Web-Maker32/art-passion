@@ -1,3 +1,4 @@
+import { CalendarDays } from "lucide-react";
 import type { DashboardDayBucket } from "@/lib/queries/admin-dashboard";
 
 /**
@@ -12,6 +13,26 @@ export function OrdersChart({ buckets }: { buckets: DashboardDayBucket[] }) {
     buckets[0],
   );
   const today = buckets[buckets.length - 1];
+
+  if (total === 0) {
+    return (
+      <figure className="m-0">
+        <div className="border-border flex h-36 flex-col items-center justify-center gap-1.5 rounded-[10px] border border-dashed px-4 text-center">
+          <CalendarDays
+            aria-hidden="true"
+            className="text-muted-foreground size-5"
+          />
+          <p className="text-sm font-medium">No orders in the last 14 days</p>
+          <p className="text-muted-foreground text-xs">
+            New orders will appear here as they come in.
+          </p>
+        </div>
+        <p className="sr-only">
+          No orders in the last 14 days, excluding cancelled and refunded.
+        </p>
+      </figure>
+    );
+  }
 
   return (
     <figure className="m-0">

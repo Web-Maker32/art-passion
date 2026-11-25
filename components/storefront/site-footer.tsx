@@ -4,11 +4,7 @@ import { Heart, Mail, MessageCircle, Truck, Wallet } from "lucide-react";
 import { Container } from "@/components/storefront/container";
 import { Logo } from "@/components/logo";
 import { storeCategories } from "@/lib/catalog";
-import {
-  deliveryInfoLine,
-  isOwnerTodo,
-  siteConfig,
-} from "@/lib/site-config";
+import { deliveryInfoLine, isOwnerTodo, siteConfig } from "@/lib/site-config";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 
 const helpLinks = [
@@ -30,7 +26,8 @@ const copyrightYear = new Date().getFullYear();
 export function SiteFooter() {
   const whatsapp = buildWhatsAppLink({
     number: siteConfig.whatsappNumber,
-    message: "Hello Art Passion! I have a question about your handmade products.",
+    message:
+      "Hello Art Passion! I have a question about your handmade products.",
   });
   const shopLinks = [
     { href: "/products", label: "Shop all" },
@@ -72,12 +69,15 @@ export function SiteFooter() {
               {whatsapp && (
                 <li>
                   <a
-                    className="text-brand-foreground/85 hover:text-brand-gold focus-visible:outline-gold-light inline-flex min-h-11 items-center gap-2.5 rounded-sm transition-colors duration-interaction focus-visible:outline-2 focus-visible:outline-offset-2"
+                    className="text-brand-foreground/85 hover:text-brand-gold focus-visible:outline-gold-light duration-interaction inline-flex min-h-11 items-center gap-2.5 rounded-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
                     href={whatsapp}
                     rel="noopener noreferrer"
                     target="_blank"
                   >
-                    <MessageCircle aria-hidden="true" className="text-brand-gold size-4" />
+                    <MessageCircle
+                      aria-hidden="true"
+                      className="text-brand-gold size-4"
+                    />
                     WhatsApp us
                   </a>
                 </li>
@@ -85,10 +85,13 @@ export function SiteFooter() {
               {hasEmail && (
                 <li>
                   <a
-                    className="text-brand-foreground/85 hover:text-brand-gold focus-visible:outline-gold-light inline-flex min-h-11 items-center gap-2.5 rounded-sm transition-colors duration-interaction focus-visible:outline-2 focus-visible:outline-offset-2"
+                    className="text-brand-foreground/85 hover:text-brand-gold focus-visible:outline-gold-light duration-interaction inline-flex min-h-11 items-center gap-2.5 rounded-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
                     href={`mailto:${siteConfig.contactEmail}`}
                   >
-                    <Mail aria-hidden="true" className="text-brand-gold size-4" />
+                    <Mail
+                      aria-hidden="true"
+                      className="text-brand-gold size-4"
+                    />
                     {siteConfig.contactEmail}
                   </a>
                 </li>
@@ -108,7 +111,10 @@ export function SiteFooter() {
             <Truck aria-hidden="true" className="size-4" />
             {deliveryInfoLine}
           </span>
-          <span aria-hidden="true" className="text-brand-gold/40 hidden sm:inline">
+          <span
+            aria-hidden="true"
+            className="text-brand-gold/40 hidden sm:inline"
+          >
             •
           </span>
           <span className="text-brand-foreground/85 inline-flex items-center gap-2">
@@ -180,7 +186,7 @@ function SocialLink({
   return (
     <a
       aria-label={label}
-      className="text-brand-foreground/80 hover:text-brand-gold focus-visible:outline-gold-light inline-flex size-11 items-center justify-center rounded-full border border-white/15 transition-colors duration-interaction hover:border-brand-gold focus-visible:outline-2 focus-visible:outline-offset-2"
+      className="text-brand-foreground/80 hover:text-brand-gold focus-visible:outline-gold-light border-brand-foreground/15 duration-interaction hover:border-brand-gold inline-flex size-11 items-center justify-center rounded-full border transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
       href={href}
       rel="noopener noreferrer"
       target="_blank"
@@ -206,7 +212,7 @@ function FooterLinkList({
         {links.map(({ href, label }) => (
           <li key={`${heading}-${href}`}>
             <Link
-              className="text-brand-foreground/80 hover:text-brand-gold focus-visible:outline-gold-light inline-flex min-h-11 items-center rounded-sm text-sm underline-offset-4 transition-colors duration-interaction hover:underline hover:decoration-brand-gold focus-visible:outline-2 focus-visible:outline-offset-2"
+              className="text-brand-foreground/80 hover:text-brand-gold focus-visible:outline-gold-light duration-interaction hover:decoration-brand-gold inline-flex min-h-11 min-w-11 items-center rounded-sm text-sm underline-offset-4 transition-colors hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
               href={href}
             >
               {label}
@@ -218,7 +224,11 @@ function FooterLinkList({
   );
 }
 
-export function InstagramIcon({ className = "size-5" }: { className?: string }) {
+export function InstagramIcon({
+  className = "size-5",
+}: {
+  className?: string;
+}) {
   return (
     <svg
       aria-hidden="true"

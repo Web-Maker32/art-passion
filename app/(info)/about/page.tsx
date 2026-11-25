@@ -36,8 +36,16 @@ const makingSteps = [
 // Felt-swatch collage standing in for a workspace photo until the owner adds
 // one. Pure CSS shapes in brand colours, so it never looks broken.
 const feltSwatches = [
-  { shape: "rounded-full", tone: "bg-teal-300 dark:bg-teal-700", icon: "text-teal-900 dark:text-teal-100" },
-  { shape: "rounded-3xl rotate-6", tone: "bg-gold-light", icon: "text-brand-deep" },
+  {
+    shape: "rounded-full",
+    tone: "bg-teal-300 dark:bg-teal-700",
+    icon: "text-teal-900 dark:text-teal-100",
+  },
+  {
+    shape: "rounded-3xl rotate-6",
+    tone: "bg-gold-light",
+    icon: "text-brand-deep",
+  },
   { shape: "rounded-3xl -rotate-3", tone: "bg-blush/80", icon: "text-white" },
   { shape: "rounded-full", tone: "bg-orchid/70", icon: "text-white" },
 ] as const;
@@ -45,13 +53,14 @@ const feltSwatches = [
 export default function AboutPage() {
   const whatsapp = buildWhatsAppLink({
     number: siteConfig.whatsappNumber,
-    message: "Hello Art Passion! I would love to know more about your handmade collection.",
+    message:
+      "Hello Art Passion! I would love to know more about your handmade collection.",
   });
 
   return (
     <>
       {/* Hero */}
-      <section className="border-silver border-b bg-muted/40">
+      <section className="border-silver bg-muted/40 border-b">
         <Container className="grid items-center gap-10 py-12 sm:py-16 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14">
           <div>
             <p className="text-gold-text text-sm font-semibold tracking-wide uppercase">
@@ -70,7 +79,7 @@ export default function AboutPage() {
               className="bg-gold-teal-gradient mt-6 h-0.5 w-14 rounded-full"
             />
           </div>
-          <div className="stitch-border border-gold/40 bg-brand-deep relative overflow-hidden rounded-[2rem] border shadow-card">
+          <div className="stitch-border border-gold/40 bg-brand-deep shadow-card relative overflow-hidden rounded-[2rem] border">
             <Image
               alt="Art Passion gold emblem: a scripted monogram over a heart-shaped palette on deep teal"
               className="h-full w-full object-cover"
@@ -91,11 +100,11 @@ export default function AboutPage() {
           <div className="order-2 lg:order-1">
             <div
               aria-hidden="true"
-              className="border-silver bg-card grid aspect-[4/3] grid-cols-2 gap-5 rounded-[2rem] border p-8 shadow-card sm:gap-7 sm:p-10"
+              className="border-silver bg-card shadow-card grid aspect-[4/3] grid-cols-2 gap-5 rounded-[2rem] border p-8 sm:gap-7 sm:p-10"
             >
               {feltSwatches.map(({ shape, tone, icon }, index) => (
                 <span
-                  className={`stitch-border flex items-center justify-center border-2 border-dashed border-white/40 ${shape} ${tone}`}
+                  className={`stitch-border border-brand-foreground/40 flex items-center justify-center border-2 border-dashed ${shape} ${tone}`}
                   key={index}
                 >
                   {index === 0 && <HandHeart className={`size-8 ${icon}`} />}
@@ -151,7 +160,7 @@ export default function AboutPage() {
           <ol className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {makingSteps.map(({ icon: Icon, label }, index) => (
               <li
-                className="border-silver bg-card rounded-3xl border p-5 shadow-card"
+                className="border-silver bg-card shadow-card rounded-3xl border p-5"
                 key={label}
               >
                 <span className="bg-brand/10 text-brand dark:bg-gold/15 dark:text-gold-light inline-flex size-11 items-center justify-center rounded-2xl">
@@ -166,7 +175,7 @@ export default function AboutPage() {
               </li>
             ))}
           </ol>
-          <p className="text-muted-foreground mt-6 max-w-2xl leading-7">
+          <p className="text-muted-foreground mt-6 leading-7">
             Because everything is handmade in small batches, no two pieces are
             exactly alike. Small differences in stitching, colour or finish are
             normal, and they are part of what makes a handmade item feel
@@ -184,7 +193,7 @@ export default function AboutPage() {
           <div className="grid gap-4 md:grid-cols-2">
             <section
               aria-labelledby="small-heading"
-              className="border-silver bg-card h-full rounded-3xl border p-6 shadow-card sm:p-7"
+              className="border-silver bg-card shadow-card h-full rounded-3xl border p-6 sm:p-7"
             >
               <span className="bg-gold/20 text-gold-text dark:text-gold-light inline-flex size-12 items-center justify-center rounded-2xl">
                 <HandHeart aria-hidden="true" className="size-6" />
@@ -210,7 +219,7 @@ export default function AboutPage() {
             </section>
             <section
               aria-labelledby="pakistan-heading"
-              className="border-silver bg-card h-full rounded-3xl border p-6 shadow-card sm:p-7"
+              className="border-silver bg-card shadow-card h-full rounded-3xl border p-6 sm:p-7"
             >
               <span className="bg-gold/20 text-gold-text dark:text-gold-light inline-flex size-12 items-center justify-center rounded-2xl">
                 <MapPin aria-hidden="true" className="size-6" />
@@ -224,8 +233,17 @@ export default function AboutPage() {
               <div className="text-muted-foreground mt-3 space-y-3 leading-7">
                 <p>
                   Art Passion is proudly based in {siteConfig.country}. Thank
-                  you for supporting a small handmade business and the time
-                  that goes into each piece.
+                  you for supporting a small handmade business and the time that
+                  goes into each piece.
+                </p>
+                <p>
+                  Every piece is made in small batches and checked by the same
+                  person who made it, so each order is handled with care from
+                  the first cut to the final parcel.
+                </p>
+                <p>
+                  Orders are delivered across Pakistan, packed with the same
+                  attention so the piece arrives ready to play with or to give.
                 </p>
               </div>
             </section>
@@ -259,8 +277,8 @@ export default function AboutPage() {
               Let&apos;s make something joyful together.
             </h2>
             <p className="text-brand-foreground/85 mt-3 text-lg leading-8">
-              Browse the collection or tell us what you have in mind — we love
-              a custom idea.
+              Browse the collection or tell us what you have in mind — we love a
+              custom idea.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
@@ -275,10 +293,14 @@ export default function AboutPage() {
             </Button>
             {whatsapp && (
               <Button
-                className="border-white/40 bg-transparent text-brand-foreground hover:border-gold-light hover:bg-white/10 hover:text-brand-foreground dark:bg-transparent dark:hover:bg-white/10"
+                className="border-brand-foreground/40 text-brand-foreground hover:border-gold-light hover:bg-brand-foreground/10 hover:text-brand-foreground dark:hover:bg-brand-foreground/10 bg-transparent dark:bg-transparent"
                 nativeButton={false}
                 render={
-                  <a href={whatsapp} rel="noopener noreferrer" target="_blank" />
+                  <a
+                    href={whatsapp}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  />
                 }
                 size="lg"
                 variant="outline"

@@ -29,7 +29,7 @@ export function MobileNav() {
         render={
           <Button
             aria-label="Open navigation menu"
-            className="text-brand-foreground hover:text-gold-light focus-visible:ring-gold-light hover:bg-white/10"
+            className="text-brand-foreground hover:text-gold-light focus-visible:ring-gold-light hover:bg-brand-foreground/10"
             size="icon"
             variant="ghost"
           />
@@ -46,12 +46,15 @@ export function MobileNav() {
             Explore Art Passion
           </SheetTitle>
         </SheetHeader>
-        <nav aria-label="Mobile navigation" className="flex flex-col gap-1 px-3">
+        <nav
+          aria-label="Mobile navigation"
+          className="flex flex-col gap-1 px-3"
+        >
           <SheetClose
             nativeButton={false}
             render={
               <Link
-                className="text-brand-foreground hover:text-gold-light focus-visible:outline-gold-light flex min-h-12 items-center gap-3 rounded-xl px-4 text-base font-medium transition-colors duration-interaction hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2"
+                className="text-brand-foreground hover:text-gold-light focus-visible:outline-gold-light duration-interaction hover:bg-brand-foreground/10 flex min-h-12 items-center gap-3 rounded-xl px-4 text-base font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
                 href="/search"
               />
             }
@@ -68,10 +71,10 @@ export function MobileNav() {
                 render={
                   <Link
                     aria-current={active ? "page" : undefined}
-                    className={`focus-visible:outline-gold-light flex min-h-12 items-center rounded-xl px-4 text-base font-medium transition-colors duration-interaction focus-visible:outline-2 focus-visible:outline-offset-2 ${
+                    className={`focus-visible:outline-gold-light duration-interaction flex min-h-12 items-center rounded-xl px-4 text-base font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 ${
                       active
-                        ? "text-gold-light bg-white/10"
-                        : "text-brand-foreground hover:text-gold-light hover:bg-white/10"
+                        ? "text-gold-light bg-brand-foreground/10"
+                        : "text-brand-foreground hover:text-gold-light hover:bg-brand-foreground/10"
                     }`}
                     href={href}
                   />
@@ -82,11 +85,13 @@ export function MobileNav() {
             );
           })}
         </nav>
-        <div className="mt-auto flex items-center justify-between border-t border-white/10 px-4 py-4">
-          <span className="text-brand-foreground/85 text-sm font-medium">Theme</span>
+        <div className="border-brand-foreground/10 mt-auto flex items-center justify-between border-t px-4 py-4">
+          <span className="text-brand-foreground/85 text-sm font-medium">
+            Theme
+          </span>
           <button
             aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-            className="text-brand-foreground hover:text-gold-light focus-visible:outline-gold-light inline-flex size-11 items-center justify-center rounded-lg transition-colors duration-interaction hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2"
+            className="text-brand-foreground hover:text-gold-light focus-visible:outline-gold-light duration-interaction hover:bg-brand-foreground/10 inline-flex size-11 items-center justify-center rounded-lg transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
             onClick={() => setTheme(isDark ? "light" : "dark")}
             type="button"
           >

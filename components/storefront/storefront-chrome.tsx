@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { SiteFooter } from "@/components/storefront/site-footer";
 import { SiteHeader } from "@/components/storefront/site-header";
 import { WhatsAppFloat } from "@/components/storefront/whatsapp-float";
+import { buildWhatsAppLink } from "@/lib/whatsapp";
 
 /**
  * Storefront-only chrome: skip link, site header (which includes the mini-cart),
@@ -13,6 +14,11 @@ import { WhatsAppFloat } from "@/components/storefront/whatsapp-float";
  * fonts, theme provider and the Toaster) so both areas stay themed.
  */
 export function StorefrontChrome({ children }: { children: ReactNode }) {
+  const whatsappHref = buildWhatsAppLink({
+    number: process.env.WHATSAPP_NUMBER,
+    message:
+      "Hello Art Passion! I would like to know more about your handmade products.",
+  });
   return (
     <>
       <a
@@ -30,7 +36,7 @@ export function StorefrontChrome({ children }: { children: ReactNode }) {
         {children}
       </main>
       <SiteFooter />
-      <WhatsAppFloat />
+      <WhatsAppFloat href={whatsappHref} />
     </>
   );
 }

@@ -2,11 +2,17 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-@source inline("duration-interaction ease-interaction shadow-card shadow-card-hover shadow-soft lift lift-sm press image-zoom cart-count-pop skeleton-shimmer scroll-reveal-pending scroll-reveal-enter bg-cta-band stitch-border glow-gold float-slow float-slower twinkle scrollbar-brand");
+@source inline(
+  "duration-interaction ease-interaction shadow-card shadow-card-hover shadow-soft lift lift-sm press image-zoom cart-count-pop skeleton-shimmer scroll-reveal-pending scroll-reveal-enter bg-cta-band stitch-border glow-gold float-slow float-slower twinkle scrollbar-brand"
+);
 /* Storefront link/button interaction states kept visible on every surface. */
-@source inline("hover:bg-brand/10 hover:text-brand-deep hover:border-gold/60 active:bg-brand/15 hover:bg-foreground/10 dark:hover:bg-foreground/10 dark:hover:text-gold-light dark:hover:border-gold/60 dark:active:bg-foreground/15 scroll-mt-20 sm:scroll-mt-[88px]");
+@source inline(
+  "hover:bg-brand/10 hover:text-brand-deep hover:border-gold/60 active:bg-brand/15 hover:bg-foreground/10 dark:hover:bg-foreground/10 dark:hover:text-gold-light dark:hover:border-gold/60 dark:active:bg-foreground/15 scroll-mt-20 sm:scroll-mt-[88px]"
+);
 /* Mobile shop: price readability, filter switch, compact sort, list bottom padding. */
-@source inline("text-[11px] tracking-[0.06em] tabular-nums dark:text-gold-light bg-muted-foreground/30 peer-checked:bg-brand peer-checked:translate-x-5 peer-focus-visible:outline-ring max-w-[10rem] pb-24 sm:pb-28");
+@source inline(
+  "text-[11px] tracking-[0.06em] tabular-nums dark:text-gold-light bg-muted-foreground/30 peer-checked:bg-brand peer-checked:translate-x-5 peer-focus-visible:outline-ring max-w-[10rem] pb-24 sm:pb-28"
+);
 
 @custom-variant dark (&:is(.dark *));
 @custom-variant hover-fine (@media (hover: hover) and (pointer: fine));
@@ -139,8 +145,8 @@
 }
 
 :root {
-  --brand-deep: #0A3533;
-  --brand-gold: #E6C875;
+  --brand-deep: #0a3533;
+  --brand-gold: #e6c875;
   --motion-duration: 200ms;
   --motion-easing: cubic-bezier(0.22, 1, 0.36, 1);
   --header-teal: var(--brand-deep);
@@ -152,7 +158,8 @@
   --gold-light: oklch(0.841 0.108 90.1);
   --gold-text: oklch(0.52 0.101 81.8);
   --focus-ring: var(--gold-text);
-  --card-shadow: 0 2px 8px color-mix(in oklch, var(--brand-deep) 12%, transparent);
+  --card-shadow: 0 2px 8px
+    color-mix(in oklch, var(--brand-deep) 12%, transparent);
   --card-shadow-hover:
     0 12px 24px color-mix(in oklch, var(--brand-deep) 20%, transparent),
     0 2px 8px color-mix(in oklch, var(--brand-gold) 18%, transparent);
@@ -326,10 +333,7 @@
     min-width: 2.75rem;
   }
   .admin-shell
-    :where(
-      input:not([type="checkbox"]):not([type="radio"]),
-      textarea
-    ) {
+    :where(input:not([type="checkbox"]):not([type="radio"]), textarea) {
     min-height: 2.75rem;
   }
 }
@@ -491,8 +495,7 @@
   @media (hover: none), (pointer: coarse) {
     &:active {
       transform: translateY(0);
-      box-shadow:
-        inset 0 0 0 100vmax
+      box-shadow: inset 0 0 0 100vmax
         color-mix(in oklch, var(--brand-deep) 12%, transparent);
     }
   }
@@ -524,8 +527,7 @@
   @media (hover: none), (pointer: coarse) {
     &:active {
       transform: translateY(0);
-      box-shadow:
-        inset 0 0 0 100vmax
+      box-shadow: inset 0 0 0 100vmax
         color-mix(in oklch, var(--brand-deep) 12%, transparent);
     }
   }
@@ -544,8 +546,7 @@
 
   &:active {
     transform: translateY(0);
-    box-shadow:
-      inset 0 0 0 100vmax
+    box-shadow: inset 0 0 0 100vmax
       color-mix(in oklch, var(--brand-deep) 12%, transparent);
   }
 
@@ -607,18 +608,16 @@
   }
 }
 
-/* Floating WhatsApp pill: one opaque surface, a fixed right edge, and an
-   expanding desktop label. Touch devices keep the icon-only tap target;
-   reduced motion reveals the label instantly without movement. */
+/* Floating WhatsApp pill: one opaque surface at a fixed size — hover changes
+   colour and shadow only, never the pill's dimensions. Reduced motion keeps
+   the colour feedback without transitions. */
 @utility whatsapp-float {
   transition:
-    transform var(--motion-duration) ease-out,
     box-shadow var(--motion-duration) ease-out,
     background-color var(--motion-duration) ease-out;
 
   @media (hover: hover) and (pointer: fine) {
     &:hover {
-      transform: translateY(-2px);
       background-color: var(--brand-hover);
       box-shadow:
         0 0 0 1px color-mix(in oklch, var(--brand-gold) 40%, transparent),
@@ -627,17 +626,11 @@
   }
 
   &:active {
-    transform: translateY(0);
     box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.1);
   }
 
   @media (prefers-reduced-motion: reduce) {
     transition-property: background-color, box-shadow;
-
-    &:hover,
-    &:active {
-      transform: none;
-    }
   }
 }
 
@@ -656,26 +649,6 @@
     :where(.group):hover & {
       transform: none;
     }
-  }
-}
-
-@utility whatsapp-float-label {
-  max-width: 0;
-  opacity: 0;
-  transition:
-    max-width var(--motion-duration) ease-out,
-    opacity var(--motion-duration) ease-out;
-
-  @media (min-width: 48rem) and (hover: hover) and (pointer: fine) {
-    :where(.group):hover &,
-    :where(.group):focus-visible & {
-      max-width: 8rem;
-      opacity: 1;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    transition: none;
   }
 }
 
@@ -763,7 +736,8 @@ body:has([data-slot="dialog-overlay"]) .whatsapp-float {
 }
 
 @utility scroll-reveal-enter {
-  animation: scroll-fade-up calc(var(--motion-duration) * 1.25) var(--motion-easing) both;
+  animation: scroll-fade-up calc(var(--motion-duration) * 1.25)
+    var(--motion-easing) both;
 
   @media (prefers-reduced-motion: reduce) {
     animation: none;
@@ -820,12 +794,15 @@ body:has([data-slot="dialog-overlay"]) .whatsapp-float {
   border-start-end-radius: calc(var(--radius) * 1.8);
 }
 
-[data-slot="accordion-item"]:last-child:not([data-open]) [data-slot="accordion-trigger"] {
+[data-slot="accordion-item"]:last-child:not([data-open])
+  [data-slot="accordion-trigger"] {
   border-end-start-radius: calc(var(--radius) * 1.8);
   border-end-end-radius: calc(var(--radius) * 1.8);
 }
 
-input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):focus-visible,
+input:not([type="hidden"]):not([type="checkbox"]):not(
+    [type="radio"]
+  ):focus-visible,
 textarea:focus-visible,
 select:focus-visible,
 [data-slot="select-trigger"]:focus-visible {
@@ -834,7 +811,9 @@ select:focus-visible,
 }
 
 @media (hover: hover) and (pointer: fine) {
-  input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not(:disabled):hover,
+  input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not(
+      :disabled
+    ):hover,
   textarea:not(:disabled):hover,
   select:not(:disabled):hover,
   [data-slot="select-trigger"]:not(:disabled):hover {
@@ -870,7 +849,8 @@ select[aria-invalid="true"],
     text-decoration-color: transparent;
     text-decoration-thickness: 1px;
     text-underline-offset: 0.2em;
-    transition: text-decoration-color var(--motion-duration) var(--motion-easing);
+    transition: text-decoration-color var(--motion-duration)
+      var(--motion-easing);
   }
   @media (hover: hover) and (pointer: fine) {
     #main-content p a[href]:hover {
@@ -878,11 +858,14 @@ select[aria-invalid="true"],
       text-decoration-color: var(--gold-text);
     }
   }
-  button:not([data-slot="button"]):not([data-slot="accordion-trigger"]):not(:disabled) {
+  button:not([data-slot="button"]):not([data-slot="accordion-trigger"]):not(
+      :disabled
+    ) {
     @apply lift-sm press;
   }
   [data-sonner-toaster] [data-sonner-toast] {
-    animation: toast-fade-up calc(var(--motion-duration) * 1.1) var(--motion-easing) both;
+    animation: toast-fade-up calc(var(--motion-duration) * 1.1)
+      var(--motion-easing) both;
   }
   @media (prefers-reduced-motion: reduce) {
     [data-sonner-toaster] [data-sonner-toast] {

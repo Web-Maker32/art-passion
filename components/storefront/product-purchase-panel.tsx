@@ -64,10 +64,12 @@ export function ProductPurchasePanel({
   });
 
   return (
-    <div className="space-y-5 rounded-2xl border border-silver bg-card p-5 shadow-soft sm:p-6">
+    <div className="border-silver bg-card shadow-soft space-y-5 rounded-2xl border p-5 sm:p-6">
       {variants.length > 1 ? (
         <fieldset>
-          <legend className="mb-2 text-sm font-semibold">Choose an option</legend>
+          <legend className="mb-2 text-sm font-semibold">
+            Choose an option
+          </legend>
           <div className="grid gap-2">
             {variants.map((variant) => {
               const selectedVariant = selectedId === variant.id;
@@ -78,10 +80,10 @@ export function ProductPurchasePanel({
 
               return (
                 <label
-                  className={`flex min-h-12 items-center justify-between gap-3 rounded-lg border-2 px-3 py-2 transition-colors duration-interaction ease-interaction active:bg-muted/70 ${
+                  className={`duration-interaction ease-interaction active:bg-muted/70 flex min-h-12 items-center justify-between gap-3 rounded-lg border-2 px-3 py-2 transition-colors ${
                     unavailable
-                      ? "cursor-not-allowed border-silver-strong bg-muted/60 text-muted-foreground"
-                      : `cursor-pointer hover-fine:hover:border-brand ${
+                      ? "border-silver-strong bg-muted/60 text-muted-foreground cursor-not-allowed"
+                      : `hover-fine:hover:border-brand cursor-pointer ${
                           selectedVariant
                             ? "border-brand bg-brand/5"
                             : "border-silver"
@@ -124,7 +126,7 @@ export function ProductPurchasePanel({
       {selected && (
         <>
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <p className="font-heading text-2xl font-bold text-foreground dark:text-gold-light tabular-nums">
+            <p className="font-heading text-foreground dark:text-gold-light text-2xl font-bold tabular-nums">
               {formatPrice(selected.price)}
             </p>
             <p
@@ -141,16 +143,16 @@ export function ProductPurchasePanel({
             </p>
           </div>
           {madeToOrder && (
-            <p className="rounded-lg bg-muted px-3 py-2 text-sm">
+            <p className="bg-muted rounded-lg px-3 py-2 text-sm">
               Made to order: ready in {leadTimeDays} days.
             </p>
           )}
           <div className="flex flex-wrap items-center gap-3">
             <span className="text-sm font-semibold">Quantity</span>
-            <div className="flex items-center rounded-lg border border-input">
+            <div className="border-input flex items-center rounded-lg border">
               <button
                 aria-label="Decrease quantity"
-                className="min-h-11 min-w-11 rounded-l-lg hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring"
+                className="hover:bg-muted focus-visible:outline-ring min-h-11 min-w-11 rounded-l-lg focus-visible:outline-2"
                 disabled={quantity <= 1}
                 onClick={() => setQuantity((value) => Math.max(1, value - 1))}
                 type="button"
@@ -162,7 +164,7 @@ export function ProductPurchasePanel({
               </span>
               <button
                 aria-label="Increase quantity"
-                className="min-h-11 min-w-11 rounded-r-lg hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring"
+                className="hover:bg-muted focus-visible:outline-ring min-h-11 min-w-11 rounded-r-lg focus-visible:outline-2"
                 disabled={quantity >= maxQuantity}
                 onClick={() =>
                   setQuantity((value) => Math.min(maxQuantity, value + 1))
@@ -204,14 +206,14 @@ export function ProductPurchasePanel({
           </Button>
           {whatsappHref && (
             <a
-              className="flex min-h-12 items-center justify-center gap-2 rounded-lg border border-brand px-4 text-center font-semibold text-foreground lift-sm press hover-fine:hover:bg-brand/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+              className="border-brand text-foreground lift-sm press hover-fine:hover:bg-brand/5 focus-visible:outline-ring flex min-h-12 items-center justify-center gap-2 rounded-lg border px-4 text-center font-semibold focus-visible:outline-2 focus-visible:outline-offset-2"
               href={whatsappHref}
               rel="noopener noreferrer"
               target="_blank"
             >
               <MessageCircle
                 aria-hidden="true"
-                className="size-5 shrink-0 text-brand"
+                className="text-brand dark:text-gold-light size-5 shrink-0"
               />
               Ask about this product on WhatsApp
             </a>
