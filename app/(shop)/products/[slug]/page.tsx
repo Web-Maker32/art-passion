@@ -15,6 +15,7 @@ import {
 import { cn } from "cn";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { Breadcrumb } from "@/components/storefront/breadcrumb";
+import { ContactHelp } from "@/components/storefront/contact-help";
 import { Container } from "@/components/storefront/container";
 import { Badge } from "@/components/ui/badge";
 import { ProductGallery } from "@/components/storefront/product-gallery";
@@ -155,6 +156,10 @@ export default async function ProductPage({
               productUrl={productUrl}
               variants={product.variants}
               whatsappNumber={siteConfig.whatsappNumber}
+            />
+            <ContactHelp
+              className="border-silver mt-6 border-t pt-5"
+              message={`Hi, I have a question about ${product.title} (/products/${product.slug})`}
             />
           </div>
         </div>

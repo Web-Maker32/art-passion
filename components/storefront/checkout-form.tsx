@@ -16,6 +16,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { processCheckout } from "@/actions/checkout";
+import { ContactHelp } from "@/components/storefront/contact-help";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -98,10 +99,14 @@ const addressFields: FieldConfig[] = [
 export function CheckoutForm({
   idempotencyKey,
   whatsappHref,
+  whatsappNumber,
+  contactEmail,
   navigate = (url) => window.location.replace(url),
 }: {
   idempotencyKey: string;
   whatsappHref: string | null;
+  whatsappNumber?: string;
+  contactEmail?: string;
   navigate?: (url: string) => void;
 }) {
   const [isPending, startTransition] = useTransition();
@@ -377,6 +382,12 @@ export function CheckoutForm({
             WhatsApp ordering is currently unavailable.
           </p>
         )}
+        <ContactHelp
+          className="border-silver mt-4 border-t pt-4"
+          contactEmail={contactEmail}
+          message="Hi, I need help with checkout"
+          whatsappNumber={whatsappNumber}
+        />
       </FormSection>
 
       <div className="border-silver bg-card shadow-soft rounded-2xl border p-5 sm:p-6">

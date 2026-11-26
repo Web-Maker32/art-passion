@@ -23,3 +23,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Store all product prices, line totals, subtotals, delivery fees, and totals as whole-number Pakistani rupees in Prisma `Int` fields (for example, Rs 1,800 is stored as `1800`).
 - Never store or calculate money in paisa or use floating-point amounts.
 - Use `formatPrice` to display rupee integers; do not divide or multiply prices by 100.
+
+## Workflow rules
+
+- Shell is Windows PowerShell: never use && between commands. Run them one at a time or separate them with ;
+- If docs/ROADMAP.md exists, read it at the start of every task and work on one phase or one lettered part only.

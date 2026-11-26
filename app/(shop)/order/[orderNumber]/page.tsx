@@ -9,7 +9,9 @@ import {
   NotebookPen,
   Truck,
 } from "lucide-react";
+import { Callout } from "@/components/content/callout";
 import { Container } from "@/components/storefront/container";
+import { CopyNumberButton } from "@/components/storefront/copy-number-button";
 import {
   OrderStatusTracker,
   orderStatusLabels,
@@ -23,8 +25,7 @@ import {
   getOrderAccessCookieValue,
   selectOrderAccessToken,
 } from "@/lib/order-access";
-import { manualEasypaisaProvider } from "@/lib/payments/manual";
-import { siteConfig } from "@/lib/site-config";
+import { isOwnerTodo, siteConfig } from "@/lib/site-config";
 import {
   buildOrderPaymentWhatsAppMessage,
   buildWhatsAppLink,
@@ -316,9 +317,37 @@ export default async function OrderConfirmationPage({
               </Badge>
             </div>
             <p className="mt-4 font-semibold">Easypaisa wallet transfer</p>
-            <p className="text-muted-foreground mt-2 text-sm leading-6 whitespace-pre-line">
-              {manualEasypaisaProvider.getInstructions()}
-            </p>
+            <dl className="border-silver bg-muted/40 mt-3 space-y-2 rounded-xl border p-3.5 text-sm">
+              <div>
+                <dt className="text-muted-foreground text-xs font-medium uppercase">
+                  Account name
+                </dt>
+                <dd className="text-foreground mt-0.5 font-semibold break-words">
+                  {siteConfig.easypaisaAccountName}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground text-xs font-medium uppercase">
+                  Easypaisa number
+                </dt>
+                <dd className="text-foreground mt-0.5 flex flex-wrap items-center justify-between gap-2 font-semibold break-words">
+                  <span>{siteConfig.easypaisaNumber}</span>
+                  {!isOwnerTodo(siteConfig.easypaisaNumber) && (
+                    <CopyNumberButton value={siteConfig.easypaisaNumber} />
+                  )}
+                </dd>
+              </div>
+            </dl>
+            <div className="mt-3">
+              <Callout>
+                <p>
+                  Send exactly {formatPrice(order.total)} and use{" "}
+                  {order.orderNumber} as the payment note if the app allows.
+                  Enter the transaction ID below or send a screenshot on
+                  WhatsApp — we confirm after we see the payment.
+                </p>
+              </Callout>
+            </div>
             {whatsappHref && (
               <a
                 className="border-brand text-foreground lift-sm press hover-fine:hover:bg-brand/5 focus-visible:outline-ring mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg border px-4 py-2 text-center font-semibold focus-visible:outline-2 focus-visible:outline-offset-2"

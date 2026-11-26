@@ -1,56 +1,92 @@
 // @vitest-environment node
-import { readdirSync, readFileSync, statSync } from "node:fs";
-import { join, relative } from "node:path";
+
+import fs from "node:fs";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 
-const root = process.cwd();
+const ROOT = process.cwd();
 
-function walk(dir: string): string[] {
-  return readdirSync(dir).flatMap((name) => {
-    const full = join(dir, name);
-    return statSync(full).isDirectory() ? walk(full) : [full];
-  });
+function walkFiles(dir: string): string[] {
+  if (!fs.existsSync(dir)) return [];
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  const files: string[] = [];
+  for (const entry of entries) {
+    const fullPath = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...walkFiles(fullPath));
+    } else if (entry.isFile()) {
+      files.push(fullPath);
+    }
+  }
+  return files;
 }
 
-function rel(file: string) {
-  return relative(root, file).replaceAll("\\", "/");
-}
-
-function missing(files: string[], needle: string) {
-  return files
-    .filter((file) => !readFileSync(file, "utf8").includes(needle))
-    .map(rel);
+function toPosixRelative(filePath: string): string {
+  return path.relative(ROOT, filePath).split(path.sep).join("/");
 }
 
 describe("admin guard coverage", () => {
-  it("every admin page checks the admin session itself", () => {
-    const pages = walk(join(root, "app", "admin")).filter(
+  it("every admin page except app/admin/login/page.tsx calls requireAdmin()", () => {
+    const adminDir = path.join(ROOT, "app", "admin");
+    const pages = walkFiles(adminDir).filter(
       (file) =>
-        /[\\/]page\.tsx$/.test(file) &&
-        !rel(file).startsWith("app/admin/login/"),
+        path.basename(file) === "page.tsx" &&
+        toPosixRelative(file) !== "app/admin/login/page.tsx",
     );
+
     expect(pages.length).toBeGreaterThan(0);
-    expect(missing(pages, "requireAdmin")).toEqual([]);
+
+    const missing = pages
+      .filter((file) => {
+        const content = fs.readFileSync(file, "utf8");
+        return !/\brequireAdmin\s*\(/.test(content);
+      })
+      .map(toPosixRelative);
+
+    expect(missing).toEqual([]);
   });
 
-  it("every admin API route checks the admin session", () => {
-    const routes = walk(join(root, "app", "admin", "api")).filter((file) =>
-      /[\\/]route\.ts$/.test(file),
+  it("every admin API route under app/admin/api calls assertAdmin()", () => {
+    const adminApiDir = path.join(ROOT, "app", "admin", "api");
+    const routes = walkFiles(adminApiDir).filter(
+      (file) => path.basename(file) === "route.ts",
     );
+
     expect(routes.length).toBeGreaterThan(0);
-    expect(missing(routes, "assertAdmin")).toEqual([]);
+
+    const missing = routes
+      .filter((file) => {
+        const content = fs.readFileSync(file, "utf8");
+        return !/\bassertAdmin\s*\(/.test(content);
+      })
+      .map(toPosixRelative);
+
+    expect(missing).toEqual([]);
   });
 
-  it("every admin server action file checks the admin session", () => {
-    const actions = readdirSync(join(root, "actions"))
+  it("every actions/admin-*.ts file except admin-login.ts calls assertAdmin()", () => {
+    const actionsDir = path.join(ROOT, "actions");
+    const actionFiles = fs
+      .readdirSync(actionsDir, { withFileTypes: true })
       .filter(
-        (name) =>
-          /^admin-.+\.ts$/.test(name) &&
-          !name.endsWith(".test.ts") &&
-          name !== "admin-login.ts",
+        (entry) =>
+          entry.isFile() &&
+          entry.name.startsWith("admin-") &&
+          entry.name.endsWith(".ts") &&
+          !entry.name.endsWith(".test.ts") &&
+          entry.name !== "admin-login.ts",
       )
-      .map((name) => join(root, "actions", name));
-    expect(actions.length).toBeGreaterThan(0);
-    expect(missing(actions, "assertAdmin")).toEqual([]);
+      .map((entry) => path.join(actionsDir, entry.name));
+
+    expect(actionFiles.length).toBeGreaterThan(0);
+
+    const missing = actionFiles
+      .filter((file) => {
+        const content = fs.readFileSync(file, "utf8");
+        return !/\bassertAdmin\s*\(/.test(content);
+      })
+      .map(toPosixRelative);
+
+    expect(missing).toEqual([]);
   });
 });

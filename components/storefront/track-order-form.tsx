@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { MessageCircle, PackageSearch } from "lucide-react";
+import { PackageSearch } from "lucide-react";
+import { ContactHelp } from "@/components/storefront/contact-help";
 import {
   OrderStatusTracker,
   orderStatusLabels,
@@ -13,7 +14,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatPrice } from "@/lib/format";
 import { formatKarachiDateTime } from "@/lib/admin-datetime";
-import { buildWhatsAppLink } from "@/lib/whatsapp";
 import {
   TRACK_ORDER_NOT_FOUND,
   trackOrderStatusMessages,
@@ -33,16 +33,21 @@ const statusMeanings = [
   { label: "Cancelled", tone: "text-status-cancelled", text: "This order was cancelled." },
 ] as const;
 
-export function TrackOrderForm({ whatsappNumber }: { whatsappNumber: string }) {
+export function TrackOrderForm({
+  whatsappNumber,
+  contactEmail,
+}: {
+  whatsappNumber: string;
+  contactEmail: string;
+}) {
   const [order, setOrder] = useState<TrackedOrder | null>(null);
+  const [typedOrderNumber, setTypedOrderNumber] = useState("");
   const [message, setMessage] = useState("");
   const [pending, setPending] = useState(false);
-  const whatsapp = buildWhatsAppLink({
-    number: whatsappNumber,
-    message: order
-      ? `Hello Art Passion! I need help with order ${order.orderNumber}.`
-      : "Hello Art Passion! I need help finding my order.",
-  });
+  const trimmedOrderNumber = typedOrderNumber.trim();
+  const helpMessage = trimmedOrderNumber
+    ? `Hi, I need help with order ${trimmedOrderNumber}`
+    : "Hi, I need help tracking my order";
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -104,6 +109,8 @@ export function TrackOrderForm({ whatsappNumber }: { whatsappNumber: string }) {
                   required
                   autoComplete="off"
                   placeholder="AP-2026-0001"
+                  value={typedOrderNumber}
+                  onChange={(event) => setTypedOrderNumber(event.target.value)}
                   aria-describedby="track-order-number-hint track-order-help track-order-message"
                   className="min-h-12"
                 />
@@ -250,22 +257,12 @@ export function TrackOrderForm({ whatsappNumber }: { whatsappNumber: string }) {
                 It looks like AP-2026-0001. Keep it handy to track your order here.
               </p>
             </div>
-            {whatsapp && (
-              <div className="border-silver space-y-2 border-t pt-4">
-                <h3 className="text-sm font-semibold">Need help?</h3>
-                <Button
-                  nativeButton={false}
-                  variant="outline"
-                  className="min-h-11 w-full"
-                  render={
-                    <a href={whatsapp} target="_blank" rel="noopener noreferrer" />
-                  }
-                >
-                  <MessageCircle aria-hidden="true" data-icon="inline-start" />
-                  Message us on WhatsApp
-                </Button>
-              </div>
-            )}
+            <ContactHelp
+              className="border-silver border-t pt-4"
+              contactEmail={contactEmail}
+              message={helpMessage}
+              whatsappNumber={whatsappNumber}
+            />
           </CardContent>
         </Card>
         <Card>

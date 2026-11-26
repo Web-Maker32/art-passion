@@ -6,6 +6,7 @@ import {
   CartItemControls,
   ClearCartButton,
 } from "@/components/storefront/cart-controls";
+import { ContactHelp } from "@/components/storefront/contact-help";
 import { Container } from "@/components/storefront/container";
 import { FreeDeliveryProgress } from "@/components/storefront/free-delivery-progress";
 import { Button } from "@/components/ui/button";
@@ -223,6 +224,10 @@ export default async function CartPage() {
             >
               Continue shopping
             </Link>
+            <ContactHelp
+              className="border-silver mt-4 border-t pt-4"
+              message="Hi, I have a question about my cart"
+            />
           </aside>
         </div>
       )}

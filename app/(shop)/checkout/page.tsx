@@ -75,8 +75,10 @@ export default async function CheckoutPage() {
       <div className="mt-6 grid items-start gap-8 lg:mt-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="min-w-0">
           <CheckoutForm
+            contactEmail={siteConfig.contactEmail}
             idempotencyKey={idempotencyKey}
             whatsappHref={whatsappHref}
+            whatsappNumber={siteConfig.whatsappNumber}
           />
         </div>
 

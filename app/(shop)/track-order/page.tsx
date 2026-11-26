@@ -19,7 +19,10 @@ export default async function TrackOrderPage() {
       intro="Find your latest order status using your order number and the phone number you entered at checkout."
       wide
     >
-      <TrackOrderForm whatsappNumber={siteConfig.whatsappNumber} />
+      <TrackOrderForm
+        contactEmail={siteConfig.contactEmail}
+        whatsappNumber={siteConfig.whatsappNumber}
+      />
     </PageShell>
   );
 }

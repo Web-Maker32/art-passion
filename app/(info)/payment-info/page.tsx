@@ -2,6 +2,7 @@ import { MessageCircle, ShieldCheck, Wallet } from "lucide-react";
 import { Callout } from "@/components/content/callout";
 import { CtaLink } from "@/components/content/cta";
 import { PageSection, PageShell } from "@/components/content/PageShell";
+import { CopyNumberButton } from "@/components/storefront/copy-number-button";
 import { contentMetadata } from "@/lib/content/metadata";
 import { isOwnerTodo, siteConfig } from "@/lib/site-config";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
@@ -79,8 +80,11 @@ export default function PaymentInfoPage() {
                 />
                 {label}
               </dt>
-              <dd className="text-foreground mt-1.5 font-semibold break-words">
-                {value}
+              <dd className="text-foreground mt-1.5 flex flex-wrap items-center justify-between gap-2 font-semibold break-words">
+                <span>{value}</span>
+                {label === "Easypaisa number" && !isOwnerTodo(value) && (
+                  <CopyNumberButton value={value} />
+                )}
               </dd>
             </div>
           ))}
@@ -88,11 +92,15 @@ export default function PaymentInfoPage() {
       </PageSection>
 
       <PageSection heading="After you have paid">
-        <p>
-          Send the screenshot with your order number as soon as you can, so the
-          payment can be matched to the right order. Keep the Easypaisa receipt
-          until your parcel arrives.
-        </p>
+        <Callout>
+          <p>
+            Send the exact order total and use your order number as the payment
+            note if the Easypaisa app allows. Then enter your transaction ID on
+            the order page or send a screenshot on WhatsApp — we confirm your
+            order after we see the payment. Keep the Easypaisa receipt until
+            your parcel arrives.
+          </p>
+        </Callout>
         {whatsapp ? (
           <CtaLink href={whatsapp} variant="outline">
             <MessageCircle aria-hidden="true" className="size-5" />
